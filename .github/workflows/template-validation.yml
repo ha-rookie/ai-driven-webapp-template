@@ -34,11 +34,10 @@ jobs:
           for path in "${required[@]}"; do
             test -s "$path" || { echo "Missing or empty: $path"; exit 1; }
           done
-      - name: Reject unresolved project placeholders on main
-        if: github.ref == 'refs/heads/main'
+      - name: Confirm template placeholders exist
         shell: bash
         run: |
-          if grep -R "CHANGE-ME" docs/00_PROJECT_OVERVIEW.md; then
-            echo "Project Overview still contains CHANGE-ME"
+          grep -q "CHANGE-ME" docs/00_PROJECT_OVERVIEW.md || {
+            echo "Template Project Overview must retain CHANGE-ME placeholders"
             exit 1
-          fi
+          }
