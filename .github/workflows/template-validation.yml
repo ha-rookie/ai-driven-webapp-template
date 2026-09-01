@@ -1,0 +1,44 @@
+name: Template validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check required files
+        shell: bash
+        run: |
+          set -eu
+          required=(
+            AGENTS.md
+            README.md
+            CHANGELOG.md
+            docs/00_PROJECT_OVERVIEW.md
+            docs/GIT_WORKFLOW.md
+            docs/ASSET_WORKFLOW.md
+            docs/CLOUDFLARE_SETUP.md
+            docs/TROUBLESHOOTING.md
+            docs/RELEASE_CHECKLIST.md
+            .github/ISSUE_TEMPLATE/feature.yml
+            .github/ISSUE_TEMPLATE/bug.yml
+            .github/PULL_REQUEST_TEMPLATE.md
+          )
+          for path in "${required[@]}"; do
+            test -s "$path" || { echo "Missing or empty: $path"; exit 1; }
+          done
+      - name: Reject unresolved project placeholders on main
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          if grep -R "CHANGE-ME" docs/00_PROJECT_OVERVIEW.md; then
+            echo "Project Overview still contains CHANGE-ME"
+            exit 1
+          fi
