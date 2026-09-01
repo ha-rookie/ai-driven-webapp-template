@@ -1,0 +1,82 @@
+name: Deploy Design Preview
+
+on:
+  pull_request:
+    paths:
+      - 'docs/design/**'
+      - 'docs/design-public/**'
+      - '.github/workflows/deploy-design-preview.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/design/**'
+      - 'docs/design-public/**'
+      - '.github/workflows/deploy-design-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-design:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Verify template was configured
+        shell: bash
+        run: |
+          set -eu
+          PROJECT_NAME="CHANGE-ME-DESIGN-PROJECT"
+          if [ "$PROJECT_NAME" = "CHANGE-ME-DESIGN-PROJECT" ]; then
+            echo "Replace CHANGE-ME-DESIGN-PROJECT before enabling this workflow."
+            exit 1
+          fi
+
+      - name: Determine Pages branch
+        id: target
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "branch=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "branch=latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch=manual-${{ github.run_id }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy protected HTML design
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: latest
+          preCommands: npx wrangler pages project create CHANGE-ME-DESIGN-PROJECT --production-branch main || true
+          command: pages deploy docs/design --project-name=CHANGE-ME-DESIGN-PROJECT --branch=${{ steps.target.outputs.branch }} --commit-dirty=true
+
+      - name: Deploy public placeholder to production apex
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        id: placeholder
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: latest
+          command: pages deploy docs/design-public --project-name=CHANGE-ME-DESIGN-PROJECT --branch=main --commit-dirty=true
+
+      - name: Add deployment URL to summary
+        shell: bash
+        run: |
+          echo "## Design Preview deployment" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Design branch: ${{ steps.target.outputs.branch }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Design deployment: ${{ steps.deploy.outputs.deployment-url }}" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ github.ref }}" = "refs/heads/main" ] && [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "Latest protected URL: https://latest.CHANGE-ME-DESIGN-PROJECT.pages.dev/" >> "$GITHUB_STEP_SUMMARY"
+            echo "Production apex: placeholder only" >> "$GITHUB_STEP_SUMMARY"
+          fi
