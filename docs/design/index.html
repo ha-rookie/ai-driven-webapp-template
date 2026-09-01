@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>CHANGE-ME Design Preview</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #1f2937;
+      background: #f6f7f9;
+      --panel: #ffffff;
+      --line: #d9dee5;
+      --muted: #667085;
+      --accent: #334155;
+      --soft: #eef2f6;
+      --warn: #fff7e6;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; line-height: 1.65; }
+    header {
+      padding: 32px 20px;
+      background: var(--accent);
+      color: white;
+    }
+    header .wrap, main { max-width: 1100px; margin: 0 auto; }
+    header h1 { margin: 0 0 8px; font-size: clamp(1.7rem, 4vw, 2.7rem); }
+    header p { margin: 4px 0; opacity: .9; }
+    main { padding: 24px 16px 64px; }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+    h2 { margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
+    th { background: var(--soft); text-align: left; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    pre { overflow: auto; padding: 14px; border-radius: 10px; background: #111827; color: #f9fafb; }
+    .screen {
+      width: min(100%, 420px);
+      margin: 16px auto;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, .10);
+    }
+    .screen-header { padding: 18px; background: var(--soft); }
+    .screen-body { padding: 16px; }
+    .control {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: white;
+    }
+    .note { border-left: 4px solid #64748b; padding: 12px 14px; background: var(--soft); }
+    .warning { border-left: 4px solid #d69e2e; padding: 12px 14px; background: var(--warn); }
+    .muted { color: var(--muted); }
+    @media (max-width: 640px) {
+      section { padding: 16px; }
+      th, td { font-size: .9rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>CHANGE-ME 基本・詳細設計</h1>
+      <p>Design Preview starter</p>
+      <p class="muted">正本はGitHub Repository内の設計ファイル。Previewは人間レビュー用の表示面です。</p>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>1. 設計概要</h2>
+      <table>
+        <tr><th>Project</th><td>CHANGE-ME</td></tr>
+        <tr><th>Related Requirement</th><td>REQ-CHANGE-ME</td></tr>
+        <tr><th>Related App Design</th><td>APP-CHANGE-ME</td></tr>
+        <tr><th>Related Issue</th><td>#CHANGE-ME</td></tr>
+        <tr><th>Status</th><td>Proposed / Approved / TBD</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>2. 画面一覧・遷移</h2>
+      <pre>CHANGE-ME
+Screen A
+  -> Screen B
+  -> Error / Empty state</pre>
+    </section>
+
+    <section>
+      <h2>3. スマホ画面イメージ</h2>
+      <div class="screen">
+        <div class="screen-header">
+          <strong>CHANGE-ME</strong>
+          <div class="muted">Mobile-first preview</div>
+        </div>
+        <div class="screen-body">
+          <div class="control">主要入力・操作</div>
+          <div class="control">主要結果・状態</div>
+          <div class="control">Error / Empty / Loading</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. 画面項目</h2>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>項目</th><th>表示/入力</th><th>Validation</th><th>備考</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>UI-CHANGE-ME</td><td>CHANGE-ME</td><td>CHANGE-ME</td><td>CHANGE-ME</td><td>CHANGE-ME</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>5. Interaction / State</h2>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Trigger</th><th>Action</th><th>State change</th><th>Error behavior</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>UI-CHANGE-ME</td><td>CHANGE-ME</td><td>CHANGE-ME</td><td>CHANGE-ME</td><td>CHANGE-ME</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>6. Responsive / Accessibility</h2>
+      <ul>
+        <li>基準幅: CHANGE-ME</li>
+        <li>Keyboard / focus: CHANGE-ME</li>
+        <li>Contrast: CHANGE-ME</li>
+        <li>ARIA / semantic HTML: CHANGE-ME</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>7. Security / Privacy</h2>
+      <p>画面上で扱う情報、外部通信、位置情報、Storage、Secrets等の境界を記載する。</p>
+      <p>CHANGE-ME</p>
+    </section>
+
+    <section>
+      <h2>8. Test Viewpoints</h2>
+      <ul>
+        <li>正常系</li>
+        <li>0件 / Empty</li>
+        <li>Loading</li>
+        <li>External failure</li>
+        <li>Broken local storage / cache</li>
+        <li>360〜430px等の実機幅</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>9. TBD / Design Decision</h2>
+      <div class="warning">TBD-CHANGE-ME: 未決事項をAIが推測で確定しない。</div>
+    </section>
+  </main>
+</body>
+</html>
