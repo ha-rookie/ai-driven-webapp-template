@@ -21,6 +21,7 @@
 | `04_REPOSITORY_STRUCTURE.md` | ファイルをどこに置き、何を正とするか | Directory、生成物、配置規則の変更 |
 | `05_DESIGN_MANAGEMENT.md` | 設計書をどう更新・承認・版管理するか | 設計プロセス自体の変更 |
 | `06_REQUIREMENTS_TRACEABILITY.md` | 要件がどの設計・実装・テストに対応するか | 要件・設計・実装の追加変更 |
+| `DESIGN_PREVIEW.md` | 視覚設計をどうDeploy・レビューするか | Design Preview運用変更 |
 | `design/` | UI・画面・視覚的な動きをどう見せるか | 画面・操作・視覚設計の変更 |
 | `adr/` | なぜ重要な技術判断をしたか | 代替案がある重要な設計判断 |
 | `GIT_WORKFLOW.md` | Git/PRをどう進めるか | Git運用変更 |
@@ -53,6 +54,7 @@ IDは内容変更時も可能な限り維持し、別概念になった場合だ
 
 - Cloudflare Pagesを採用する理由 → System Architecture / ADR
 - Pagesの具体的な初期設定手順 → Cloudflare Setup
+- Design PreviewのURL・Deployルール → DESIGN_PREVIEW
 - `public/` の責務 → Repository Structure
 - 画面上のボタン配置 → design/
 - そのボタンが必要な理由 → Requirements
