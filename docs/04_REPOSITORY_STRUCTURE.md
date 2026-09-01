@@ -23,8 +23,13 @@
 │  ├─ 04_REPOSITORY_STRUCTURE.md
 │  ├─ 05_DESIGN_MANAGEMENT.md
 │  ├─ 06_REQUIREMENTS_TRACEABILITY.md
+│  ├─ DESIGN_PREVIEW.md
 │  ├─ design/
+│  ├─ design-public/
 │  └─ adr/
+├─ templates/
+│  └─ github-actions/
+│     └─ deploy-design-preview.yml
 ├─ src/                 # framework/app sourceを採用する場合
 ├─ public/              # static public assets / static appの場合
 │  ├─ assets/
@@ -46,8 +51,10 @@
 | --- | --- | --- | --- |
 | `.github/` | CI、Issue、PR運用 | Source | No |
 | `docs/` | 設計の正本 | Source | 原則No |
-| `docs/design/` | 視覚設計・Design Preview素材 | Source | Design Previewのみ |
+| `docs/design/` | 視覚設計・Design Preview本文 | Source | Design Previewのみ |
+| `docs/design-public/` | Design Project Production apex用placeholder | Source | Design Projectのみ |
 | `docs/adr/` | 設計判断履歴 | Source | No |
+| `templates/github-actions/` | 新規Appで有効化するWorkflow Template | Source | No |
 | `src/` | Application source | Source | Build後Yes |
 | `public/` | 静的配信対象 | Source/Generatedを明記 | Yes |
 | `public/assets/` | 承認済みAsset | Source | Yes |
@@ -92,6 +99,8 @@
 - 定期データ更新 → scripts/
 - Runtime endpoint → functions/ or workers/
 - 設計検証用HTML → docs/design/
+- Design Project apex placeholder → docs/design-public/
+- Workflow雛形 → templates/github-actions/
 - 本番Asset → public/assets/
 
 ## 7. Forbidden Content
@@ -120,7 +129,23 @@ Directory責務や配置を変える場合:
 5. Preview確認
 6. 人間承認後にMerge
 
-## 9. App固有構成
+## 9. Design Preview Workflowの有効化
+
+Templateでは `templates/github-actions/deploy-design-preview.yml` を置くが、Template Repository自身では実行しない。
+
+新規AppでDesign Previewを採用する場合:
+
+```text
+templates/github-actions/deploy-design-preview.yml
+↓ copy
+.github/workflows/deploy-design-preview.yml
+```
+
+コピー後にProject名を置換し、Cloudflare Secretsを設定する。
+
+詳細は `DESIGN_PREVIEW.md` を参照する。
+
+## 10. App固有構成
 
 CHANGE-ME
 
