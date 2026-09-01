@@ -37,6 +37,19 @@ body:
       label: 影響
       description: UI、データ、Security、SEO、Cloudflare、運用
   - type: textarea
+    id: asset_handoff
+    attributes:
+      label: Asset Handoff
+      description: Assetを使わない場合は「該当なし」。承認済みAssetを使う場合はDesign承認から実装へ固定情報を引き継ぐ
+      placeholder: |
+        Asset使用: あり / なし
+        元Design Issue/PR:
+        承認済みAsset一覧:
+        Asset配置場所:
+        file hash または承認head SHA:
+        承認Preview:
+        補足:
+  - type: textarea
     id: acceptance
     attributes:
       label: 受け入れ条件
@@ -58,5 +71,7 @@ body:
       options:
         - label: 設計書更新の要否を判断した
           required: true
+        - label: Asset使用時は承認済みAssetの固定情報を確認した
+          required: false
         - label: 人間承認前にmainへマージしない
           required: true
