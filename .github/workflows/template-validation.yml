@@ -41,3 +41,13 @@ jobs:
             echo "Template Project Overview must retain CHANGE-ME placeholders"
             exit 1
           }
+      - name: Confirm Replacement PR handoff fields exist
+        shell: bash
+        run: |
+          set -eu
+          grep -q "## Replacement PR" .github/PULL_REQUEST_TEMPLATE.md
+          grep -q "元PR:" .github/PULL_REQUEST_TEMPLATE.md
+          grep -q "引き継ぎhead SHA:" .github/PULL_REQUEST_TEMPLATE.md
+          grep -q "CI run:" .github/PULL_REQUEST_TEMPLATE.md
+          grep -q "Preview run:" .github/PULL_REQUEST_TEMPLATE.md
+          grep -q "引き継ぐ承認内容:" .github/PULL_REQUEST_TEMPLATE.md
