@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
       - name: Check required files
         shell: bash
         run: |
@@ -29,7 +30,12 @@ jobs:
             docs/04_REPOSITORY_STRUCTURE.md
             docs/05_DESIGN_MANAGEMENT.md
             docs/06_REQUIREMENTS_TRACEABILITY.md
+            docs/DESIGN_PREVIEW.md
             docs/design/README.md
+            docs/design/index.html
+            docs/design/_headers
+            docs/design-public/index.html
+            docs/design-public/_headers
             docs/adr/README.md
             docs/adr/ADR-0000-template.md
             docs/GIT_WORKFLOW.md
@@ -37,6 +43,7 @@ jobs:
             docs/CLOUDFLARE_SETUP.md
             docs/TROUBLESHOOTING.md
             docs/RELEASE_CHECKLIST.md
+            templates/github-actions/deploy-design-preview.yml
             .github/ISSUE_TEMPLATE/feature.yml
             .github/ISSUE_TEMPLATE/bug.yml
             .github/PULL_REQUEST_TEMPLATE.md
@@ -44,17 +51,19 @@ jobs:
           for path in "${required[@]}"; do
             test -s "$path" || { echo "Missing or empty: $path"; exit 1; }
           done
+
       - name: Confirm template placeholders exist
         shell: bash
         run: |
           set -eu
-          for path in             docs/00_PROJECT_OVERVIEW.md             docs/01_REQUIREMENTS.md             docs/02_SYSTEM_ARCHITECTURE.md             docs/03_APPLICATION_ARCHITECTURE.md             docs/04_REPOSITORY_STRUCTURE.md             docs/adr/ADR-0000-template.md
+          for path in             docs/00_PROJECT_OVERVIEW.md             docs/01_REQUIREMENTS.md             docs/02_SYSTEM_ARCHITECTURE.md             docs/03_APPLICATION_ARCHITECTURE.md             docs/04_REPOSITORY_STRUCTURE.md             docs/design/index.html             docs/adr/ADR-0000-template.md             templates/github-actions/deploy-design-preview.yml
           do
             grep -q "CHANGE-ME" "$path" || {
               echo "Template file must retain CHANGE-ME placeholders: $path"
               exit 1
             }
           done
+
       - name: Confirm design management rules exist
         shell: bash
         run: |
@@ -63,8 +72,24 @@ jobs:
           grep -q "Google Drive" docs/05_DESIGN_MANAGEMENT.md
           grep -q "Significant Design Change" docs/05_DESIGN_MANAGEMENT.md
           grep -q "Requirements Traceability" docs/05_DESIGN_MANAGEMENT.md
-          grep -q "Design Previewは表示面" docs/design/README.md
+          grep -q "Production apex = placeholderのみ" docs/design/README.md
           grep -q "Superseded" docs/adr/README.md
+
+      - name: Confirm Design Preview template safety
+        shell: bash
+        run: |
+          set -eu
+          grep -q "CHANGE-ME-DESIGN-PROJECT" templates/github-actions/deploy-design-preview.yml
+          grep -q "branch=pr-" templates/github-actions/deploy-design-preview.yml
+          grep -q "branch=latest" templates/github-actions/deploy-design-preview.yml
+          grep -q "branch=manual-" templates/github-actions/deploy-design-preview.yml
+          grep -q "pages deploy docs/design" templates/github-actions/deploy-design-preview.yml
+          grep -q "pages deploy docs/design-public" templates/github-actions/deploy-design-preview.yml
+          grep -q "X-Robots-Tag: noindex, nofollow, noarchive" docs/design/_headers
+          grep -q "X-Robots-Tag: noindex, nofollow, noarchive" docs/design-public/_headers
+          grep -q "設計書は非公開です" docs/design-public/index.html
+          grep -q "Template Repository自身ではCloudflareへDesign Deployしない" docs/CLOUDFLARE_SETUP.md
+
       - name: Confirm Replacement PR handoff fields exist
         shell: bash
         run: |
@@ -75,6 +100,7 @@ jobs:
           grep -q "CI run:" .github/PULL_REQUEST_TEMPLATE.md
           grep -q "Preview run:" .github/PULL_REQUEST_TEMPLATE.md
           grep -q "引き継ぐ承認内容:" .github/PULL_REQUEST_TEMPLATE.md
+
       - name: Confirm Asset Handoff fields exist
         shell: bash
         run: |
