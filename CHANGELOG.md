@@ -14,6 +14,7 @@
 - Design ManagementとRequirements Traceability
 - Visual Design管理方針
 - Architecture Decision Record運用
+- Cloudflare Design Preview用starter、security headers、placeholder、Workflow Template
 
 ## v0.1
 
