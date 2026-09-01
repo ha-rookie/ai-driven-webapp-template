@@ -21,7 +21,17 @@ jobs:
             AGENTS.md
             README.md
             CHANGELOG.md
+            docs/README.md
             docs/00_PROJECT_OVERVIEW.md
+            docs/01_REQUIREMENTS.md
+            docs/02_SYSTEM_ARCHITECTURE.md
+            docs/03_APPLICATION_ARCHITECTURE.md
+            docs/04_REPOSITORY_STRUCTURE.md
+            docs/05_DESIGN_MANAGEMENT.md
+            docs/06_REQUIREMENTS_TRACEABILITY.md
+            docs/design/README.md
+            docs/adr/README.md
+            docs/adr/ADR-0000-template.md
             docs/GIT_WORKFLOW.md
             docs/ASSET_WORKFLOW.md
             docs/CLOUDFLARE_SETUP.md
@@ -37,10 +47,24 @@ jobs:
       - name: Confirm template placeholders exist
         shell: bash
         run: |
-          grep -q "CHANGE-ME" docs/00_PROJECT_OVERVIEW.md || {
-            echo "Template Project Overview must retain CHANGE-ME placeholders"
-            exit 1
-          }
+          set -eu
+          for path in             docs/00_PROJECT_OVERVIEW.md             docs/01_REQUIREMENTS.md             docs/02_SYSTEM_ARCHITECTURE.md             docs/03_APPLICATION_ARCHITECTURE.md             docs/04_REPOSITORY_STRUCTURE.md             docs/adr/ADR-0000-template.md
+          do
+            grep -q "CHANGE-ME" "$path" || {
+              echo "Template file must retain CHANGE-ME placeholders: $path"
+              exit 1
+            }
+          done
+      - name: Confirm design management rules exist
+        shell: bash
+        run: |
+          set -eu
+          grep -q "承認済み最新設計: GitHub" docs/05_DESIGN_MANAGEMENT.md
+          grep -q "Google Drive" docs/05_DESIGN_MANAGEMENT.md
+          grep -q "Significant Design Change" docs/05_DESIGN_MANAGEMENT.md
+          grep -q "Requirements Traceability" docs/05_DESIGN_MANAGEMENT.md
+          grep -q "Design Previewは表示面" docs/design/README.md
+          grep -q "Superseded" docs/adr/README.md
       - name: Confirm Replacement PR handoff fields exist
         shell: bash
         run: |
