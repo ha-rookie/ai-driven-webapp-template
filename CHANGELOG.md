@@ -10,6 +10,10 @@
 - Pull Request Template
 - Template構造検証Workflow
 - AI向けAGENTS.md
+- 要件、System Architecture、Application Architecture、Repository Structureの標準設計書
+- Design ManagementとRequirements Traceability
+- Visual Design管理方針
+- Architecture Decision Record運用
 
 ## v0.1
 
