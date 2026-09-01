@@ -19,17 +19,21 @@
 - System構成の正本: `02_SYSTEM_ARCHITECTURE.md`
 - App内部構成の正本: `03_APPLICATION_ARCHITECTURE.md`
 - 視覚設計の正本: 本Directory内のファイル
+- Preview配信ルールの正本: `../DESIGN_PREVIEW.md`
 
 同じ要件やArchitecture説明をHTMLへ大量コピーしない。設計IDで参照する。
 
-## 推奨構成
+## 標準構成
 
-必要になった時点で作成する。
+Templateは最小starterとして `index.html` と `_headers` を保持する。
+
+必要に応じて以下を追加する。
 
 ```text
 docs/design/
 ├─ README.md
 ├─ index.html
+├─ _headers
 ├─ styles/
 ├─ scripts/
 ├─ screens/
@@ -60,6 +64,13 @@ docs/design/
 
 必要なプロジェクトではCloudflare等でDesign専用Previewを構成する。
 
+標準:
+
+- PR = `pr-<PR番号>`
+- main最新 = `latest`
+- manual = `manual-<run-id>`
+- Production apex = placeholderのみ
+
 要件:
 
 - Production Applicationとは別配信
@@ -67,10 +78,13 @@ docs/design/
 - 可能ならAccess制御
 - PR Previewとmain latest Previewを区別
 - ハッシュDeployment URLはスナップショット扱い
+- Production Runtime backendを混ぜない
 - スマホ実機確認
 - Preview URLをPRへ記録
 
 Design Previewは表示面であり、Repository内ファイルが正本。
+
+有効化手順は `../DESIGN_PREVIEW.md` を参照する。
 
 ## 承認
 
