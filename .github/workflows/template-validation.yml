@@ -51,3 +51,13 @@ jobs:
           grep -q "CI run:" .github/PULL_REQUEST_TEMPLATE.md
           grep -q "Preview run:" .github/PULL_REQUEST_TEMPLATE.md
           grep -q "引き継ぐ承認内容:" .github/PULL_REQUEST_TEMPLATE.md
+      - name: Confirm Asset Handoff fields exist
+        shell: bash
+        run: |
+          set -eu
+          grep -q "label: Asset Handoff" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "元Design Issue/PR:" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "承認済みAsset一覧:" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "Asset配置場所:" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "file hash または承認head SHA:" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "## 実装Issueへの引き継ぎ" docs/ASSET_WORKFLOW.md
