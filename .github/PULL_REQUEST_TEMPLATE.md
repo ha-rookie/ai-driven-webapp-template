@@ -40,6 +40,20 @@ Closes #
 - [ ] 承認head SHA記載
 - [ ] 承認前にmainへマージしていない
 
+## Replacement PR（該当時のみ）
+
+通常PRは「該当なし」と記載する。
+
+- Replacement PR: 該当 / 該当なし
+- 元PR:
+- 引き継ぎ理由:
+- 引き継ぎhead SHA:
+- CI run:
+- Preview run:
+- 引き継ぐ承認内容:
+- [ ] 元PRと同一head SHAを確認した
+- [ ] head SHAが異なる場合は再レビューした
+
 ## 回復
 
 Rollbackまたは変更の戻し方を記載する。
