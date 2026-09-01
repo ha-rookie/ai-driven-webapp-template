@@ -29,6 +29,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - `docs/04_REPOSITORY_STRUCTURE.md` を実際のRepository treeへ合わせる
 - 重要な技術判断は `docs/adr/` に残す
 - UIの認識差が出る場合は `docs/design/` でVisual Designを作る
+- Design Previewを使う場合は `docs/DESIGN_PREVIEW.md` に従って新規App側でWorkflowを有効化する
 - CloudflareのHello World Deployを先に通す
 - 必要なIssueをテンプレートから作る
 - Release Checklistをプロジェクトに合わせて更新する
@@ -59,6 +60,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - [Design Management](docs/05_DESIGN_MANAGEMENT.md)
 - [Requirements Traceability](docs/06_REQUIREMENTS_TRACEABILITY.md)
 - [Visual Design](docs/design/README.md)
+- [Design Preview](docs/DESIGN_PREVIEW.md)
 - [Architecture Decision Records](docs/adr/README.md)
 
 ### Development / Operations
@@ -71,4 +73,4 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 
 ## v0.1の位置づけ
 
-朝マズメ潮ナビで得た実証結果を基にした初版です。良かった「GitHub設計正本・HTML設計Preview・設計先行」は継承し、設計書の責務分離、ADR、要件トレーサビリティを追加しています。別ジャンルのアプリで検証し、3〜5アプリで繰り返し有効だったものを標準へ昇格します。
+朝マズメ潮ナビで得た実証結果を基にした初版です。良かった「GitHub設計正本・HTML設計Preview・設計先行」は継承し、設計書の責務分離、ADR、要件トレーサビリティ、汎用Design Preview Workflow Templateを追加しています。別ジャンルのアプリで検証し、3〜5アプリで繰り返し有効だったものを標準へ昇格します。
