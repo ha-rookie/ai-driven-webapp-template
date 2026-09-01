@@ -31,6 +31,7 @@
 - ADRを標準化する
 - Requirements Traceabilityを最初から持つ
 - Google DriveとGitHubの役割を明文化する
+- Design Previewを汎用Workflow Templateとして分離する
 
 ## 4. 変更規模別フロー
 
@@ -78,6 +79,7 @@ Design Issue
 | Module/State/API/Data Model | 03_APPLICATION_ARCHITECTURE |
 | File/Folder配置 | 04_REPOSITORY_STRUCTURE |
 | UI/画面/Interaction | design/ + 必要に応じ03 |
+| Design Preview運用 | DESIGN_PREVIEW + CLOUDFLARE_SETUP |
 | Cloudflare手順 | CLOUDFLARE_SETUP |
 | Asset | ASSET_WORKFLOW + Feature Issue Asset Handoff |
 | Release条件 | RELEASE_CHECKLIST |
@@ -136,7 +138,14 @@ Requirement
 
 画面やInteractionは、文章だけで認識差が出る場合 `docs/design/` でブラウザ確認可能にする。
 
-朝マズメ潮ナビと同様、必要ならCloudflare Design Previewを使う。
+朝マズメ潮ナビと同様、必要なプロジェクトではCloudflare Design Previewを使う。
+
+標準URLモデル:
+
+- PR: `pr-<PR番号>`
+- main latest: `latest`
+- manual: `manual-<run-id>`
+- Production apex: 設計本文を出さずplaceholderのみ
 
 ただし:
 
@@ -146,9 +155,10 @@ Requirement
 - 検索エンジンへ公開しない
 - 可能ならAccess制御する
 - PR単位Previewとmain最新Previewを区別する
+- Production Runtime backend/Secrets/BindingsをDesign siteへ混ぜない
 - スマホで確認する
 
-Design Previewの自動デプロイ自体はプロジェクト開始時に必要性を判断する。
+具体的な設定・Workflow有効化は `DESIGN_PREVIEW.md` を参照する。
 
 ## 11. Google Drive
 
