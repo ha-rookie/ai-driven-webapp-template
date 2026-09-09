@@ -1,0 +1,49 @@
+name: Deploy swirling PoC
+
+on:
+  push:
+    branches:
+      - spike/issue-15-swirling-poc
+    paths:
+      - 'spikes/swirl-poc/**'
+      - '.github/workflows/deploy-swirling-poc.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate PoC files
+        shell: bash
+        run: |
+          test -f spikes/swirl-poc/index.html
+          test -f spikes/swirl-poc/_headers
+          grep -q 'Swirling Motion PoC' spikes/swirl-poc/index.html
+          grep -q 'noindex' spikes/swirl-poc/_headers
+
+      - name: Deploy isolated Cloudflare Pages preview
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: latest
+          preCommands: npx wrangler pages project create swirling-motion-poc --production-branch never-production || true
+          command: pages deploy spikes/swirl-poc --project-name=swirling-motion-poc --branch=issue-15 --commit-dirty=true
+
+      - name: Add test URL to summary
+        shell: bash
+        run: |
+          echo '## Swirling Motion PoC' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Stable preview alias: https://issue-15.swirling-motion-poc.pages.dev/' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Deployment URL: ${{ steps.deploy.outputs.deployment-url }}' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo 'This is an isolated technical PoC. Do not use as production.' >> "$GITHUB_STEP_SUMMARY"
