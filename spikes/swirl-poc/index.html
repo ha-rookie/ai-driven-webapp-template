@@ -8,38 +8,48 @@
   <style>
     :root { color-scheme: dark; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     body { margin: 0; background: #171214; color: #f8f4f1; }
-    main { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+    main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
     h1 { font-size: 1.55rem; margin: 0 0 8px; }
     h2 { font-size: 1.05rem; margin: 0 0 12px; }
     p { line-height: 1.6; }
+    label { display: grid; gap: 6px; font-size: .86rem; color: #d8ced1; }
+    select { width: 100%; min-height: 44px; box-sizing: border-box; background: #120e10; color: #f8f4f1; border: 1px solid #5a474e; border-radius: 10px; padding: 8px 10px; }
     .muted { color: #bfb4b7; font-size: .9rem; }
     .card { background: #241b1e; border: 1px solid #45373c; border-radius: 16px; padding: 16px; margin: 16px 0; }
     .status { display: grid; grid-template-columns: 1fr auto; gap: 8px; font-size: .9rem; }
     button { width: 100%; min-height: 52px; border: 0; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; }
     #start { background: #f0e2d7; color: #241317; }
-    #copy { background: #443238; color: #fff; margin-top: 12px; }
+    #copy, #copyHistory { background: #443238; color: #fff; margin-top: 12px; }
+    #clearHistory { background: transparent; color: #d8ced1; border: 1px solid #5a474e; margin-top: 8px; min-height: 44px; }
     button:disabled { opacity: .45; cursor: not-allowed; }
     .count { font-size: 3.4rem; font-variant-numeric: tabular-nums; text-align: center; margin: 8px 0; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .formGrid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 14px; }
     .metric { border: 1px solid #45373c; border-radius: 12px; padding: 12px; }
     .metric strong { display: block; font-size: 1.65rem; margin-top: 4px; font-variant-numeric: tabular-nums; }
-    .overall { text-align: center; padding: 10px; }
-    .overall strong { display: block; font-size: 3.4rem; font-variant-numeric: tabular-nums; }
+    .classificationBox { border: 1px solid #6a515a; border-radius: 14px; padding: 14px; margin-bottom: 14px; background: #1b1417; }
+    .classificationBox strong { display: block; font-size: 1.4rem; margin: 4px 0; }
+    .quality { text-align: center; padding: 10px; }
+    .quality strong { display: block; font-size: 3.4rem; font-variant-numeric: tabular-nums; }
     dl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin: 0; font-size: .88rem; }
     dt { color: #bfb4b7; }
     dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
     canvas { width: 100%; height: 260px; background: #120e10; border-radius: 12px; margin-top: 12px; }
-    textarea { width: 100%; min-height: 160px; box-sizing: border-box; margin-top: 12px; background: #120e10; color: #ddd; border: 1px solid #45373c; border-radius: 10px; padding: 10px; font-size: .75rem; }
+    textarea { width: 100%; min-height: 180px; box-sizing: border-box; margin-top: 12px; background: #120e10; color: #ddd; border: 1px solid #45373c; border-radius: 10px; padding: 10px; font-size: .75rem; }
     .ok { color: #9ed8a6; }
     .warn { color: #f2c275; }
     .bad { color: #ee9b9b; }
     .hidden { display: none; }
+    .badge { display: inline-block; padding: 3px 8px; border: 1px solid #5a474e; border-radius: 999px; font-size: .75rem; color: #d8ced1; vertical-align: middle; margin-left: 6px; }
+    @media (max-width: 600px) {
+      .formGrid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
 <main>
-  <h1>🍷 Swirling Motion PoC</h1>
-  <p class="muted">スマホのセンサーだけで、スワリングらしい円〜楕円運動を識別できるか検証します。ワインの香り・味・品質は評価しません。</p>
+  <h1>🍷 Swirling Motion PoC <span class="badge">poc-0.2</span></h1>
+  <p class="muted">分類を先に行い、円〜楕円スワリング候補だけ品質評価します。しきい値・採点は実機検証用の暫定値で、ワインの香り・味・品質は評価しません。</p>
 
   <section class="card">
     <h2>センサー状態</h2>
@@ -54,10 +64,36 @@
 
   <section class="card">
     <h2>実機テスト</h2>
-    <p>STARTを押した姿勢を基準にします。スマホを落とさない範囲で、姿勢を保ちながら小さな円〜楕円を描いてください。</p>
+    <div class="formGrid">
+      <label>テストパターン
+        <select id="testPattern">
+          <option value="A">A: 普通の円〜楕円</option>
+          <option value="B">B: 左右往復</option>
+          <option value="C">C: 前後往復</option>
+          <option value="D">D: 激しく円</option>
+          <option value="E">E: 静止</option>
+          <option value="F">F: 自由テスト</option>
+        </select>
+      </label>
+      <label>手
+        <select id="hand">
+          <option value="right">右手</option>
+          <option value="left">左手</option>
+          <option value="unknown">指定なし</option>
+        </select>
+      </label>
+      <label>意図した回転方向
+        <select id="intendedDirection">
+          <option value="unspecified">指定なし</option>
+          <option value="clockwise">時計回り</option>
+          <option value="counterclockwise">反時計回り</option>
+        </select>
+      </label>
+    </div>
+    <p>STARTを押した姿勢を基準にします。スマホをしっかり持ち、周囲に人や物がないことを確認してください。</p>
     <button id="start">START / センサーを許可して5秒計測</button>
     <div id="count" class="count">5.0</div>
-    <p id="message" class="muted">A: 円〜楕円、B: 左右、C: 前後、D: 激しく円、E: 静止を各5回試します。</p>
+    <p id="message" class="muted">A〜Eを選んで繰り返し測定できます。結果は端末内履歴にも保存します。</p>
   </section>
 
   <section class="card">
@@ -73,15 +109,21 @@
   </section>
 
   <section id="result" class="card hidden">
-    <h2>PoCスコア（暫定）</h2>
-    <div class="overall">総合<strong id="overall">-</strong></div>
+    <h2>分類 → 品質評価</h2>
+    <div class="classificationBox">
+      <span class="muted">Stage 1 / 動作分類</span>
+      <strong id="gestureLabel">-</strong>
+      <div id="classificationDetail" class="muted"></div>
+    </div>
+    <div class="quality">Stage 2 / スワリング品質<strong id="qualityScore">-</strong><span id="qualityNote" class="muted"></span></div>
     <div class="grid">
       <div class="metric">姿勢安定性<strong id="posture">-</strong></div>
       <div class="metric">円・楕円らしさ<strong id="orbit">-</strong></div>
-      <div class="metric">リズム<strong id="rhythm">-</strong></div>
+      <div class="metric">周期性<strong id="rhythm">-</strong></div>
       <div class="metric">滑らかさ<strong id="smooth">-</strong></div>
+      <div class="metric">強度コントロール<strong id="control">-</strong></div>
+      <div class="metric">動作強度<strong id="intensity">-</strong></div>
     </div>
-    <p id="classification"></p>
   </section>
 
   <section id="diagnostics" class="card hidden">
@@ -91,14 +133,28 @@
       <dt>ellipse axis ratio</dt><dd id="axisRatio">-</dd>
       <dt>tilt RMS</dt><dd id="tiltRms">-</dd>
       <dt>max tilt</dt><dd id="maxTilt">-</dd>
-      <dt>period CV</dt><dd id="periodCv">-</dd>
-      <dt>estimated RPM</dt><dd id="rpm">-</dd>
-      <dt>normalized delta</dt><dd id="normDelta">-</dd>
+      <dt>periodicity</dt><dd id="periodicity">-</dd>
+      <dt>tempo estimate</dt><dd id="rpm">-</dd>
+      <dt>median sample dt</dt><dd id="medianDt">-</dd>
+      <dt>normalized jerk</dt><dd id="normJerk">-</dd>
       <dt>rotation sign</dt><dd id="rotationSign">-</dd>
+      <dt>rotation coherence</dt><dd id="rotationCoherence">-</dd>
+      <dt>direction candidate</dt><dd id="directionCandidate">-</dd>
+      <dt>static motion</dt><dd id="staticMotion">-</dd>
     </dl>
     <canvas id="trace" width="640" height="360" aria-label="XY加速度散布図"></canvas>
     <textarea id="json" readonly aria-label="測定結果JSON"></textarea>
     <button id="copy">測定結果JSONをコピー</button>
+  </section>
+
+  <section class="card">
+    <h2>端末内の測定履歴</h2>
+    <p class="muted">ネットワーク送信はしません。このブラウザの localStorage に最大50件だけ保存します。</p>
+    <div class="status">
+      <span>保存件数</span><span id="historyCount">0</span>
+    </div>
+    <button id="copyHistory">履歴JSONをまとめてコピー</button>
+    <button id="clearHistory">履歴をクリア</button>
   </section>
 </main>
 
@@ -106,14 +162,29 @@
 (() => {
   'use strict';
 
+  const VERSION = 'poc-0.2';
+  const HISTORY_KEY = 'swirl-poc-history-v0.2';
+  const META_KEY = 'swirl-poc-meta-v0.2';
+
+  // 実測A〜Eの第1ラウンドから置いたPoC用暫定しきい値。科学的・一般化済みの基準ではない。
+  const THRESHOLDS = Object.freeze({
+    staticRms: 0.12,
+    linearAxisRatio: 0.25,
+    orbitAxisRatio: 0.40,
+    vigorousRms: 15.0,
+    directionAxisRatio: 0.30,
+    directionCoherence: 0.55
+  });
+
   const $ = (id) => document.getElementById(id);
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
   const mean = (xs) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0;
   const rms = (xs) => Math.sqrt(mean(xs.map((x) => x * x)));
-  const std = (xs) => {
-    if (xs.length < 2) return 0;
-    const m = mean(xs);
-    return Math.sqrt(mean(xs.map((x) => (x - m) ** 2)));
+  const median = (xs) => {
+    if (!xs.length) return 0;
+    const sorted = [...xs].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
   };
   const finite = (v, fallback = 0) => Number.isFinite(v) ? v : fallback;
   const fmt = (v, digits = 2) => Number.isFinite(v) ? v.toFixed(digits) : '-';
@@ -122,7 +193,6 @@
   let measuring = false;
   let samples = [];
   let baseline = { beta: 0, gamma: 0 };
-  let endTimer = null;
   let countdownTimer = null;
   let sensorsAttached = false;
   let sourceSeen = '未取得';
@@ -131,6 +201,57 @@
   $('secure').className = window.isSecureContext ? 'ok' : 'bad';
   $('motionSupport').textContent = 'DeviceMotionEvent' in window ? '対応' : '非対応';
   $('orientationSupport').textContent = 'DeviceOrientationEvent' in window ? '対応' : '非対応';
+
+  function loadMeta() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(META_KEY) || '{}');
+      if (saved.testPattern) $('testPattern').value = saved.testPattern;
+      if (saved.hand) $('hand').value = saved.hand;
+      if (saved.intendedDirection) $('intendedDirection').value = saved.intendedDirection;
+    } catch (_) {}
+  }
+
+  function currentMeta() {
+    return {
+      pattern: $('testPattern').value,
+      hand: $('hand').value,
+      intendedDirection: $('intendedDirection').value
+    };
+  }
+
+  function saveMeta() {
+    try { localStorage.setItem(META_KEY, JSON.stringify(currentMeta())); } catch (_) {}
+  }
+
+  ['testPattern', 'hand', 'intendedDirection'].forEach((id) => {
+    $(id).addEventListener('change', saveMeta);
+  });
+
+  function readHistory() {
+    try {
+      const v = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      return Array.isArray(v) ? v : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function writeHistory(items) {
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(-50))); } catch (_) {}
+    updateHistoryCount();
+  }
+
+  function updateHistoryCount() {
+    $('historyCount').textContent = String(readHistory().length);
+  }
+
+  function addHistory(result) {
+    const compact = { ...result };
+    delete compact.trace;
+    const items = readHistory();
+    items.push(compact);
+    writeHistory(items);
+  }
 
   function onOrientation(e) {
     latestOrientation = {
@@ -221,26 +342,65 @@
     return { mx, my, cx, cy, l1, l2, projected };
   }
 
-  function rhythmMetrics(projected, times) {
-    const crossings = [];
-    for (let i = 1; i < projected.length; i++) {
-      if (projected[i - 1] <= 0 && projected[i] > 0) {
-        const a = projected[i - 1];
-        const b = projected[i];
-        const frac = (b - a) !== 0 ? (-a / (b - a)) : 0;
-        crossings.push(times[i - 1] + frac * (times[i] - times[i - 1]));
+  function movingAverage(xs, windowSize = 5) {
+    if (windowSize <= 1) return [...xs];
+    const out = [];
+    let sum = 0;
+    for (let i = 0; i < xs.length; i++) {
+      sum += xs[i];
+      if (i >= windowSize) sum -= xs[i - windowSize];
+      const n = Math.min(i + 1, windowSize);
+      out.push(sum / n);
+    }
+    return out;
+  }
+
+  function autocorrelationMetrics(projected, times) {
+    if (projected.length < 30) return { score: 0, periodicity: null, rpm: null, periodSec: null };
+    const dts = [];
+    for (let i = 1; i < times.length; i++) {
+      const dt = (times[i] - times[i - 1]) / 1000;
+      if (dt > 0 && dt < 0.2) dts.push(dt);
+    }
+    const dt = median(dts);
+    if (!(dt > 0)) return { score: 0, periodicity: null, rpm: null, periodSec: null };
+
+    const x = movingAverage(projected, 5);
+    const minLag = Math.max(2, Math.round(0.20 / dt));
+    const maxLag = Math.min(x.length - 5, Math.round(2.0 / dt));
+    const candidates = [];
+
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      let num = 0, a2 = 0, b2 = 0;
+      for (let i = 0; i + lag < x.length; i++) {
+        const a = x[i], b = x[i + lag];
+        num += a * b;
+        a2 += a * a;
+        b2 += b * b;
       }
+      const corr = (a2 > 1e-12 && b2 > 1e-12) ? num / Math.sqrt(a2 * b2) : 0;
+      candidates.push({ lag, corr });
     }
-    const periods = [];
-    for (let i = 1; i < crossings.length; i++) {
-      const p = (crossings[i] - crossings[i - 1]) / 1000;
-      if (p >= 0.15 && p <= 2.5) periods.push(p);
-    }
-    if (!periods.length) return { score: 0, cv: null, rpm: null, periods: [] };
-    const pMean = mean(periods);
-    const cv = pMean > 0 ? std(periods) / pMean : 1;
-    const score = periods.length >= 2 ? clamp(100 - cv * 250, 0, 100) : 40;
-    return { score, cv, rpm: 60 / pMean, periods };
+
+    if (!candidates.length) return { score: 0, periodicity: null, rpm: null, periodSec: null };
+
+    const peaks = candidates.filter((c, i) => {
+      const prev = i > 0 ? candidates[i - 1].corr : -Infinity;
+      const next = i + 1 < candidates.length ? candidates[i + 1].corr : -Infinity;
+      return c.corr >= prev && c.corr >= next;
+    });
+
+    const strongEarlyPeak = peaks.find((p) => p.corr >= 0.55);
+    const best = strongEarlyPeak || candidates.reduce((a, b) => b.corr > a.corr ? b : a);
+    const periodicity = clamp(best.corr, -1, 1);
+    const periodSec = best.lag * dt;
+    const score = clamp((periodicity - 0.25) / 0.65 * 100, 0, 100);
+    return {
+      score,
+      periodicity,
+      rpm: periodSec > 0 ? 60 / periodSec : null,
+      periodSec
+    };
   }
 
   function analyse(data) {
@@ -260,41 +420,95 @@
     });
     const tiltRms = rms(tilts);
     const maxTilt = Math.max(...tilts);
-
     const postureScore = clamp(100 - 3.0 * tiltRms - 1.5 * maxTilt, 0, 100);
-    const orbitScore = movementRms < 0.12 ? 0 : clamp((axisRatio - 0.12) / 0.48 * 100, 0, 100);
 
-    const rhythm = rhythmMetrics(p.projected, times);
+    const staticMotion = movementRms < THRESHOLDS.staticRms;
+    const orbitScore = staticMotion ? 0 : clamp((axisRatio - 0.12) / 0.48 * 100, 0, 100);
 
-    const diffs = [];
+    const periodic = autocorrelationMetrics(p.projected, times);
+
+    const jerk = [];
+    const dtsMs = [];
     for (let i = 1; i < p.cx.length; i++) {
-      diffs.push(Math.hypot(p.cx[i] - p.cx[i - 1], p.cy[i] - p.cy[i - 1]));
+      const dtSec = (times[i] - times[i - 1]) / 1000;
+      if (!(dtSec > 0) || dtSec > 0.2) continue;
+      dtsMs.push(dtSec * 1000);
+      const delta = Math.hypot(p.cx[i] - p.cx[i - 1], p.cy[i] - p.cy[i - 1]);
+      jerk.push(delta / dtSec);
     }
-    const normalizedDelta = movementRms > 1e-9 ? rms(diffs) / movementRms : 99;
-    const smoothScore = movementRms < 0.12 ? 0 : clamp((0.80 - normalizedDelta) / 0.65 * 100, 0, 100);
+    const normalizedJerk = movementRms > 1e-9 ? rms(jerk) / movementRms : null;
+    const smoothScore = staticMotion || !Number.isFinite(normalizedJerk)
+      ? 0
+      : clamp((42 - normalizedJerk) / 32 * 100, 0, 100);
 
-    let crossSum = 0;
+    const crossTerms = [];
     for (let i = 1; i < p.cx.length; i++) {
-      crossSum += p.cx[i - 1] * p.cy[i] - p.cy[i - 1] * p.cx[i];
+      crossTerms.push(p.cx[i - 1] * p.cy[i] - p.cy[i - 1] * p.cx[i]);
     }
-    const rotationSign = Math.abs(crossSum) < 1e-6 ? 'undetermined' : (crossSum > 0 ? 'positive' : 'negative');
+    const crossSum = crossTerms.reduce((a, b) => a + b, 0);
+    const crossAbsSum = crossTerms.reduce((a, b) => a + Math.abs(b), 0);
+    const rotationSign = crossAbsSum < 1e-9 ? 'undetermined' : (crossSum > 0 ? 'positive' : 'negative');
+    const rotationCoherence = crossAbsSum > 1e-9 ? Math.abs(crossSum) / crossAbsSum : 0;
 
-    const staticMotion = movementRms < 0.12;
-    let overall = postureScore * 0.25 + orbitScore * 0.35 + rhythm.score * 0.20 + smoothScore * 0.20;
-    if (staticMotion) overall = Math.min(overall, 15);
+    let gesture = 'ambiguous';
+    if (staticMotion) gesture = 'static';
+    else if (axisRatio < THRESHOLDS.linearAxisRatio) gesture = 'linear';
+    else if (axisRatio >= THRESHOLDS.orbitAxisRatio) gesture = 'orbit';
+    else gesture = 'borderline';
+
+    const intensity = staticMotion ? 'static' : (movementRms >= THRESHOLDS.vigorousRms ? 'vigorous' : 'controlled');
+
+    const directionEligible =
+      !staticMotion &&
+      axisRatio >= THRESHOLDS.directionAxisRatio &&
+      rotationCoherence >= THRESHOLDS.directionCoherence;
+
+    let directionCandidate = 'undetermined';
+    if (directionEligible) {
+      // 現在のAndroid実機テストで確認した符号対応。端末差は今後検証する。
+      directionCandidate = rotationSign === 'positive' ? 'counterclockwise' : 'clockwise';
+    }
+
+    const controlScore = staticMotion
+      ? 0
+      : clamp(100 - Math.max(0, movementRms - 8) * 4, 0, 100);
+
+    const swirlCandidate = gesture === 'orbit';
+    const qualityScore = swirlCandidate
+      ? Math.round(
+          postureScore * 0.20 +
+          orbitScore * 0.25 +
+          periodic.score * 0.20 +
+          smoothScore * 0.20 +
+          controlScore * 0.15
+        )
+      : null;
 
     return {
-      version: 'poc-0.1',
+      version: VERSION,
+      measurementId: (window.crypto && typeof window.crypto.randomUUID === 'function')
+        ? window.crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
       capturedAt: new Date().toISOString(),
+      test: currentMeta(),
       sampleCount: data.length,
       source: sourceSeen,
       baseline,
+      classification: {
+        gesture,
+        swirlCandidate,
+        intensity,
+        directionCandidate,
+        directionConfidence: directionEligible ? rotationCoherence : null,
+        thresholds: THRESHOLDS
+      },
       scores: {
-        overall: Math.round(overall),
+        quality: qualityScore,
         posture: Math.round(postureScore),
         orbit: Math.round(orbitScore),
-        rhythm: Math.round(rhythm.score),
-        smoothness: Math.round(smoothScore)
+        rhythm: Math.round(periodic.score),
+        smoothness: Math.round(smoothScore),
+        control: Math.round(controlScore)
       },
       diagnostics: {
         movementRms,
@@ -303,11 +517,13 @@
         eigenMinor: p.l2,
         tiltRms,
         maxTilt,
-        periodCv: rhythm.cv,
-        estimatedRpm: rhythm.rpm,
-        periods: rhythm.periods,
-        normalizedDelta,
+        periodicity: periodic.periodicity,
+        periodSec: periodic.periodSec,
+        tempoRpm: periodic.rpm,
+        medianDtMs: median(dtsMs),
+        normalizedJerk,
         rotationSign,
+        rotationCoherence,
         staticMotion
       },
       trace: p.cx.map((x, i) => ({ x, y: p.cy[i] }))
@@ -326,46 +542,75 @@
     ctx.beginPath(); ctx.moveTo(w / 2, 0); ctx.lineTo(w / 2, h); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
     if (!points.length) return;
-    const maxAbs = Math.max(0.1, ...points.flatMap((p) => [Math.abs(p.x), Math.abs(p.y)]));
+    const maxAbs = Math.max(0.1, ...points.flatMap((pt) => [Math.abs(pt.x), Math.abs(pt.y)]));
     const scale = 0.42 * Math.min(w, h) / maxAbs;
     ctx.strokeStyle = '#e8c9b9';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    points.forEach((p, i) => {
-      const x = w / 2 + p.x * scale;
-      const y = h / 2 - p.y * scale;
+    points.forEach((pt, i) => {
+      const x = w / 2 + pt.x * scale;
+      const y = h / 2 - pt.y * scale;
       if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.stroke();
   }
 
+  function gestureText(r) {
+    switch (r.classification.gesture) {
+      case 'static': return '静止';
+      case 'linear': return '直線往復';
+      case 'orbit': return '円〜楕円スワリング候補';
+      case 'borderline': return '境界（2D回転候補）';
+      default: return '判定保留';
+    }
+  }
+
+  function directionText(direction) {
+    if (direction === 'clockwise') return '時計回り候補';
+    if (direction === 'counterclockwise') return '反時計回り候補';
+    return '判定保留';
+  }
+
   function showResult(r) {
     $('result').classList.remove('hidden');
     $('diagnostics').classList.remove('hidden');
-    $('overall').textContent = r.scores.overall;
+
+    $('gestureLabel').textContent = gestureText(r);
+    const detail = [];
+    detail.push(r.classification.intensity === 'vigorous' ? '動作強度: 高い' : (r.classification.intensity === 'controlled' ? '動作強度: コントロール範囲' : '動作強度: 静止'));
+    if (r.classification.directionCandidate !== 'undetermined') {
+      detail.push(`方向: ${directionText(r.classification.directionCandidate)}`);
+    }
+    $('classificationDetail').textContent = detail.join(' / ');
+
+    $('qualityScore').textContent = r.scores.quality === null ? '対象外' : String(r.scores.quality);
+    $('qualityNote').textContent = r.scores.quality === null
+      ? '（Stage 1で円〜楕円スワリング候補に分類された場合のみ算出）'
+      : '（PoC用の暫定ゲームスコア）';
+
     $('posture').textContent = r.scores.posture;
     $('orbit').textContent = r.scores.orbit;
     $('rhythm').textContent = r.scores.rhythm;
     $('smooth').textContent = r.scores.smoothness;
-
-    let text = '暫定判定: ';
-    if (r.diagnostics.staticMotion) text += '静止に近い動作です';
-    else if (r.scores.orbit >= 70 && r.scores.posture >= 60) text += '円〜楕円運動の特徴が比較的強く出ています';
-    else if (r.scores.orbit < 35) text += '一方向の往復運動に近い可能性があります';
-    else text += '円運動成分はありますが、まだ判定境界です';
-    $('classification').textContent = text;
+    $('control').textContent = r.scores.control;
+    $('intensity').textContent = r.classification.intensity === 'vigorous' ? 'HIGH' : (r.classification.intensity === 'controlled' ? 'OK' : '-');
 
     $('movementRms').textContent = fmt(r.diagnostics.movementRms, 3);
     $('axisRatio').textContent = fmt(r.diagnostics.axisRatio, 3);
     $('tiltRms').textContent = `${fmt(r.diagnostics.tiltRms)}°`;
     $('maxTilt').textContent = `${fmt(r.diagnostics.maxTilt)}°`;
-    $('periodCv').textContent = fmt(r.diagnostics.periodCv, 3);
-    $('rpm').textContent = fmt(r.diagnostics.estimatedRpm, 1);
-    $('normDelta').textContent = fmt(r.diagnostics.normalizedDelta, 3);
+    $('periodicity').textContent = fmt(r.diagnostics.periodicity, 3);
+    $('rpm').textContent = Number.isFinite(r.diagnostics.tempoRpm) ? `${fmt(r.diagnostics.tempoRpm, 1)} rpm相当` : '-';
+    $('medianDt').textContent = Number.isFinite(r.diagnostics.medianDtMs) ? `${fmt(r.diagnostics.medianDtMs, 2)} ms` : '-';
+    $('normJerk').textContent = fmt(r.diagnostics.normalizedJerk, 2);
     $('rotationSign').textContent = r.diagnostics.rotationSign;
+    $('rotationCoherence').textContent = fmt(r.diagnostics.rotationCoherence, 3);
+    $('directionCandidate').textContent = directionText(r.classification.directionCandidate);
+    $('staticMotion').textContent = String(r.diagnostics.staticMotion);
     drawTrace(r.trace);
 
-    const compact = { ...r, trace: undefined };
+    const compact = { ...r };
+    delete compact.trace;
     $('json').value = JSON.stringify(compact, null, 2);
   }
 
@@ -377,7 +622,8 @@
     try {
       const result = analyse(samples);
       showResult(result);
-      $('message').textContent = '計測完了。次の動作パターンでもう一度測定できます。';
+      addHistory(result);
+      $('message').textContent = `計測完了: ${gestureText(result)}。同条件の繰り返し測定もできます。`;
     } catch (err) {
       $('message').textContent = `計測失敗: ${err.message}`;
       $('message').className = 'bad';
@@ -387,6 +633,7 @@
   async function start() {
     $('message').className = 'muted';
     $('start').disabled = true;
+    saveMeta();
     try {
       await requestSensors();
       await new Promise((resolve) => setTimeout(resolve, 250));
@@ -398,12 +645,12 @@
       $('sampleCount').textContent = '0';
       measuring = true;
       const started = performance.now();
-      $('message').textContent = '計測中…姿勢を保って円〜楕円を描いてください';
+      $('message').textContent = '計測中…選択したテストパターンを5秒続けてください';
       countdownTimer = setInterval(() => {
         const remain = Math.max(0, 5 - (performance.now() - started) / 1000);
         $('count').textContent = remain.toFixed(1);
       }, 50);
-      endTimer = setTimeout(finish, 5000);
+      setTimeout(finish, 5000);
     } catch (err) {
       $('start').disabled = false;
       $('message').textContent = `開始できません: ${err.message}`;
@@ -412,6 +659,7 @@
   }
 
   $('start').addEventListener('click', start);
+
   $('copy').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText($('json').value);
@@ -423,6 +671,32 @@
       $('copy').textContent = 'コピーできないためJSONを選択しました';
     }
   });
+
+  $('copyHistory').addEventListener('click', async () => {
+    const payload = JSON.stringify({
+      version: VERSION,
+      exportedAt: new Date().toISOString(),
+      measurements: readHistory()
+    }, null, 2);
+    try {
+      await navigator.clipboard.writeText(payload);
+      $('copyHistory').textContent = '履歴をコピーしました';
+      setTimeout(() => { $('copyHistory').textContent = '履歴JSONをまとめてコピー'; }, 1200);
+    } catch (_) {
+      $('message').textContent = '履歴コピーに失敗しました。個別JSONを利用してください。';
+      $('message').className = 'warn';
+    }
+  });
+
+  $('clearHistory').addEventListener('click', () => {
+    if (!confirm('この端末内のPoC測定履歴を削除しますか？')) return;
+    writeHistory([]);
+    $('message').textContent = '端末内の測定履歴をクリアしました。';
+    $('message').className = 'muted';
+  });
+
+  loadMeta();
+  updateHistoryCount();
 })();
 </script>
 </body>
