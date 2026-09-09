@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Swirling Motion PoC</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; background: #171214; color: #f8f4f1; }
+    main { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 1.55rem; margin: 0 0 8px; }
+    h2 { font-size: 1.05rem; margin: 0 0 12px; }
+    p { line-height: 1.6; }
+    .muted { color: #bfb4b7; font-size: .9rem; }
+    .card { background: #241b1e; border: 1px solid #45373c; border-radius: 16px; padding: 16px; margin: 16px 0; }
+    .status { display: grid; grid-template-columns: 1fr auto; gap: 8px; font-size: .9rem; }
+    button { width: 100%; min-height: 52px; border: 0; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+    #start { background: #f0e2d7; color: #241317; }
+    #copy { background: #443238; color: #fff; margin-top: 12px; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .count { font-size: 3.4rem; font-variant-numeric: tabular-nums; text-align: center; margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .metric { border: 1px solid #45373c; border-radius: 12px; padding: 12px; }
+    .metric strong { display: block; font-size: 1.65rem; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .overall { text-align: center; padding: 10px; }
+    .overall strong { display: block; font-size: 3.4rem; font-variant-numeric: tabular-nums; }
+    dl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin: 0; font-size: .88rem; }
+    dt { color: #bfb4b7; }
+    dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    canvas { width: 100%; height: 260px; background: #120e10; border-radius: 12px; margin-top: 12px; }
+    textarea { width: 100%; min-height: 160px; box-sizing: border-box; margin-top: 12px; background: #120e10; color: #ddd; border: 1px solid #45373c; border-radius: 10px; padding: 10px; font-size: .75rem; }
+    .ok { color: #9ed8a6; }
+    .warn { color: #f2c275; }
+    .bad { color: #ee9b9b; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>🍷 Swirling Motion PoC</h1>
+  <p class="muted">スマホのセンサーだけで、スワリングらしい円〜楕円運動を識別できるか検証します。ワインの香り・味・品質は評価しません。</p>
+
+  <section class="card">
+    <h2>センサー状態</h2>
+    <div class="status">
+      <span>Secure Context (HTTPS)</span><span id="secure">-</span>
+      <span>DeviceMotion</span><span id="motionSupport">-</span>
+      <span>DeviceOrientation</span><span id="orientationSupport">-</span>
+      <span>Motion source</span><span id="motionSource">未取得</span>
+      <span>Samples</span><span id="sampleCount">0</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>実機テスト</h2>
+    <p>STARTを押した姿勢を基準にします。スマホを落とさない範囲で、姿勢を保ちながら小さな円〜楕円を描いてください。</p>
+    <button id="start">START / センサーを許可して5秒計測</button>
+    <div id="count" class="count">5.0</div>
+    <p id="message" class="muted">A: 円〜楕円、B: 左右、C: 前後、D: 激しく円、E: 静止を各5回試します。</p>
+  </section>
+
+  <section class="card">
+    <h2>リアルタイム</h2>
+    <dl>
+      <dt>beta</dt><dd id="liveBeta">-</dd>
+      <dt>gamma</dt><dd id="liveGamma">-</dd>
+      <dt>accel X</dt><dd id="liveX">-</dd>
+      <dt>accel Y</dt><dd id="liveY">-</dd>
+      <dt>accel Z</dt><dd id="liveZ">-</dd>
+      <dt>rotation alpha</dt><dd id="liveRA">-</dd>
+    </dl>
+  </section>
+
+  <section id="result" class="card hidden">
+    <h2>PoCスコア（暫定）</h2>
+    <div class="overall">総合<strong id="overall">-</strong></div>
+    <div class="grid">
+      <div class="metric">姿勢安定性<strong id="posture">-</strong></div>
+      <div class="metric">円・楕円らしさ<strong id="orbit">-</strong></div>
+      <div class="metric">リズム<strong id="rhythm">-</strong></div>
+      <div class="metric">滑らかさ<strong id="smooth">-</strong></div>
+    </div>
+    <p id="classification"></p>
+  </section>
+
+  <section id="diagnostics" class="card hidden">
+    <h2>診断値</h2>
+    <dl>
+      <dt>XY movement RMS</dt><dd id="movementRms">-</dd>
+      <dt>ellipse axis ratio</dt><dd id="axisRatio">-</dd>
+      <dt>tilt RMS</dt><dd id="tiltRms">-</dd>
+      <dt>max tilt</dt><dd id="maxTilt">-</dd>
+      <dt>period CV</dt><dd id="periodCv">-</dd>
+      <dt>estimated RPM</dt><dd id="rpm">-</dd>
+      <dt>normalized delta</dt><dd id="normDelta">-</dd>
+      <dt>rotation sign</dt><dd id="rotationSign">-</dd>
+    </dl>
+    <canvas id="trace" width="640" height="360" aria-label="XY加速度散布図"></canvas>
+    <textarea id="json" readonly aria-label="測定結果JSON"></textarea>
+    <button id="copy">測定結果JSONをコピー</button>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const $ = (id) => document.getElementById(id);
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+  const mean = (xs) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0;
+  const rms = (xs) => Math.sqrt(mean(xs.map((x) => x * x)));
+  const std = (xs) => {
+    if (xs.length < 2) return 0;
+    const m = mean(xs);
+    return Math.sqrt(mean(xs.map((x) => (x - m) ** 2)));
+  };
+  const finite = (v, fallback = 0) => Number.isFinite(v) ? v : fallback;
+  const fmt = (v, digits = 2) => Number.isFinite(v) ? v.toFixed(digits) : '-';
+
+  let latestOrientation = { beta: null, gamma: null, alpha: null };
+  let measuring = false;
+  let samples = [];
+  let baseline = { beta: 0, gamma: 0 };
+  let endTimer = null;
+  let countdownTimer = null;
+  let sensorsAttached = false;
+  let sourceSeen = '未取得';
+
+  $('secure').textContent = window.isSecureContext ? 'OK' : 'NG';
+  $('secure').className = window.isSecureContext ? 'ok' : 'bad';
+  $('motionSupport').textContent = 'DeviceMotionEvent' in window ? '対応' : '非対応';
+  $('orientationSupport').textContent = 'DeviceOrientationEvent' in window ? '対応' : '非対応';
+
+  function onOrientation(e) {
+    latestOrientation = {
+      beta: Number.isFinite(e.beta) ? e.beta : null,
+      gamma: Number.isFinite(e.gamma) ? e.gamma : null,
+      alpha: Number.isFinite(e.alpha) ? e.alpha : null
+    };
+    $('liveBeta').textContent = fmt(latestOrientation.beta);
+    $('liveGamma').textContent = fmt(latestOrientation.gamma);
+  }
+
+  function onMotion(e) {
+    let a = e.acceleration;
+    let source = 'acceleration';
+    if (!a || !Number.isFinite(a.x) || !Number.isFinite(a.y)) {
+      a = e.accelerationIncludingGravity;
+      source = 'includingGravity';
+    }
+    if (!a) return;
+
+    sourceSeen = source;
+    $('motionSource').textContent = source;
+
+    const rr = e.rotationRate || {};
+    const point = {
+      t: performance.now(),
+      x: finite(a.x),
+      y: finite(a.y),
+      z: finite(a.z),
+      beta: latestOrientation.beta,
+      gamma: latestOrientation.gamma,
+      alpha: latestOrientation.alpha,
+      ra: finite(rr.alpha, null),
+      rb: finite(rr.beta, null),
+      rg: finite(rr.gamma, null),
+      source
+    };
+
+    $('liveX').textContent = fmt(point.x);
+    $('liveY').textContent = fmt(point.y);
+    $('liveZ').textContent = fmt(point.z);
+    $('liveRA').textContent = fmt(point.ra);
+
+    if (measuring) {
+      samples.push(point);
+      $('sampleCount').textContent = String(samples.length);
+    }
+  }
+
+  function attachSensors() {
+    if (sensorsAttached) return;
+    window.addEventListener('deviceorientation', onOrientation, { passive: true });
+    window.addEventListener('devicemotion', onMotion, { passive: true });
+    sensorsAttached = true;
+  }
+
+  async function requestSensors() {
+    if (!window.isSecureContext) throw new Error('HTTPSなどのSecure Contextが必要です');
+    if (!('DeviceMotionEvent' in window) || !('DeviceOrientationEvent' in window)) {
+      throw new Error('このブラウザでは必要なセンサーAPIを確認できません');
+    }
+
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      const result = await DeviceMotionEvent.requestPermission();
+      if (result !== 'granted') throw new Error('DeviceMotionの利用が許可されませんでした');
+    }
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      const result = await DeviceOrientationEvent.requestPermission();
+      if (result !== 'granted') throw new Error('DeviceOrientationの利用が許可されませんでした');
+    }
+    attachSensors();
+  }
+
+  function principalAnalysis(xs, ys) {
+    const mx = mean(xs), my = mean(ys);
+    const cx = xs.map((v) => v - mx);
+    const cy = ys.map((v) => v - my);
+    const xx = mean(cx.map((v) => v * v));
+    const yy = mean(cy.map((v) => v * v));
+    const xy = mean(cx.map((v, i) => v * cy[i]));
+    const trace = xx + yy;
+    const disc = Math.sqrt(Math.max(0, (xx - yy) ** 2 + 4 * xy ** 2));
+    const l1 = Math.max(0, (trace + disc) / 2);
+    const l2 = Math.max(0, (trace - disc) / 2);
+    const theta = 0.5 * Math.atan2(2 * xy, xx - yy);
+    const ux = Math.cos(theta), uy = Math.sin(theta);
+    const projected = cx.map((x, i) => x * ux + cy[i] * uy);
+    return { mx, my, cx, cy, l1, l2, projected };
+  }
+
+  function rhythmMetrics(projected, times) {
+    const crossings = [];
+    for (let i = 1; i < projected.length; i++) {
+      if (projected[i - 1] <= 0 && projected[i] > 0) {
+        const a = projected[i - 1];
+        const b = projected[i];
+        const frac = (b - a) !== 0 ? (-a / (b - a)) : 0;
+        crossings.push(times[i - 1] + frac * (times[i] - times[i - 1]));
+      }
+    }
+    const periods = [];
+    for (let i = 1; i < crossings.length; i++) {
+      const p = (crossings[i] - crossings[i - 1]) / 1000;
+      if (p >= 0.15 && p <= 2.5) periods.push(p);
+    }
+    if (!periods.length) return { score: 0, cv: null, rpm: null, periods: [] };
+    const pMean = mean(periods);
+    const cv = pMean > 0 ? std(periods) / pMean : 1;
+    const score = periods.length >= 2 ? clamp(100 - cv * 250, 0, 100) : 40;
+    return { score, cv, rpm: 60 / pMean, periods };
+  }
+
+  function analyse(data) {
+    if (data.length < 20) throw new Error(`サンプル数が不足しています (${data.length})`);
+
+    const xs = data.map((s) => s.x);
+    const ys = data.map((s) => s.y);
+    const times = data.map((s) => s.t);
+    const p = principalAnalysis(xs, ys);
+    const movementRms = Math.sqrt(mean(p.cx.map((x, i) => x * x + p.cy[i] * p.cy[i])));
+    const axisRatio = p.l1 > 1e-9 ? Math.sqrt(p.l2 / p.l1) : 0;
+
+    const tilts = data.map((s) => {
+      const db = Number.isFinite(s.beta) ? s.beta - baseline.beta : 0;
+      const dg = Number.isFinite(s.gamma) ? s.gamma - baseline.gamma : 0;
+      return Math.hypot(db, dg);
+    });
+    const tiltRms = rms(tilts);
+    const maxTilt = Math.max(...tilts);
+
+    const postureScore = clamp(100 - 3.0 * tiltRms - 1.5 * maxTilt, 0, 100);
+    const orbitScore = movementRms < 0.12 ? 0 : clamp((axisRatio - 0.12) / 0.48 * 100, 0, 100);
+
+    const rhythm = rhythmMetrics(p.projected, times);
+
+    const diffs = [];
+    for (let i = 1; i < p.cx.length; i++) {
+      diffs.push(Math.hypot(p.cx[i] - p.cx[i - 1], p.cy[i] - p.cy[i - 1]));
+    }
+    const normalizedDelta = movementRms > 1e-9 ? rms(diffs) / movementRms : 99;
+    const smoothScore = movementRms < 0.12 ? 0 : clamp((0.80 - normalizedDelta) / 0.65 * 100, 0, 100);
+
+    let crossSum = 0;
+    for (let i = 1; i < p.cx.length; i++) {
+      crossSum += p.cx[i - 1] * p.cy[i] - p.cy[i - 1] * p.cx[i];
+    }
+    const rotationSign = Math.abs(crossSum) < 1e-6 ? 'undetermined' : (crossSum > 0 ? 'positive' : 'negative');
+
+    const staticMotion = movementRms < 0.12;
+    let overall = postureScore * 0.25 + orbitScore * 0.35 + rhythm.score * 0.20 + smoothScore * 0.20;
+    if (staticMotion) overall = Math.min(overall, 15);
+
+    return {
+      version: 'poc-0.1',
+      capturedAt: new Date().toISOString(),
+      sampleCount: data.length,
+      source: sourceSeen,
+      baseline,
+      scores: {
+        overall: Math.round(overall),
+        posture: Math.round(postureScore),
+        orbit: Math.round(orbitScore),
+        rhythm: Math.round(rhythm.score),
+        smoothness: Math.round(smoothScore)
+      },
+      diagnostics: {
+        movementRms,
+        axisRatio,
+        eigenMajor: p.l1,
+        eigenMinor: p.l2,
+        tiltRms,
+        maxTilt,
+        periodCv: rhythm.cv,
+        estimatedRpm: rhythm.rpm,
+        periods: rhythm.periods,
+        normalizedDelta,
+        rotationSign,
+        staticMotion
+      },
+      trace: p.cx.map((x, i) => ({ x, y: p.cy[i] }))
+    };
+  }
+
+  function drawTrace(points) {
+    const canvas = $('trace');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#120e10';
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = '#4a3b40';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(w / 2, 0); ctx.lineTo(w / 2, h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
+    if (!points.length) return;
+    const maxAbs = Math.max(0.1, ...points.flatMap((p) => [Math.abs(p.x), Math.abs(p.y)]));
+    const scale = 0.42 * Math.min(w, h) / maxAbs;
+    ctx.strokeStyle = '#e8c9b9';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    points.forEach((p, i) => {
+      const x = w / 2 + p.x * scale;
+      const y = h / 2 - p.y * scale;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  function showResult(r) {
+    $('result').classList.remove('hidden');
+    $('diagnostics').classList.remove('hidden');
+    $('overall').textContent = r.scores.overall;
+    $('posture').textContent = r.scores.posture;
+    $('orbit').textContent = r.scores.orbit;
+    $('rhythm').textContent = r.scores.rhythm;
+    $('smooth').textContent = r.scores.smoothness;
+
+    let text = '暫定判定: ';
+    if (r.diagnostics.staticMotion) text += '静止に近い動作です';
+    else if (r.scores.orbit >= 70 && r.scores.posture >= 60) text += '円〜楕円運動の特徴が比較的強く出ています';
+    else if (r.scores.orbit < 35) text += '一方向の往復運動に近い可能性があります';
+    else text += '円運動成分はありますが、まだ判定境界です';
+    $('classification').textContent = text;
+
+    $('movementRms').textContent = fmt(r.diagnostics.movementRms, 3);
+    $('axisRatio').textContent = fmt(r.diagnostics.axisRatio, 3);
+    $('tiltRms').textContent = `${fmt(r.diagnostics.tiltRms)}°`;
+    $('maxTilt').textContent = `${fmt(r.diagnostics.maxTilt)}°`;
+    $('periodCv').textContent = fmt(r.diagnostics.periodCv, 3);
+    $('rpm').textContent = fmt(r.diagnostics.estimatedRpm, 1);
+    $('normDelta').textContent = fmt(r.diagnostics.normalizedDelta, 3);
+    $('rotationSign').textContent = r.diagnostics.rotationSign;
+    drawTrace(r.trace);
+
+    const compact = { ...r, trace: undefined };
+    $('json').value = JSON.stringify(compact, null, 2);
+  }
+
+  function finish() {
+    measuring = false;
+    clearInterval(countdownTimer);
+    $('start').disabled = false;
+    $('count').textContent = '0.0';
+    try {
+      const result = analyse(samples);
+      showResult(result);
+      $('message').textContent = '計測完了。次の動作パターンでもう一度測定できます。';
+    } catch (err) {
+      $('message').textContent = `計測失敗: ${err.message}`;
+      $('message').className = 'bad';
+    }
+  }
+
+  async function start() {
+    $('message').className = 'muted';
+    $('start').disabled = true;
+    try {
+      await requestSensors();
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      baseline = {
+        beta: finite(latestOrientation.beta),
+        gamma: finite(latestOrientation.gamma)
+      };
+      samples = [];
+      $('sampleCount').textContent = '0';
+      measuring = true;
+      const started = performance.now();
+      $('message').textContent = '計測中…姿勢を保って円〜楕円を描いてください';
+      countdownTimer = setInterval(() => {
+        const remain = Math.max(0, 5 - (performance.now() - started) / 1000);
+        $('count').textContent = remain.toFixed(1);
+      }, 50);
+      endTimer = setTimeout(finish, 5000);
+    } catch (err) {
+      $('start').disabled = false;
+      $('message').textContent = `開始できません: ${err.message}`;
+      $('message').className = 'bad';
+    }
+  }
+
+  $('start').addEventListener('click', start);
+  $('copy').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText($('json').value);
+      $('copy').textContent = 'コピーしました';
+      setTimeout(() => { $('copy').textContent = '測定結果JSONをコピー'; }, 1200);
+    } catch (_) {
+      $('json').focus();
+      $('json').select();
+      $('copy').textContent = 'コピーできないためJSONを選択しました';
+    }
+  });
+})();
+</script>
+</body>
+</html>
