@@ -28,6 +28,26 @@ jobs:
           grep -q 'Swirling Motion PoC' spikes/swirl-poc/index.html
           grep -q 'noindex' spikes/swirl-poc/_headers
 
+      - name: Check Cloudflare credentials
+        shell: bash
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          missing=0
+          if [ -z "$CF_API_TOKEN" ]; then
+            echo '::error::Missing repository secret CLOUDFLARE_API_TOKEN'
+            missing=1
+          fi
+          if [ -z "$CF_ACCOUNT_ID" ]; then
+            echo '::error::Missing repository secret CLOUDFLARE_ACCOUNT_ID'
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            echo 'Add the two secrets under Settings > Secrets and variables > Actions, then rerun this workflow.'
+            exit 1
+          fi
+
       - name: Deploy isolated Cloudflare Pages preview
         id: deploy
         uses: cloudflare/wrangler-action@v4
