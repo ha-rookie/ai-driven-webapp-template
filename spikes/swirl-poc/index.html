@@ -41,16 +41,13 @@
     .bad { color: #ee9b9b; }
     .hidden { display: none; }
     .badge { display: inline-block; padding: 3px 8px; border: 1px solid #5a474e; border-radius: 999px; font-size: .75rem; color: #d8ced1; vertical-align: middle; margin-left: 6px; }
-    @media (max-width: 600px) {
-      .formGrid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 600px) { .formGrid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 <main>
   <h1>🍷 Swirling Motion PoC <span class="badge">poc-0.2</span></h1>
   <p class="muted">分類を先に行い、円〜楕円スワリング候補だけ品質評価します。しきい値・採点は実機検証用の暫定値で、ワインの香り・味・品質は評価しません。</p>
-
   <section class="card">
     <h2>センサー状態</h2>
     <div class="status">
@@ -61,642 +58,84 @@
       <span>Samples</span><span id="sampleCount">0</span>
     </div>
   </section>
-
   <section class="card">
     <h2>実機テスト</h2>
     <div class="formGrid">
-      <label>テストパターン
-        <select id="testPattern">
-          <option value="A">A: 普通の円〜楕円</option>
-          <option value="B">B: 左右往復</option>
-          <option value="C">C: 前後往復</option>
-          <option value="D">D: 激しく円</option>
-          <option value="E">E: 静止</option>
-          <option value="F">F: 自由テスト</option>
-        </select>
-      </label>
-      <label>手
-        <select id="hand">
-          <option value="right">右手</option>
-          <option value="left">左手</option>
-          <option value="unknown">指定なし</option>
-        </select>
-      </label>
-      <label>意図した回転方向
-        <select id="intendedDirection">
-          <option value="unspecified">指定なし</option>
-          <option value="clockwise">時計回り</option>
-          <option value="counterclockwise">反時計回り</option>
-        </select>
-      </label>
+      <label>テストパターン<select id="testPattern"><option value="A">A: 普通の円〜楕円</option><option value="B">B: 左右往復</option><option value="C">C: 前後往復</option><option value="D">D: 激しく円</option><option value="E">E: 静止</option><option value="F">F: 自由テスト</option></select></label>
+      <label>手<select id="hand"><option value="right">右手</option><option value="left">左手</option><option value="unknown">指定なし</option></select></label>
+      <label>意図した回転方向<select id="intendedDirection"><option value="unspecified">指定なし</option><option value="clockwise">時計回り</option><option value="counterclockwise">反時計回り</option></select></label>
     </div>
     <p>STARTを押した姿勢を基準にします。スマホをしっかり持ち、周囲に人や物がないことを確認してください。</p>
     <button id="start">START / センサーを許可して5秒計測</button>
     <div id="count" class="count">5.0</div>
     <p id="message" class="muted">A〜Eを選んで繰り返し測定できます。結果は端末内履歴にも保存します。</p>
   </section>
-
   <section class="card">
     <h2>リアルタイム</h2>
-    <dl>
-      <dt>beta</dt><dd id="liveBeta">-</dd>
-      <dt>gamma</dt><dd id="liveGamma">-</dd>
-      <dt>accel X</dt><dd id="liveX">-</dd>
-      <dt>accel Y</dt><dd id="liveY">-</dd>
-      <dt>accel Z</dt><dd id="liveZ">-</dd>
-      <dt>rotation alpha</dt><dd id="liveRA">-</dd>
-    </dl>
+    <dl><dt>beta</dt><dd id="liveBeta">-</dd><dt>gamma</dt><dd id="liveGamma">-</dd><dt>accel X</dt><dd id="liveX">-</dd><dt>accel Y</dt><dd id="liveY">-</dd><dt>accel Z</dt><dd id="liveZ">-</dd><dt>rotation alpha</dt><dd id="liveRA">-</dd></dl>
   </section>
-
   <section id="result" class="card hidden">
     <h2>分類 → 品質評価</h2>
-    <div class="classificationBox">
-      <span class="muted">Stage 1 / 動作分類</span>
-      <strong id="gestureLabel">-</strong>
-      <div id="classificationDetail" class="muted"></div>
-    </div>
+    <div class="classificationBox"><span class="muted">Stage 1 / 動作分類</span><strong id="gestureLabel">-</strong><div id="classificationDetail" class="muted"></div></div>
     <div class="quality">Stage 2 / スワリング品質<strong id="qualityScore">-</strong><span id="qualityNote" class="muted"></span></div>
-    <div class="grid">
-      <div class="metric">姿勢安定性<strong id="posture">-</strong></div>
-      <div class="metric">円・楕円らしさ<strong id="orbit">-</strong></div>
-      <div class="metric">周期性<strong id="rhythm">-</strong></div>
-      <div class="metric">滑らかさ<strong id="smooth">-</strong></div>
-      <div class="metric">強度コントロール<strong id="control">-</strong></div>
-      <div class="metric">動作強度<strong id="intensity">-</strong></div>
-    </div>
+    <div class="grid"><div class="metric">姿勢安定性<strong id="posture">-</strong></div><div class="metric">円・楕円らしさ<strong id="orbit">-</strong></div><div class="metric">周期性<strong id="rhythm">-</strong></div><div class="metric">滑らかさ<strong id="smooth">-</strong></div><div class="metric">強度コントロール<strong id="control">-</strong></div><div class="metric">動作強度<strong id="intensity">-</strong></div></div>
   </section>
-
   <section id="diagnostics" class="card hidden">
     <h2>診断値</h2>
-    <dl>
-      <dt>XY movement RMS</dt><dd id="movementRms">-</dd>
-      <dt>ellipse axis ratio</dt><dd id="axisRatio">-</dd>
-      <dt>tilt RMS</dt><dd id="tiltRms">-</dd>
-      <dt>max tilt</dt><dd id="maxTilt">-</dd>
-      <dt>periodicity</dt><dd id="periodicity">-</dd>
-      <dt>tempo estimate</dt><dd id="rpm">-</dd>
-      <dt>median sample dt</dt><dd id="medianDt">-</dd>
-      <dt>normalized jerk</dt><dd id="normJerk">-</dd>
-      <dt>rotation sign</dt><dd id="rotationSign">-</dd>
-      <dt>rotation coherence</dt><dd id="rotationCoherence">-</dd>
-      <dt>direction candidate</dt><dd id="directionCandidate">-</dd>
-      <dt>static motion</dt><dd id="staticMotion">-</dd>
-    </dl>
+    <dl><dt>XY movement RMS</dt><dd id="movementRms">-</dd><dt>ellipse axis ratio</dt><dd id="axisRatio">-</dd><dt>tilt RMS</dt><dd id="tiltRms">-</dd><dt>max tilt</dt><dd id="maxTilt">-</dd><dt>periodicity</dt><dd id="periodicity">-</dd><dt>tempo estimate</dt><dd id="rpm">-</dd><dt>median sample dt</dt><dd id="medianDt">-</dd><dt>normalized jerk</dt><dd id="normJerk">-</dd><dt>rotation sign</dt><dd id="rotationSign">-</dd><dt>rotation coherence</dt><dd id="rotationCoherence">-</dd><dt>direction candidate</dt><dd id="directionCandidate">-</dd><dt>static motion</dt><dd id="staticMotion">-</dd></dl>
     <canvas id="trace" width="640" height="360" aria-label="XY加速度散布図"></canvas>
     <textarea id="json" readonly aria-label="測定結果JSON"></textarea>
     <button id="copy">測定結果JSONをコピー</button>
   </section>
-
   <section class="card">
     <h2>端末内の測定履歴</h2>
     <p class="muted">ネットワーク送信はしません。このブラウザの localStorage に最大50件だけ保存します。</p>
-    <div class="status">
-      <span>保存件数</span><span id="historyCount">0</span>
-    </div>
-    <button id="copyHistory">履歴JSONをまとめてコピー</button>
-    <button id="clearHistory">履歴をクリア</button>
+    <div class="status"><span>保存件数</span><span id="historyCount">0</span></div>
+    <button id="copyHistory">履歴JSONをまとめてコピー</button><button id="clearHistory">履歴をクリア</button>
   </section>
 </main>
-
 <script>
 (() => {
   'use strict';
-
   const VERSION = 'poc-0.2';
   const HISTORY_KEY = 'swirl-poc-history-v0.2';
   const META_KEY = 'swirl-poc-meta-v0.2';
-
-  // 実測A〜Eの第1ラウンドから置いたPoC用暫定しきい値。科学的・一般化済みの基準ではない。
-  const THRESHOLDS = Object.freeze({
-    staticRms: 0.12,
-    linearAxisRatio: 0.25,
-    orbitAxisRatio: 0.40,
-    vigorousRms: 15.0,
-    directionAxisRatio: 0.30,
-    directionCoherence: 0.55
-  });
-
+  const THRESHOLDS = Object.freeze({ staticRms: 0.12, linearAxisRatio: 0.25, orbitAxisRatio: 0.40, vigorousRms: 15.0, directionAxisRatio: 0.30, directionCoherence: 0.55 });
   const $ = (id) => document.getElementById(id);
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
   const mean = (xs) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0;
   const rms = (xs) => Math.sqrt(mean(xs.map((x) => x * x)));
-  const median = (xs) => {
-    if (!xs.length) return 0;
-    const sorted = [...xs].sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-  };
+  const median = (xs) => { if (!xs.length) return 0; const sorted = [...xs].sort((a,b)=>a-b); const mid=Math.floor(sorted.length/2); return sorted.length%2?sorted[mid]:(sorted[mid-1]+sorted[mid])/2; };
   const finite = (v, fallback = 0) => Number.isFinite(v) ? v : fallback;
   const fmt = (v, digits = 2) => Number.isFinite(v) ? v.toFixed(digits) : '-';
-
-  let latestOrientation = { beta: null, gamma: null, alpha: null };
-  let measuring = false;
-  let samples = [];
-  let baseline = { beta: 0, gamma: 0 };
-  let countdownTimer = null;
-  let sensorsAttached = false;
-  let sourceSeen = '未取得';
-
-  $('secure').textContent = window.isSecureContext ? 'OK' : 'NG';
-  $('secure').className = window.isSecureContext ? 'ok' : 'bad';
-  $('motionSupport').textContent = 'DeviceMotionEvent' in window ? '対応' : '非対応';
-  $('orientationSupport').textContent = 'DeviceOrientationEvent' in window ? '対応' : '非対応';
-
-  function loadMeta() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(META_KEY) || '{}');
-      if (saved.testPattern) $('testPattern').value = saved.testPattern;
-      if (saved.hand) $('hand').value = saved.hand;
-      if (saved.intendedDirection) $('intendedDirection').value = saved.intendedDirection;
-    } catch (_) {}
-  }
-
-  function currentMeta() {
-    return {
-      pattern: $('testPattern').value,
-      hand: $('hand').value,
-      intendedDirection: $('intendedDirection').value
-    };
-  }
-
-  function saveMeta() {
-    try { localStorage.setItem(META_KEY, JSON.stringify(currentMeta())); } catch (_) {}
-  }
-
-  ['testPattern', 'hand', 'intendedDirection'].forEach((id) => {
-    $(id).addEventListener('change', saveMeta);
-  });
-
-  function readHistory() {
-    try {
-      const v = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-      return Array.isArray(v) ? v : [];
-    } catch (_) {
-      return [];
-    }
-  }
-
-  function writeHistory(items) {
-    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(-50))); } catch (_) {}
-    updateHistoryCount();
-  }
-
-  function updateHistoryCount() {
-    $('historyCount').textContent = String(readHistory().length);
-  }
-
-  function addHistory(result) {
-    const compact = { ...result };
-    delete compact.trace;
-    const items = readHistory();
-    items.push(compact);
-    writeHistory(items);
-  }
-
-  function onOrientation(e) {
-    latestOrientation = {
-      beta: Number.isFinite(e.beta) ? e.beta : null,
-      gamma: Number.isFinite(e.gamma) ? e.gamma : null,
-      alpha: Number.isFinite(e.alpha) ? e.alpha : null
-    };
-    $('liveBeta').textContent = fmt(latestOrientation.beta);
-    $('liveGamma').textContent = fmt(latestOrientation.gamma);
-  }
-
-  function onMotion(e) {
-    let a = e.acceleration;
-    let source = 'acceleration';
-    if (!a || !Number.isFinite(a.x) || !Number.isFinite(a.y)) {
-      a = e.accelerationIncludingGravity;
-      source = 'includingGravity';
-    }
-    if (!a) return;
-
-    sourceSeen = source;
-    $('motionSource').textContent = source;
-
-    const rr = e.rotationRate || {};
-    const point = {
-      t: performance.now(),
-      x: finite(a.x),
-      y: finite(a.y),
-      z: finite(a.z),
-      beta: latestOrientation.beta,
-      gamma: latestOrientation.gamma,
-      alpha: latestOrientation.alpha,
-      ra: finite(rr.alpha, null),
-      rb: finite(rr.beta, null),
-      rg: finite(rr.gamma, null),
-      source
-    };
-
-    $('liveX').textContent = fmt(point.x);
-    $('liveY').textContent = fmt(point.y);
-    $('liveZ').textContent = fmt(point.z);
-    $('liveRA').textContent = fmt(point.ra);
-
-    if (measuring) {
-      samples.push(point);
-      $('sampleCount').textContent = String(samples.length);
-    }
-  }
-
-  function attachSensors() {
-    if (sensorsAttached) return;
-    window.addEventListener('deviceorientation', onOrientation, { passive: true });
-    window.addEventListener('devicemotion', onMotion, { passive: true });
-    sensorsAttached = true;
-  }
-
-  async function requestSensors() {
-    if (!window.isSecureContext) throw new Error('HTTPSなどのSecure Contextが必要です');
-    if (!('DeviceMotionEvent' in window) || !('DeviceOrientationEvent' in window)) {
-      throw new Error('このブラウザでは必要なセンサーAPIを確認できません');
-    }
-
-    if (typeof DeviceMotionEvent.requestPermission === 'function') {
-      const result = await DeviceMotionEvent.requestPermission();
-      if (result !== 'granted') throw new Error('DeviceMotionの利用が許可されませんでした');
-    }
-    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-      const result = await DeviceOrientationEvent.requestPermission();
-      if (result !== 'granted') throw new Error('DeviceOrientationの利用が許可されませんでした');
-    }
-    attachSensors();
-  }
-
-  function principalAnalysis(xs, ys) {
-    const mx = mean(xs), my = mean(ys);
-    const cx = xs.map((v) => v - mx);
-    const cy = ys.map((v) => v - my);
-    const xx = mean(cx.map((v) => v * v));
-    const yy = mean(cy.map((v) => v * v));
-    const xy = mean(cx.map((v, i) => v * cy[i]));
-    const trace = xx + yy;
-    const disc = Math.sqrt(Math.max(0, (xx - yy) ** 2 + 4 * xy ** 2));
-    const l1 = Math.max(0, (trace + disc) / 2);
-    const l2 = Math.max(0, (trace - disc) / 2);
-    const theta = 0.5 * Math.atan2(2 * xy, xx - yy);
-    const ux = Math.cos(theta), uy = Math.sin(theta);
-    const projected = cx.map((x, i) => x * ux + cy[i] * uy);
-    return { mx, my, cx, cy, l1, l2, projected };
-  }
-
-  function movingAverage(xs, windowSize = 5) {
-    if (windowSize <= 1) return [...xs];
-    const out = [];
-    let sum = 0;
-    for (let i = 0; i < xs.length; i++) {
-      sum += xs[i];
-      if (i >= windowSize) sum -= xs[i - windowSize];
-      const n = Math.min(i + 1, windowSize);
-      out.push(sum / n);
-    }
-    return out;
-  }
-
-  function autocorrelationMetrics(projected, times) {
-    if (projected.length < 30) return { score: 0, periodicity: null, rpm: null, periodSec: null };
-    const dts = [];
-    for (let i = 1; i < times.length; i++) {
-      const dt = (times[i] - times[i - 1]) / 1000;
-      if (dt > 0 && dt < 0.2) dts.push(dt);
-    }
-    const dt = median(dts);
-    if (!(dt > 0)) return { score: 0, periodicity: null, rpm: null, periodSec: null };
-
-    const x = movingAverage(projected, 5);
-    const minLag = Math.max(2, Math.round(0.20 / dt));
-    const maxLag = Math.min(x.length - 5, Math.round(2.0 / dt));
-    const candidates = [];
-
-    for (let lag = minLag; lag <= maxLag; lag++) {
-      let num = 0, a2 = 0, b2 = 0;
-      for (let i = 0; i + lag < x.length; i++) {
-        const a = x[i], b = x[i + lag];
-        num += a * b;
-        a2 += a * a;
-        b2 += b * b;
-      }
-      const corr = (a2 > 1e-12 && b2 > 1e-12) ? num / Math.sqrt(a2 * b2) : 0;
-      candidates.push({ lag, corr });
-    }
-
-    if (!candidates.length) return { score: 0, periodicity: null, rpm: null, periodSec: null };
-
-    const peaks = candidates.filter((c, i) => {
-      const prev = i > 0 ? candidates[i - 1].corr : -Infinity;
-      const next = i + 1 < candidates.length ? candidates[i + 1].corr : -Infinity;
-      return c.corr >= prev && c.corr >= next;
-    });
-
-    const strongEarlyPeak = peaks.find((p) => p.corr >= 0.55);
-    const best = strongEarlyPeak || candidates.reduce((a, b) => b.corr > a.corr ? b : a);
-    const periodicity = clamp(best.corr, -1, 1);
-    const periodSec = best.lag * dt;
-    const score = clamp((periodicity - 0.25) / 0.65 * 100, 0, 100);
-    return {
-      score,
-      periodicity,
-      rpm: periodSec > 0 ? 60 / periodSec : null,
-      periodSec
-    };
-  }
-
-  function analyse(data) {
-    if (data.length < 20) throw new Error(`サンプル数が不足しています (${data.length})`);
-
-    const xs = data.map((s) => s.x);
-    const ys = data.map((s) => s.y);
-    const times = data.map((s) => s.t);
-    const p = principalAnalysis(xs, ys);
-    const movementRms = Math.sqrt(mean(p.cx.map((x, i) => x * x + p.cy[i] * p.cy[i])));
-    const axisRatio = p.l1 > 1e-9 ? Math.sqrt(p.l2 / p.l1) : 0;
-
-    const tilts = data.map((s) => {
-      const db = Number.isFinite(s.beta) ? s.beta - baseline.beta : 0;
-      const dg = Number.isFinite(s.gamma) ? s.gamma - baseline.gamma : 0;
-      return Math.hypot(db, dg);
-    });
-    const tiltRms = rms(tilts);
-    const maxTilt = Math.max(...tilts);
-    const postureScore = clamp(100 - 3.0 * tiltRms - 1.5 * maxTilt, 0, 100);
-
-    const staticMotion = movementRms < THRESHOLDS.staticRms;
-    const orbitScore = staticMotion ? 0 : clamp((axisRatio - 0.12) / 0.48 * 100, 0, 100);
-
-    const periodic = autocorrelationMetrics(p.projected, times);
-
-    const jerk = [];
-    const dtsMs = [];
-    for (let i = 1; i < p.cx.length; i++) {
-      const dtSec = (times[i] - times[i - 1]) / 1000;
-      if (!(dtSec > 0) || dtSec > 0.2) continue;
-      dtsMs.push(dtSec * 1000);
-      const delta = Math.hypot(p.cx[i] - p.cx[i - 1], p.cy[i] - p.cy[i - 1]);
-      jerk.push(delta / dtSec);
-    }
-    const normalizedJerk = movementRms > 1e-9 ? rms(jerk) / movementRms : null;
-    const smoothScore = staticMotion || !Number.isFinite(normalizedJerk)
-      ? 0
-      : clamp((42 - normalizedJerk) / 32 * 100, 0, 100);
-
-    const crossTerms = [];
-    for (let i = 1; i < p.cx.length; i++) {
-      crossTerms.push(p.cx[i - 1] * p.cy[i] - p.cy[i - 1] * p.cx[i]);
-    }
-    const crossSum = crossTerms.reduce((a, b) => a + b, 0);
-    const crossAbsSum = crossTerms.reduce((a, b) => a + Math.abs(b), 0);
-    const rotationSign = crossAbsSum < 1e-9 ? 'undetermined' : (crossSum > 0 ? 'positive' : 'negative');
-    const rotationCoherence = crossAbsSum > 1e-9 ? Math.abs(crossSum) / crossAbsSum : 0;
-
-    let gesture = 'ambiguous';
-    if (staticMotion) gesture = 'static';
-    else if (axisRatio < THRESHOLDS.linearAxisRatio) gesture = 'linear';
-    else if (axisRatio >= THRESHOLDS.orbitAxisRatio) gesture = 'orbit';
-    else gesture = 'borderline';
-
-    const intensity = staticMotion ? 'static' : (movementRms >= THRESHOLDS.vigorousRms ? 'vigorous' : 'controlled');
-
-    const directionEligible =
-      !staticMotion &&
-      axisRatio >= THRESHOLDS.directionAxisRatio &&
-      rotationCoherence >= THRESHOLDS.directionCoherence;
-
-    let directionCandidate = 'undetermined';
-    if (directionEligible) {
-      // 現在のAndroid実機テストで確認した符号対応。端末差は今後検証する。
-      directionCandidate = rotationSign === 'positive' ? 'counterclockwise' : 'clockwise';
-    }
-
-    const controlScore = staticMotion
-      ? 0
-      : clamp(100 - Math.max(0, movementRms - 8) * 4, 0, 100);
-
-    const swirlCandidate = gesture === 'orbit';
-    const qualityScore = swirlCandidate
-      ? Math.round(
-          postureScore * 0.20 +
-          orbitScore * 0.25 +
-          periodic.score * 0.20 +
-          smoothScore * 0.20 +
-          controlScore * 0.15
-        )
-      : null;
-
-    return {
-      version: VERSION,
-      measurementId: (window.crypto && typeof window.crypto.randomUUID === 'function')
-        ? window.crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      capturedAt: new Date().toISOString(),
-      test: currentMeta(),
-      sampleCount: data.length,
-      source: sourceSeen,
-      baseline,
-      classification: {
-        gesture,
-        swirlCandidate,
-        intensity,
-        directionCandidate,
-        directionConfidence: directionEligible ? rotationCoherence : null,
-        thresholds: THRESHOLDS
-      },
-      scores: {
-        quality: qualityScore,
-        posture: Math.round(postureScore),
-        orbit: Math.round(orbitScore),
-        rhythm: Math.round(periodic.score),
-        smoothness: Math.round(smoothScore),
-        control: Math.round(controlScore)
-      },
-      diagnostics: {
-        movementRms,
-        axisRatio,
-        eigenMajor: p.l1,
-        eigenMinor: p.l2,
-        tiltRms,
-        maxTilt,
-        periodicity: periodic.periodicity,
-        periodSec: periodic.periodSec,
-        tempoRpm: periodic.rpm,
-        medianDtMs: median(dtsMs),
-        normalizedJerk,
-        rotationSign,
-        rotationCoherence,
-        staticMotion
-      },
-      trace: p.cx.map((x, i) => ({ x, y: p.cy[i] }))
-    };
-  }
-
-  function drawTrace(points) {
-    const canvas = $('trace');
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width, h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = '#120e10';
-    ctx.fillRect(0, 0, w, h);
-    ctx.strokeStyle = '#4a3b40';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(w / 2, 0); ctx.lineTo(w / 2, h); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
-    if (!points.length) return;
-    const maxAbs = Math.max(0.1, ...points.flatMap((pt) => [Math.abs(pt.x), Math.abs(pt.y)]));
-    const scale = 0.42 * Math.min(w, h) / maxAbs;
-    ctx.strokeStyle = '#e8c9b9';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    points.forEach((pt, i) => {
-      const x = w / 2 + pt.x * scale;
-      const y = h / 2 - pt.y * scale;
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-  }
-
-  function gestureText(r) {
-    switch (r.classification.gesture) {
-      case 'static': return '静止';
-      case 'linear': return '直線往復';
-      case 'orbit': return '円〜楕円スワリング候補';
-      case 'borderline': return '境界（2D回転候補）';
-      default: return '判定保留';
-    }
-  }
-
-  function directionText(direction) {
-    if (direction === 'clockwise') return '時計回り候補';
-    if (direction === 'counterclockwise') return '反時計回り候補';
-    return '判定保留';
-  }
-
-  function showResult(r) {
-    $('result').classList.remove('hidden');
-    $('diagnostics').classList.remove('hidden');
-
-    $('gestureLabel').textContent = gestureText(r);
-    const detail = [];
-    detail.push(r.classification.intensity === 'vigorous' ? '動作強度: 高い' : (r.classification.intensity === 'controlled' ? '動作強度: コントロール範囲' : '動作強度: 静止'));
-    if (r.classification.directionCandidate !== 'undetermined') {
-      detail.push(`方向: ${directionText(r.classification.directionCandidate)}`);
-    }
-    $('classificationDetail').textContent = detail.join(' / ');
-
-    $('qualityScore').textContent = r.scores.quality === null ? '対象外' : String(r.scores.quality);
-    $('qualityNote').textContent = r.scores.quality === null
-      ? '（Stage 1で円〜楕円スワリング候補に分類された場合のみ算出）'
-      : '（PoC用の暫定ゲームスコア）';
-
-    $('posture').textContent = r.scores.posture;
-    $('orbit').textContent = r.scores.orbit;
-    $('rhythm').textContent = r.scores.rhythm;
-    $('smooth').textContent = r.scores.smoothness;
-    $('control').textContent = r.scores.control;
-    $('intensity').textContent = r.classification.intensity === 'vigorous' ? 'HIGH' : (r.classification.intensity === 'controlled' ? 'OK' : '-');
-
-    $('movementRms').textContent = fmt(r.diagnostics.movementRms, 3);
-    $('axisRatio').textContent = fmt(r.diagnostics.axisRatio, 3);
-    $('tiltRms').textContent = `${fmt(r.diagnostics.tiltRms)}°`;
-    $('maxTilt').textContent = `${fmt(r.diagnostics.maxTilt)}°`;
-    $('periodicity').textContent = fmt(r.diagnostics.periodicity, 3);
-    $('rpm').textContent = Number.isFinite(r.diagnostics.tempoRpm) ? `${fmt(r.diagnostics.tempoRpm, 1)} rpm相当` : '-';
-    $('medianDt').textContent = Number.isFinite(r.diagnostics.medianDtMs) ? `${fmt(r.diagnostics.medianDtMs, 2)} ms` : '-';
-    $('normJerk').textContent = fmt(r.diagnostics.normalizedJerk, 2);
-    $('rotationSign').textContent = r.diagnostics.rotationSign;
-    $('rotationCoherence').textContent = fmt(r.diagnostics.rotationCoherence, 3);
-    $('directionCandidate').textContent = directionText(r.classification.directionCandidate);
-    $('staticMotion').textContent = String(r.diagnostics.staticMotion);
-    drawTrace(r.trace);
-
-    const compact = { ...r };
-    delete compact.trace;
-    $('json').value = JSON.stringify(compact, null, 2);
-  }
-
-  function finish() {
-    measuring = false;
-    clearInterval(countdownTimer);
-    $('start').disabled = false;
-    $('count').textContent = '0.0';
-    try {
-      const result = analyse(samples);
-      showResult(result);
-      addHistory(result);
-      $('message').textContent = `計測完了: ${gestureText(result)}。同条件の繰り返し測定もできます。`;
-    } catch (err) {
-      $('message').textContent = `計測失敗: ${err.message}`;
-      $('message').className = 'bad';
-    }
-  }
-
-  async function start() {
-    $('message').className = 'muted';
-    $('start').disabled = true;
-    saveMeta();
-    try {
-      await requestSensors();
-      await new Promise((resolve) => setTimeout(resolve, 250));
-      baseline = {
-        beta: finite(latestOrientation.beta),
-        gamma: finite(latestOrientation.gamma)
-      };
-      samples = [];
-      $('sampleCount').textContent = '0';
-      measuring = true;
-      const started = performance.now();
-      $('message').textContent = '計測中…選択したテストパターンを5秒続けてください';
-      countdownTimer = setInterval(() => {
-        const remain = Math.max(0, 5 - (performance.now() - started) / 1000);
-        $('count').textContent = remain.toFixed(1);
-      }, 50);
-      setTimeout(finish, 5000);
-    } catch (err) {
-      $('start').disabled = false;
-      $('message').textContent = `開始できません: ${err.message}`;
-      $('message').className = 'bad';
-    }
-  }
-
-  $('start').addEventListener('click', start);
-
-  $('copy').addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText($('json').value);
-      $('copy').textContent = 'コピーしました';
-      setTimeout(() => { $('copy').textContent = '測定結果JSONをコピー'; }, 1200);
-    } catch (_) {
-      $('json').focus();
-      $('json').select();
-      $('copy').textContent = 'コピーできないためJSONを選択しました';
-    }
-  });
-
-  $('copyHistory').addEventListener('click', async () => {
-    const payload = JSON.stringify({
-      version: VERSION,
-      exportedAt: new Date().toISOString(),
-      measurements: readHistory()
-    }, null, 2);
-    try {
-      await navigator.clipboard.writeText(payload);
-      $('copyHistory').textContent = '履歴をコピーしました';
-      setTimeout(() => { $('copyHistory').textContent = '履歴JSONをまとめてコピー'; }, 1200);
-    } catch (_) {
-      $('message').textContent = '履歴コピーに失敗しました。個別JSONを利用してください。';
-      $('message').className = 'warn';
-    }
-  });
-
-  $('clearHistory').addEventListener('click', () => {
-    if (!confirm('この端末内のPoC測定履歴を削除しますか？')) return;
-    writeHistory([]);
-    $('message').textContent = '端末内の測定履歴をクリアしました。';
-    $('message').className = 'muted';
-  });
-
-  loadMeta();
-  updateHistoryCount();
+  let latestOrientation={beta:null,gamma:null,alpha:null}, measuring=false, samples=[], baseline={beta:0,gamma:0}, countdownTimer=null, sensorsAttached=false, sourceSeen='未取得';
+  $('secure').textContent=window.isSecureContext?'OK':'NG'; $('secure').className=window.isSecureContext?'ok':'bad'; $('motionSupport').textContent='DeviceMotionEvent' in window?'対応':'非対応'; $('orientationSupport').textContent='DeviceOrientationEvent' in window?'対応':'非対応';
+  function loadMeta(){try{const saved=JSON.parse(localStorage.getItem(META_KEY)||'{}'); if(saved.testPattern)$('testPattern').value=saved.testPattern; if(saved.hand)$('hand').value=saved.hand; if(saved.intendedDirection)$('intendedDirection').value=saved.intendedDirection;}catch(_){}}
+  function currentMeta(){return{pattern:$('testPattern').value,hand:$('hand').value,intendedDirection:$('intendedDirection').value};}
+  function saveMeta(){try{localStorage.setItem(META_KEY,JSON.stringify(currentMeta()));}catch(_){}}
+  ['testPattern','hand','intendedDirection'].forEach(id=>$(id).addEventListener('change',saveMeta));
+  function readHistory(){try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');}catch(_){return[];}}
+  function writeHistory(items){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(-50)));}catch(_){} updateHistoryCount();}
+  function addHistory(result){const compact={...result}; delete compact.trace; const items=readHistory(); items.push(compact); writeHistory(items);}
+  function updateHistoryCount(){$('historyCount').textContent=String(readHistory().length);}
+  function onOrientation(e){latestOrientation={beta:Number.isFinite(e.beta)?e.beta:null,gamma:Number.isFinite(e.gamma)?e.gamma:null,alpha:Number.isFinite(e.alpha)?e.alpha:null}; $('liveBeta').textContent=fmt(latestOrientation.beta); $('liveGamma').textContent=fmt(latestOrientation.gamma);}
+  function onMotion(e){let a=e.acceleration,source='acceleration'; if(!a||!Number.isFinite(a.x)||!Number.isFinite(a.y)){a=e.accelerationIncludingGravity;source='includingGravity';} if(!a)return; sourceSeen=source; $('motionSource').textContent=source; const rr=e.rotationRate||{}; const point={t:performance.now(),x:finite(a.x),y:finite(a.y),z:finite(a.z),beta:latestOrientation.beta,gamma:latestOrientation.gamma,alpha:latestOrientation.alpha,ra:finite(rr.alpha,null),rb:finite(rr.beta,null),rg:finite(rr.gamma,null),source}; $('liveX').textContent=fmt(point.x); $('liveY').textContent=fmt(point.y); $('liveZ').textContent=fmt(point.z); $('liveRA').textContent=fmt(point.ra); if(measuring){samples.push(point); $('sampleCount').textContent=String(samples.length);}}
+  function attachSensors(){if(sensorsAttached)return; window.addEventListener('deviceorientation',onOrientation,{passive:true}); window.addEventListener('devicemotion',onMotion,{passive:true}); sensorsAttached=true;}
+  async function requestSensors(){if(!window.isSecureContext)throw new Error('HTTPSなどのSecure Contextが必要です'); if(!('DeviceMotionEvent' in window)||!('DeviceOrientationEvent' in window))throw new Error('このブラウザでは必要なセンサーAPIを確認できません'); if(typeof DeviceMotionEvent.requestPermission==='function'){const result=await DeviceMotionEvent.requestPermission(); if(result!=='granted')throw new Error('DeviceMotionの利用が許可されませんでした');} if(typeof DeviceOrientationEvent.requestPermission==='function'){const result=await DeviceOrientationEvent.requestPermission(); if(result!=='granted')throw new Error('DeviceOrientationの利用が許可されませんでした');} attachSensors();}
+  function principalAnalysis(xs,ys){const mx=mean(xs),my=mean(ys); const cx=xs.map(v=>v-mx),cy=ys.map(v=>v-my); const xx=mean(cx.map(v=>v*v)),yy=mean(cy.map(v=>v*v)),xy=mean(cx.map((v,i)=>v*cy[i])); const trace=xx+yy,disc=Math.sqrt(Math.max(0,(xx-yy)**2+4*xy**2)); const l1=Math.max(0,(trace+disc)/2),l2=Math.max(0,(trace-disc)/2); const theta=.5*Math.atan2(2*xy,xx-yy),ux=Math.cos(theta),uy=Math.sin(theta); const projected=cx.map((x,i)=>x*ux+cy[i]*uy); return{mx,my,cx,cy,l1,l2,projected};}
+  function autocorrelationMetrics(projected,times){if(projected.length<30)return{score:0,periodicity:null,periodSec:null,rpm:null}; const m=mean(projected),signal=projected.map(v=>v-m),energy=signal.reduce((a,b)=>a+b*b,0); if(energy<1e-9)return{score:0,periodicity:0,periodSec:null,rpm:null}; const dts=[]; for(let i=1;i<times.length;i++){const dt=times[i]-times[i-1]; if(dt>0&&dt<200)dts.push(dt);} const dtMs=median(dts)||16.67; const minLag=Math.max(2,Math.round(150/dtMs)),maxLag=Math.min(signal.length-5,Math.round(2500/dtMs)); let best=-Infinity,bestLag=null; for(let lag=minLag;lag<=maxLag;lag++){let num=0,a2=0,b2=0; for(let i=0;i+lag<signal.length;i++){const a=signal[i],b=signal[i+lag]; num+=a*b;a2+=a*a;b2+=b*b;} const corr=(a2>0&&b2>0)?num/Math.sqrt(a2*b2):-1; if(corr>best){best=corr;bestLag=lag;}} const periodicity=clamp(best,0,1),periodSec=bestLag?(bestLag*dtMs)/1000:null,rpm=periodSec?60/periodSec:null,score=clamp((periodicity-.45)/.45*100,0,100); return{score,periodicity,periodSec,rpm};}
+  function analyse(data){if(data.length<20)throw new Error(`サンプル数が不足しています (${data.length})`); const xs=data.map(s=>s.x),ys=data.map(s=>s.y),times=data.map(s=>s.t),p=principalAnalysis(xs,ys); const movementRms=Math.sqrt(mean(p.cx.map((x,i)=>x*x+p.cy[i]*p.cy[i]))),axisRatio=p.l1>1e-9?Math.sqrt(p.l2/p.l1):0; const tilts=data.map(s=>{const db=Number.isFinite(s.beta)?s.beta-baseline.beta:0,dg=Number.isFinite(s.gamma)?s.gamma-baseline.gamma:0;return Math.hypot(db,dg);}); const tiltRms=rms(tilts),maxTilt=Math.max(...tilts),postureScore=clamp(100-3*tiltRms-1.5*maxTilt,0,100); const staticMotion=movementRms<THRESHOLDS.staticRms,orbitScore=staticMotion?0:clamp((axisRatio-.12)/.48*100,0,100),periodic=autocorrelationMetrics(p.projected,times); const jerk=[],dtsMs=[]; for(let i=1;i<p.cx.length;i++){const dtSec=(times[i]-times[i-1])/1000; if(!(dtSec>0)||dtSec>.2)continue; dtsMs.push(dtSec*1000); jerk.push(Math.hypot(p.cx[i]-p.cx[i-1],p.cy[i]-p.cy[i-1])/dtSec);} const normalizedJerk=movementRms>1e-9?rms(jerk)/movementRms:null,smoothScore=staticMotion||!Number.isFinite(normalizedJerk)?0:clamp((42-normalizedJerk)/32*100,0,100); const crossTerms=[]; for(let i=1;i<p.cx.length;i++)crossTerms.push(p.cx[i-1]*p.cy[i]-p.cy[i-1]*p.cx[i]); const crossSum=crossTerms.reduce((a,b)=>a+b,0),crossAbsSum=crossTerms.reduce((a,b)=>a+Math.abs(b),0),rotationSign=crossAbsSum<1e-9?'undetermined':(crossSum>0?'positive':'negative'),rotationCoherence=crossAbsSum>1e-9?Math.abs(crossSum)/crossAbsSum:0; let gesture='ambiguous'; if(staticMotion)gesture='static'; else if(axisRatio<THRESHOLDS.linearAxisRatio)gesture='linear'; else if(axisRatio>=THRESHOLDS.orbitAxisRatio)gesture='orbit'; else gesture='borderline'; const intensity=staticMotion?'static':(movementRms>=THRESHOLDS.vigorousRms?'vigorous':'controlled'); const directionEligible=!staticMotion&&axisRatio>=THRESHOLDS.directionAxisRatio&&rotationCoherence>=THRESHOLDS.directionCoherence; let directionCandidate='undetermined'; if(directionEligible)directionCandidate=rotationSign==='positive'?'counterclockwise':'clockwise'; const controlScore=staticMotion?0:clamp(100-Math.max(0,movementRms-8)*4,0,100),swirlCandidate=gesture==='orbit',qualityScore=swirlCandidate?Math.round(postureScore*.20+orbitScore*.25+periodic.score*.20+smoothScore*.20+controlScore*.15):null; return{version:VERSION,measurementId:(crypto&&typeof crypto.randomUUID==='function')?crypto.randomUUID():`${Date.now()}-${Math.random().toString(16).slice(2)}`,capturedAt:new Date().toISOString(),test:currentMeta(),sampleCount:data.length,source:sourceSeen,baseline,classification:{gesture,swirlCandidate,intensity,directionCandidate,directionConfidence:directionEligible?rotationCoherence:null,thresholds:THRESHOLDS},scores:{quality:qualityScore,posture:Math.round(postureScore),orbit:Math.round(orbitScore),rhythm:Math.round(periodic.score),smoothness:Math.round(smoothScore),control:Math.round(controlScore)},diagnostics:{movementRms,axisRatio,eigenMajor:p.l1,eigenMinor:p.l2,tiltRms,maxTilt,periodicity:periodic.periodicity,periodSec:periodic.periodSec,tempoRpm:periodic.rpm,medianDtMs:median(dtsMs),normalizedJerk,rotationSign,rotationCoherence,staticMotion},trace:p.cx.map((x,i)=>({x,y:p.cy[i]}))};}
+  function drawTrace(points){const canvas=$('trace'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#120e10';ctx.fillRect(0,0,w,h);ctx.strokeStyle='#4a3b40';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(w/2,0);ctx.lineTo(w/2,h);ctx.stroke();ctx.beginPath();ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);ctx.stroke();if(!points.length)return;const maxAbs=Math.max(.1,...points.flatMap(pt=>[Math.abs(pt.x),Math.abs(pt.y)])),scale=.42*Math.min(w,h)/maxAbs;ctx.strokeStyle='#e8c9b9';ctx.lineWidth=2;ctx.beginPath();points.forEach((pt,i)=>{const x=w/2+pt.x*scale,y=h/2-pt.y*scale;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
+  function gestureText(r){switch(r.classification.gesture){case'static':return'静止';case'linear':return'直線往復';case'orbit':return'円〜楕円スワリング候補';case'borderline':return'境界（2D回転候補）';default:return'判定保留';}}
+  function directionText(direction){if(direction==='clockwise')return'時計回り候補';if(direction==='counterclockwise')return'反時計回り候補';return'判定保留';}
+  function showResult(r){$('result').classList.remove('hidden');$('diagnostics').classList.remove('hidden');$('gestureLabel').textContent=gestureText(r);const detail=[];detail.push(r.classification.intensity==='vigorous'?'動作強度: 高い':(r.classification.intensity==='controlled'?'動作強度: コントロール範囲':'動作強度: 静止'));if(r.classification.directionCandidate!=='undetermined')detail.push(`方向: ${directionText(r.classification.directionCandidate)}`);$('classificationDetail').textContent=detail.join(' / ');$('qualityScore').textContent=r.scores.quality===null?'対象外':String(r.scores.quality);$('qualityNote').textContent=r.scores.quality===null?'（Stage 1で円〜楕円スワリング候補に分類された場合のみ算出）':'（PoC用の暫定ゲームスコア）';$('posture').textContent=r.scores.posture;$('orbit').textContent=r.scores.orbit;$('rhythm').textContent=r.scores.rhythm;$('smooth').textContent=r.scores.smoothness;$('control').textContent=r.scores.control;$('intensity').textContent=r.classification.intensity==='vigorous'?'HIGH':(r.classification.intensity==='controlled'?'OK':'-');$('movementRms').textContent=fmt(r.diagnostics.movementRms,3);$('axisRatio').textContent=fmt(r.diagnostics.axisRatio,3);$('tiltRms').textContent=`${fmt(r.diagnostics.tiltRms)}°`;$('maxTilt').textContent=`${fmt(r.diagnostics.maxTilt)}°`;const motionSemanticsAvailable=!['static','linear'].includes(r.classification.gesture);$('periodicity').textContent=motionSemanticsAvailable?fmt(r.diagnostics.periodicity,3):'N/A';$('rpm').textContent=motionSemanticsAvailable&&Number.isFinite(r.diagnostics.tempoRpm)?`${fmt(r.diagnostics.tempoRpm,1)} rpm相当`:'N/A';$('medianDt').textContent=Number.isFinite(r.diagnostics.medianDtMs)?`${fmt(r.diagnostics.medianDtMs,2)} ms`:'-';$('normJerk').textContent=fmt(r.diagnostics.normalizedJerk,2);$('rotationSign').textContent=motionSemanticsAvailable?r.diagnostics.rotationSign:'N/A';$('rotationCoherence').textContent=motionSemanticsAvailable?fmt(r.diagnostics.rotationCoherence,3):'N/A';$('directionCandidate').textContent=motionSemanticsAvailable?directionText(r.classification.directionCandidate):'N/A';$('staticMotion').textContent=String(r.diagnostics.staticMotion);drawTrace(r.trace);const compact={...r};delete compact.trace;$('json').value=JSON.stringify(compact,null,2);}
+  function finish(){measuring=false;clearInterval(countdownTimer);$('start').disabled=false;$('count').textContent='0.0';try{const result=analyse(samples);showResult(result);addHistory(result);$('message').textContent=`計測完了: ${gestureText(result)}。同条件の繰り返し測定もできます。`;}catch(err){$('message').textContent=`計測失敗: ${err.message}`;$('message').className='bad';}}
+  async function start(){$('message').className='muted';$('start').disabled=true;saveMeta();try{await requestSensors();await new Promise(resolve=>setTimeout(resolve,250));baseline={beta:finite(latestOrientation.beta),gamma:finite(latestOrientation.gamma)};samples=[];$('sampleCount').textContent='0';measuring=true;const started=performance.now();$('message').textContent='計測中…選択したテストパターンを5秒続けてください';countdownTimer=setInterval(()=>{const remain=Math.max(0,5-(performance.now()-started)/1000);$('count').textContent=remain.toFixed(1);},50);setTimeout(finish,5000);}catch(err){$('start').disabled=false;$('message').textContent=`開始できません: ${err.message}`;$('message').className='bad';}}
+  $('start').addEventListener('click',start);
+  $('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('json').value);$('copy').textContent='コピーしました';setTimeout(()=>{$('copy').textContent='測定結果JSONをコピー';},1200);}catch(_){$('json').focus();$('json').select();$('copy').textContent='コピーできないためJSONを選択しました';}});
+  $('copyHistory').addEventListener('click',async()=>{const payload=JSON.stringify({version:VERSION,exportedAt:new Date().toISOString(),measurements:readHistory()},null,2);try{await navigator.clipboard.writeText(payload);$('copyHistory').textContent='履歴をコピーしました';setTimeout(()=>{$('copyHistory').textContent='履歴JSONをまとめてコピー';},1200);}catch(_){$('message').textContent='履歴コピーに失敗しました。個別JSONを利用してください。';$('message').className='warn';}});
+  $('clearHistory').addEventListener('click',()=>{if(!confirm('この端末内のPoC測定履歴を削除しますか？'))return;writeHistory([]);$('message').textContent='端末内の測定履歴をクリアしました。';$('message').className='muted';});
+  loadMeta();updateHistoryCount();
 })();
 </script>
 </body>
