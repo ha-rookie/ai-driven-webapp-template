@@ -30,6 +30,15 @@ jobs:
             docs/05_DESIGN_MANAGEMENT.md
             docs/06_REQUIREMENTS_TRACEABILITY.md
             docs/design/README.md
+            docs/design/index.html
+            docs/design/_headers
+            docs/design-public/index.html
+            docs/design-public/_headers
+            docs/DESIGN_PREVIEW.md
+            docs/SECURITY_BASELINE.md
+            docs/PUBLIC_WEB_QUALITY.md
+            docs/workflow-templates/deploy-production.yml
+            docs/workflow-templates/deploy-design-preview.yml
             docs/adr/README.md
             docs/adr/ADR-0000-template.md
             docs/GIT_WORKFLOW.md
@@ -105,3 +114,44 @@ jobs:
           grep -q "## OGP" docs/ASSET_WORKFLOW.md
           grep -q "## favicon / App Icon / PWA Icon" docs/ASSET_WORKFLOW.md
           grep -q "Git Blob + Base64直接輸送" docs/ASSET_WORKFLOW.md
+
+      - name: Confirm Cloudflare v0.2 standards exist
+        shell: bash
+        run: |
+          set -eu
+          grep -q "GitHub Actions → Wrangler → Cloudflare Pages" docs/CLOUDFLARE_SETUP.md
+          grep -q "Hello World Gate" docs/CLOUDFLARE_SETUP.md
+          grep -q "Production Smoke" docs/CLOUDFLARE_SETUP.md
+          grep -q "CHANGE-ME_PROJECT_NAME" docs/workflow-templates/deploy-production.yml
+
+      - name: Confirm Security baseline exists
+        shell: bash
+        run: |
+          set -eu
+          grep -q "Content-Security-Policy" docs/SECURITY_BASELINE.md
+          grep -q "Strict-Transport-Security" docs/SECURITY_BASELINE.md
+          grep -q "X-Permitted-Cross-Domain-Policies" docs/SECURITY_BASELINE.md
+          grep -q "Production Smoke" docs/SECURITY_BASELINE.md
+          grep -q "外部診断" docs/SECURITY_BASELINE.md
+
+      - name: Confirm Public Web Quality exists
+        shell: bash
+        run: |
+          set -eu
+          grep -q "Google Search Console" docs/PUBLIC_WEB_QUALITY.md
+          grep -q "URLプレフィックス" docs/PUBLIC_WEB_QUALITY.md
+          grep -q "HTMLファイル所有権確認" docs/PUBLIC_WEB_QUALITY.md
+          grep -q "Previewは原則としてindexさせない" docs/PUBLIC_WEB_QUALITY.md
+          grep -q "Public Trust" docs/PUBLIC_WEB_QUALITY.md
+
+      - name: Confirm Design Preview foundation exists
+        shell: bash
+        run: |
+          set -eu
+          grep -q "noindex, nofollow" docs/design/_headers
+          grep -q "noindex, nofollow" docs/design-public/_headers
+          grep -q "pr-<PR番号>" docs/DESIGN_PREVIEW.md
+          grep -q "main最新設計" docs/DESIGN_PREVIEW.md
+          grep -q "manual-<run_id>" docs/DESIGN_PREVIEW.md
+          grep -q "CHANGE-ME_DESIGN_PROJECT" docs/workflow-templates/deploy-design-preview.yml
+          grep -q "Production用Functions / Workers / Bindings" docs/DESIGN_PREVIEW.md

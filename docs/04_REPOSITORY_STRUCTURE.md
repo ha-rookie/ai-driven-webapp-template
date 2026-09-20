@@ -23,7 +23,12 @@
 │  ├─ 04_REPOSITORY_STRUCTURE.md
 │  ├─ 05_DESIGN_MANAGEMENT.md
 │  ├─ 06_REQUIREMENTS_TRACEABILITY.md
+│  ├─ DESIGN_PREVIEW.md
+│  ├─ PUBLIC_WEB_QUALITY.md
+│  ├─ SECURITY_BASELINE.md
 │  ├─ design/
+│  ├─ design-public/
+│  ├─ workflow-templates/
 │  └─ adr/
 ├─ src/                 # framework/app sourceを採用する場合
 ├─ public/              # static public assets / static appの場合
@@ -47,6 +52,8 @@
 | `.github/` | CI、Issue、PR運用 | Source | No |
 | `docs/` | 設計の正本 | Source | 原則No |
 | `docs/design/` | 視覚設計・Design Preview素材 | Source | Design Previewのみ |
+| `docs/design-public/` | Design用Pages Projectのproduction apex placeholder | Source | Design Project apexのみ |
+| `docs/workflow-templates/` | 新規Appで有効化するWorkflow Template | Source | No |
 | `docs/adr/` | 設計判断履歴 | Source | No |
 | `src/` | Application source | Source | Build後Yes |
 | `public/` | 静的配信対象 | Source/Generatedを明記 | Yes |
@@ -92,6 +99,8 @@
 - 定期データ更新 → scripts/
 - Runtime endpoint → functions/ or workers/
 - 設計検証用HTML → docs/design/
+- Design Projectのproduction placeholder → docs/design-public/
+- 無効状態で配布するWorkflow Template → docs/workflow-templates/
 - 本番Asset → public/assets/
 
 ## 7. Forbidden Content
