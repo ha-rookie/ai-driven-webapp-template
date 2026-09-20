@@ -25,6 +25,7 @@
 | `adr/` | なぜ重要な技術判断をしたか | 代替案がある重要な設計判断 |
 | `GIT_WORKFLOW.md` | Git/PRをどう進めるか | Git運用変更 |
 | `CLOUDFLARE_SETUP.md` | Cloudflareをどう構成・確認するか | Cloudflare構成変更 |
+| `SECURITY_BASELINE.md` | 公開WebアプリのSecurity Headerをどう設計・実測するか | Security・Hosting構成変更 |
 | `ASSET_WORKFLOW.md` | Assetをどう生成・承認・引き継ぐか | Asset運用変更 |
 | `RELEASE_CHECKLIST.md` | 何を確認して公開するか | Release条件変更 |
 | `TROUBLESHOOTING.md` | 既知問題をどう回避・復旧するか | 再発可能な障害・制約の発見 |
@@ -53,6 +54,7 @@ IDは内容変更時も可能な限り維持し、別概念になった場合だ
 
 - Cloudflare Pagesを採用する理由 → System Architecture / ADR
 - Pagesの具体的な初期設定手順 → Cloudflare Setup
+- Security Headerの共通基準 → Security Baseline
 - `public/` の責務 → Repository Structure
 - 画面上のボタン配置 → design/
 - そのボタンが必要な理由 → Requirements
