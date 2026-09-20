@@ -1,52 +1,249 @@
 # Release Checklist
 
-## 設計・Issue
+## 0. Releaseの定義
+
+**Merge成功 / Deploy成功だけではRelease完了としない。**
+
+Release完了は、承認済みmainがProductionへ配信され、実際のProduction URL・主要フロー・公開品質を確認し、必要なら設計書を同期した状態とする。
+
+```text
+CI success
+↓
+Human approval
+↓
+Merge
+↓
+Production Deploy
+↓
+Production verification
+↓
+実機確認
+↓
+設計書同期
+↓
+Issue Close / Lessons Learned
+```
+
+## 1. 設計・Issue
 
 - [ ] 要件と非対象が明確
-- [ ] 設計書更新済み
+- [ ] 設計書更新済み、または更新不要の理由を記録
 - [ ] 受け入れ条件が検証可能
 - [ ] Security・SEO・データ・運用影響を確認
+- [ ] rollback / recovery方法を確認
+- [ ] 公開範囲（検索公開 / URL限定共有）を決定
 
-## Code・CI
+## 2. Code・CI
 
 - [ ] lint・test・build成功
 - [ ] 静的データ検証成功
 - [ ] 秘密情報なし
 - [ ] 主要回帰なし
+- [ ] 同一原因の不要なrerunをしていない
+- [ ] review対象head SHAを特定
 
-## Preview
+## 3. Preview
+
+Previewが必要な変更の場合:
 
 - [ ] Preview Deploy成功
 - [ ] スマホ実機確認
-- [ ] シークレットモード確認
-- [ ] Productionデータへ書き込まない
+- [ ] 必要に応じシークレットモード確認
+- [ ] PreviewからProductionデータへ書き込まない
+- [ ] Previewが検索index対象になっていない
+- [ ] Production Analyticsを汚染しない
 - [ ] 人間承認と承認head SHAを記録
 
-## UI・Asset
+Preview省略をHuman decisionした場合:
+
+- [ ] 省略理由をIssue / PRへ記録
+- [ ] Productionで代替確認する項目を明記
+
+## 4. UI・Asset
+
+UI / Asset変更がある場合:
 
 - [ ] 折り返し、選択、focus、disabledを確認
 - [ ] 色だけに依存していない
-- [ ] 承認済みAssetを使用
+- [ ] 承認済みAssetまたは承認済み生成元を使用
 - [ ] 画像欠落・参照切れなし
+- [ ] 小サイズ/モバイルで意味が伝わる
 
-## SEO・Security
+OGP変更時:
+
+- [ ] OGP metadataと実画像が一致
+- [ ] Productionの `og:image` を取得可能
+- [ ] LINE等の実共有先でカード確認、または確認不可理由を記録
+
+favicon / App Icon変更時:
+
+- [ ] favicon
+- [ ] Apple Touch Icon
+- [ ] 192x192
+- [ ] 512x512
+- [ ] maskable icon
+- [ ] 正本から再生成可能、または原本hashを記録
+
+## 5. SEO・Public Trust
+
+検索公開する場合:
 
 - [ ] title・description・canonical
 - [ ] OGP・favicon
-- [ ] robots・sitemap・Preview noindex
-- [ ] Security Headers・CSP・外部リンク
+- [ ] robots.txt
+- [ ] sitemap.xml
+- [ ] Productionが意図せずnoindexになっていない
+- [ ] JSON-LDの要否を確認
+- [ ] About / Footer
+- [ ] Disclaimer / Privacyの要否
+- [ ] Source / 一次情報導線の要否
 
-## Cloudflare・Analytics
+URL限定共有の場合:
+
+- [ ] Productionのnoindex/nofollowを確認
+- [ ] Search Console登録を延期するか記録
+- [ ] About / Privacy等の公開品質は維持
+
+## 6. Security
+
+- [ ] Recommended Security Headers baselineを確認
+- [ ] CSP
+- [ ] HSTS
+- [ ] X-Frame-Optionsまたは同等設計
+- [ ] X-Content-Type-Options
+- [ ] Referrer-Policy
+- [ ] Permissions-Policy
+- [ ] X-Permitted-Cross-Domain-Policies
+- [ ] Pages Functions / Workersがある場合、動的レスポンスも確認
+- [ ] 初回公開 / Header変更 / 大きなArchitecture変更時は外部診断の要否を確認
+
+## 7. Cloudflare・Runtime
 
 - [ ] Variables・Secrets・Bindings
-- [ ] Production Deploy
-- [ ] Analytics受信
-- [ ] Previewを本番計測から除外
-
-## Production・Recovery
-
-- [ ] 本番の主要操作成功
-- [ ] ログに重大エラーなし
+- [ ] ProductionとPreviewの境界
+- [ ] Production Deploy成功
+- [ ] stable Production URLを特定
+- [ ] deployment URL / deploy historyを確認
 - [ ] 前回正常版を特定可能
 - [ ] Rollback手順確認
-- [ ] Lessons Learned更新要否を記録
+
+## 8. Production Verification
+
+Deploy成功後、**stable Production URLを実測**する。
+
+最低限:
+
+- [ ] HTTP 200
+- [ ] HTTPS
+- [ ] 正しいApplication / stable marker
+- [ ] 最新main相当の画面・機能
+- [ ] 主要静的Asset
+- [ ] 主要ユーザーフロー
+- [ ] API / Pages Functions / Workersの実レスポンス
+- [ ] Security Headers
+- [ ] console / networkに重大エラーなし
+- [ ] 通常スマホブラウザ
+- [ ] シークレットモード
+
+アプリの特性に応じて:
+
+- [ ] 位置情報
+- [ ] DeviceMotion / DeviceOrientation
+- [ ] カメラ / マイク
+- [ ] 外部API
+- [ ] ローカル保存
+- [ ] Offline / cache
+
+## 9. PWA（採用時のみ）
+
+- [ ] manifest取得
+- [ ] icon参照
+- [ ] service worker
+- [ ] installability
+- [ ] ホーム画面追加
+- [ ] standalone起動
+- [ ] 主要ユーザーフロー
+- [ ] update / cacheの重大問題なし
+
+PWA非採用の場合は「非採用」と判断を記録する。
+
+## 10. Analytics（採用時のみ）
+
+- [ ] Production受信
+- [ ] Previewを本番計測から除外
+- [ ] smoke testイベントと実利用イベントを区別可能
+- [ ] Privacy記載と実装が一致
+- [ ] 個人識別/位置情報等の収集範囲を確認
+
+Analytics非採用の場合は「非採用」と判断を記録する。
+
+## 11. Google Search Console（検索公開時のみ）
+
+- [ ] Property作成
+- [ ] 所有権確認
+- [ ] 確認ファイルをProductionで取得可能
+- [ ] URL検査
+- [ ] 公開URLライブテスト
+- [ ] index request
+- [ ] sitemap.xml送信
+
+公開直後に完了しないもの:
+
+- [ ] 翌日以降にindex状態を確認
+- [ ] 下位ページのクロール状態を確認
+- [ ] 検索パフォーマンス観測開始
+
+Search Consoleの後日観測はRelease失敗とは扱わない。公開後運用タスクとして追跡する。
+
+## 12. Production実態と設計書の同期
+
+Production確認後:
+
+- [ ] 実装と設計書の差分を確認
+- [ ] 公開URL / Project名 / Architectureが設計書と一致
+- [ ] Human decision（index / Analytics / PWA等）を設計書へ反映
+- [ ] 変更された運用手順を更新
+- [ ] 公開後に判明した制約をKnown Issueへ反映
+
+「実装が正しくて設計書が古い」状態も未完了として扱う。
+
+## 13. Issue Close Evidence
+
+Issue / PRへ最低限残す:
+
+- Production URL
+- 対象commit / merge commit
+- Production deploy run
+- Production smoke結果
+- 実機確認内容
+- Human approval
+- 既知の未完了事項
+- rollback先
+
+後日観測が必要なものは別Issue / Taskとして分離する。
+
+## 14. Lessons Learned / Notionへの昇格
+
+Release後、今回の事象が他アプリでも再利用できるか判断する。
+
+- [ ] 個別アプリ固有 → 当該Repositoryだけに残す
+- [ ] 再発可能な障害 → TROUBLESHOOTINGへ
+- [ ] 手順として再利用可能 → docsへ
+- [ ] 強制できる規約 → Template validation / CIへ
+- [ ] 複数アプリ横断の判断知識 → Notion「AI駆動開発｜実践・設計ハブ」へ
+
+Known Issue → 手順 → Template → CI の順に、再発する判断コストを減らす。
+
+## 15. Release完了判定
+
+以下を満たしてRelease完了とする。
+
+- [ ] CI成功
+- [ ] Human approval
+- [ ] Merge
+- [ ] Production Deploy
+- [ ] Production Verification
+- [ ] 必要な実機確認
+- [ ] 設計書同期
+- [ ] Issue Close Evidence
+- [ ] 後日観測タスクの分離
