@@ -22,10 +22,12 @@
 | `05_DESIGN_MANAGEMENT.md` | 設計書をどう更新・承認・版管理するか | 設計プロセス自体の変更 |
 | `06_REQUIREMENTS_TRACEABILITY.md` | 要件がどの設計・実装・テストに対応するか | 要件・設計・実装の追加変更 |
 | `design/` | UI・画面・視覚的な動きをどう見せるか | 画面・操作・視覚設計の変更 |
+| `DESIGN_PREVIEW.md` | 視覚設計をどう安全に配信・レビューするか | Design Preview運用変更 |
 | `adr/` | なぜ重要な技術判断をしたか | 代替案がある重要な設計判断 |
 | `GIT_WORKFLOW.md` | Git/PRをどう進めるか | Git運用変更 |
 | `CLOUDFLARE_SETUP.md` | Cloudflareをどう構成・確認するか | Cloudflare構成変更 |
 | `SECURITY_BASELINE.md` | 公開WebアプリのSecurity Headerをどう設計・実測するか | Security・Hosting構成変更 |
+| `PUBLIC_WEB_QUALITY.md` | SEO・Search Console・Public Trust・公開範囲をどう判断するか | 公開品質・検索公開方針変更 |
 | `ASSET_WORKFLOW.md` | Assetをどう生成・承認・引き継ぐか | Asset運用変更 |
 | `RELEASE_CHECKLIST.md` | 何を確認して公開するか | Release条件変更 |
 | `TROUBLESHOOTING.md` | 既知問題をどう回避・復旧するか | 再発可能な障害・制約の発見 |
