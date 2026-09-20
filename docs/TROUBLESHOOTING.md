@@ -10,7 +10,25 @@ Draft解除APIを疑う。CIとmergeableが正常なら、同一head SHAから�
 
 ## CI失敗
 
-Workflow、最初の根本エラー、lint、test、build、静的データ、外部設定、Binding、権限の順で確認する。
+### 確認順
+
+1. Workflow / Job / Stepを特定する
+2. annotationと最初の根本エラーを確認する
+3. lint、test、build、静的データを切り分ける
+4. 外部設定、Secrets、Bindings、権限を確認する
+5. 同じ原因で既に失敗していないか直近runを確認する
+
+### rerun判断
+
+- 原因を修正せず同一runを連続rerunしない
+- 一部Jobだけ失敗した場合、可能ならfailed jobだけを再実行する
+- 一時的な外部障害や権限設定修正など、コード差分不要と判断できる場合のみrerunを使う
+- 同じエラーが再現したらrerunを止め、Issue/修正Branchへ戻る
+- `push` と `pull_request` の二重起動が原因で同等CIが重複していないか確認する
+
+### 利用量
+
+GitHub Actionsの利用量が80%・90%へ近づいた場合は、不要なscheduled workflow、重複trigger、旧Workflow、過度に長いtimeoutを点検する。品質確認を省略するのではなく、必須CI・Release関連へ実行枠を優先する。
 
 ## Preview Deploy失敗
 
