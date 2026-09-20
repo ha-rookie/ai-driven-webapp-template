@@ -2,7 +2,7 @@
 
 AIと人間でWebアプリを継続開発するための標準テンプレートです。
 
-コードの雛形だけでなく、設計、Issue、Branch、Pull Request、CI、Cloudflare、Asset、Security、SEO、リリース、振り返りまでを一つのGolden Pathとして管理します。
+コードの雛形だけでなく、設計、Issue、Branch、Pull Request、CI、Cloudflare、Asset、Security、SEO、Search Console、リリース、公開後確認、知見還流までを一つのGolden Pathとして管理します。
 
 ## 基本原則
 
@@ -15,10 +15,13 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 7. 失敗をKnown Issue、手順、テンプレート、CIへ順に昇格する
 8. GitHubのmainを承認済み設計の正本とする
 9. 設計書ごとの責務を分け、同じ事実を複数文書へ重複管理しない
+10. CIは品質ゲートであると同時に有限の実行資源として扱う
+11. PWA・Analytics・検索index公開・LLMO等は一律必須にせずHuman decisionを残す
+12. Merge / Deploy成功だけでRelease完了とせず、Production実測・実機確認・設計書同期まで行う
 
 ## Golden Path
 
-アイデア → 企画 → 要件 → Architecture → UI設計 → Issue → Branch → 実装 → CI → Preview → 人間レビュー → Merge → Production → SEO・Security・Analytics確認 → 振り返り
+アイデア → 企画 → 要件 → Architecture → UI設計 → Issue → Branch → 実装 → CI → Preview → 人間レビュー → Merge → Production Deploy → Production Verification → 設計書同期 → 公開後観測 → 振り返り / 知見還流
 
 ## 使い始めるとき
 
@@ -29,7 +32,10 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - `docs/04_REPOSITORY_STRUCTURE.md` を実際のRepository treeへ合わせる
 - 重要な技術判断は `docs/adr/` に残す
 - UIの認識差が出る場合は `docs/design/` でVisual Designを作る
-- CloudflareのHello World Deployを先に通す
+- Design Previewが必要なら `docs/DESIGN_PREVIEW.md` に従いWorkflow Templateを有効化する
+- CloudflareのHello World Gateを先に通す
+- Production配信が必要なら `docs/workflow-templates/deploy-production.yml` をアプリ側へコピーしてCHANGE-MEを置き換える
+- Security baseline、公開範囲、index/noindex、About/Privacy、GSC、PWA、Analyticsの採否を決める
 - 必要なIssueをテンプレートから作る
 - Release Checklistをプロジェクトに合わせて更新する
 
@@ -42,6 +48,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - 視覚レビュー: `docs/design/` + 必要に応じDesign Preview
 - 設計判断履歴: `docs/adr/`
 - 構築キャプチャー・外部資料: Google Drive
+- 複数アプリで再利用する開発判断: Notion
 - Chat上の確定事項: 必ず該当設計書へ反映
 
 詳細は [Design Management](docs/05_DESIGN_MANAGEMENT.md) を参照する。
@@ -59,6 +66,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - [Design Management](docs/05_DESIGN_MANAGEMENT.md)
 - [Requirements Traceability](docs/06_REQUIREMENTS_TRACEABILITY.md)
 - [Visual Design](docs/design/README.md)
+- [Design Preview](docs/DESIGN_PREVIEW.md)
 - [Architecture Decision Records](docs/adr/README.md)
 
 ### Development / Operations
@@ -66,9 +74,37 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - [Git Workflow](docs/GIT_WORKFLOW.md)
 - [Asset Workflow](docs/ASSET_WORKFLOW.md)
 - [Cloudflare Setup](docs/CLOUDFLARE_SETUP.md)
+- [Security Baseline](docs/SECURITY_BASELINE.md)
+- [Public Web Quality](docs/PUBLIC_WEB_QUALITY.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [Release Checklist](docs/RELEASE_CHECKLIST.md)
 
-## v0.1の位置づけ
+### Workflow Templates
 
-朝マズメ潮ナビで得た実証結果を基にした初版です。良かった「GitHub設計正本・HTML設計Preview・設計先行」は継承し、設計書の責務分離、ADR、要件トレーサビリティを追加しています。別ジャンルのアプリで検証し、3〜5アプリで繰り返し有効だったものを標準へ昇格します。
+Template Repository自身ではCloudflareへ自動Deployしない。
+
+新規アプリで利用する場合に、以下を `.github/workflows/` へコピーしてCHANGE-MEを置き換える。
+
+- `docs/workflow-templates/deploy-production.yml`
+- `docs/workflow-templates/deploy-design-preview.yml`
+
+## v0.2の位置づけ
+
+v0.1は朝マズメ潮ナビを中心に、GitHub設計正本・Issue/PR運用・HTML Design Preview・Cloudflare公開の骨格を抽出した初版だった。
+
+v0.2では、その後の**朝マズメ潮ナビ、あと一杯ナビ、よう拝（遥拝）アプリ、くるくるソムリエ**等の実開発で繰り返し有効だった知見をTemplateへ還流した。
+
+主な追加・強化:
+
+- GitHub Actionsの利用量・重複実行・rerun判断
+- OGP / favicon / PWA iconのAssetライフサイクル
+- Git Blob + Base64による画像輸送の判断基準
+- GitHub Actions + Wrangler + Cloudflare Pagesのbootstrap / Production経路
+- Production / Preview / Design Previewの責務分離
+- Recommended Security HeadersとProduction実測
+- SEO / Search Console / About / Privacy / Public Trust
+- 検索公開 / URL限定共有のHuman decision
+- Production Verificationと設計書同期
+- 公開後の知見をNotion → GitHub Templateへ還流するループ
+
+個別アプリ固有のロジックや、LitLink・ProtoPedia固有の運用はTemplateへ直接固定せず、再利用できる原則だけを標準化する。
