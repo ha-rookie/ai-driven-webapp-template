@@ -85,3 +85,11 @@ jobs:
           grep -q "Asset配置場所:" .github/ISSUE_TEMPLATE/feature.yml
           grep -q "file hash または承認head SHA:" .github/ISSUE_TEMPLATE/feature.yml
           grep -q "## 実装Issueへの引き継ぎ" docs/ASSET_WORKFLOW.md
+      - name: Confirm GitHub Actions resource rules exist
+        shell: bash
+        run: |
+          set -eu
+          grep -q "## GitHub Actions 実行資源" docs/GIT_WORKFLOW.md
+          grep -q "同一原因を修正しないまま連続rerunしない" docs/GIT_WORKFLOW.md
+          grep -q "## CI失敗" docs/TROUBLESHOOTING.md
+          grep -q "failed jobだけ" docs/TROUBLESHOOTING.md
