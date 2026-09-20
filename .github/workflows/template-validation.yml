@@ -85,3 +85,15 @@ jobs:
           grep -q "Asset配置場所:" .github/ISSUE_TEMPLATE/feature.yml
           grep -q "file hash または承認head SHA:" .github/ISSUE_TEMPLATE/feature.yml
           grep -q "## 実装Issueへの引き継ぎ" docs/ASSET_WORKFLOW.md
+
+      - name: Confirm Asset lifecycle rules exist
+        shell: bash
+        run: |
+          set -eu
+          grep -q "## Assetの3分類" docs/ASSET_WORKFLOW.md
+          grep -q "原本保存型" docs/ASSET_WORKFLOW.md
+          grep -q "ビルド時生成型" docs/ASSET_WORKFLOW.md
+          grep -q "同一Blob再利用型" docs/ASSET_WORKFLOW.md
+          grep -q "## OGP" docs/ASSET_WORKFLOW.md
+          grep -q "## favicon / App Icon / PWA Icon" docs/ASSET_WORKFLOW.md
+          grep -q "Git Blob + Base64直接輸送" docs/ASSET_WORKFLOW.md
