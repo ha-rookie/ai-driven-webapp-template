@@ -133,6 +133,10 @@ jobs:
           grep -q "X-Permitted-Cross-Domain-Policies" docs/SECURITY_BASELINE.md
           grep -q "Production Smoke" docs/SECURITY_BASELINE.md
           grep -q "外部診断" docs/SECURITY_BASELINE.md
+          grep -q "https://www.ssl.org/security-headers" docs/SECURITY_BASELINE.md
+          grep -q "Production smoke成功だけでSecurity確認を完了扱いにせず" docs/SECURITY_BASELINE.md
+          grep -q "外部Security Headers診断を実施" docs/RELEASE_CHECKLIST.md
+          grep -q "外部診断の対象URL・実施日・Recommended項目の結果" docs/RELEASE_CHECKLIST.md
 
       - name: Confirm Public Web Quality exists
         shell: bash
