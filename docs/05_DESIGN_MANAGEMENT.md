@@ -79,6 +79,9 @@ Design Issue
 | File/Folder配置 | 04_REPOSITORY_STRUCTURE |
 | UI/画面/Interaction | design/ + 必要に応じ03 |
 | Cloudflare手順 | CLOUDFLARE_SETUP |
+| Design Preview | DESIGN_PREVIEW + design/ |
+| 公開品質・SEO・GSC | PUBLIC_WEB_QUALITY |
+| Security Header | SECURITY_BASELINE |
 | Asset | ASSET_WORKFLOW + Feature Issue Asset Handoff |
 | Release条件 | RELEASE_CHECKLIST |
 | 再発可能な障害 | TROUBLESHOOTING |
@@ -149,6 +152,8 @@ Requirement
 - スマホで確認する
 
 Design Previewの自動デプロイ自体はプロジェクト開始時に必要性を判断する。
+
+有効化する場合は `DESIGN_PREVIEW.md` を正本とし、PR=`pr-N`、main=`latest`、manual=`manual-<run_id>` のPreview aliasを基本候補とする。Template Repository自身ではDesign Previewを自動Deployしない。
 
 ## 11. Google Drive
 
