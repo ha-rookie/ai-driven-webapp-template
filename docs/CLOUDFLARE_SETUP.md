@@ -160,7 +160,7 @@ Deploy履歴、ログ、前回正常版、Rollback、障害時判断、データ
 
 ## 13. Design Previewとの責務分離
 
-Design Previewは #13 の標準に従い、視覚設計レビュー専用の配信面として扱う。
+Design Previewは `docs/DESIGN_PREVIEW.md` の標準に従い、視覚設計レビュー専用の配信面として扱う。
 
 Production App Preview / Production Deployとは別物とする。
 
@@ -169,3 +169,11 @@ Production App Preview / Production Deployとは別物とする。
 - Production: mainの承認済み成果物
 
 Production用Functions/Workers/BindingsをDesign Previewへ混入させない。
+
+
+## 14. 関連文書
+
+- `DESIGN_PREVIEW.md`: Design専用Pages Project / Preview alias / noindex
+- `SECURITY_BASELINE.md`: Recommended Security Headers / Production実測
+- `PUBLIC_WEB_QUALITY.md`: SEO / Search Console / Public Trust / index判断
+- `RELEASE_CHECKLIST.md`: Production verification / Release完了条件
