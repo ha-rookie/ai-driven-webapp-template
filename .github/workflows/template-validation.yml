@@ -148,8 +148,8 @@ jobs:
         shell: bash
         run: |
           set -eu
-          grep -q "noindex,nofollow" docs/design/_headers
-          grep -q "noindex,nofollow" docs/design-public/_headers
+          grep -q "noindex, nofollow" docs/design/_headers
+          grep -q "noindex, nofollow" docs/design-public/_headers
           grep -q "pr-<PR番号>" docs/DESIGN_PREVIEW.md
           grep -q "main最新設計" docs/DESIGN_PREVIEW.md
           grep -q "manual-<run_id>" docs/DESIGN_PREVIEW.md
