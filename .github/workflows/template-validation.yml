@@ -93,3 +93,15 @@ jobs:
           grep -q "同一原因を修正しないまま連続rerunしない" docs/GIT_WORKFLOW.md
           grep -q "## CI失敗" docs/TROUBLESHOOTING.md
           grep -q "failed jobだけ" docs/TROUBLESHOOTING.md
+
+      - name: Confirm Asset lifecycle rules exist
+        shell: bash
+        run: |
+          set -eu
+          grep -q "## Assetの3分類" docs/ASSET_WORKFLOW.md
+          grep -q "原本保存型" docs/ASSET_WORKFLOW.md
+          grep -q "ビルド時生成型" docs/ASSET_WORKFLOW.md
+          grep -q "同一Blob再利用型" docs/ASSET_WORKFLOW.md
+          grep -q "## OGP" docs/ASSET_WORKFLOW.md
+          grep -q "## favicon / App Icon / PWA Icon" docs/ASSET_WORKFLOW.md
+          grep -q "Git Blob + Base64直接輸送" docs/ASSET_WORKFLOW.md
