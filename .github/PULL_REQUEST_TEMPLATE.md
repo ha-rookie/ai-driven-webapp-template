@@ -21,6 +21,7 @@ Closes #
 - [ ] Preview Deploy
 - [ ] スマホ実機
 - [ ] 主要回帰
+- [ ] Merge後のProduction deploy / smoke確認（該当時）
 
 ## 影響
 
@@ -53,6 +54,17 @@ Closes #
 - 引き継ぐ承認内容:
 - [ ] 元PRと同一head SHAを確認した
 - [ ] head SHAが異なる場合は再レビューした
+
+## Production Verified
+
+Merge後にProductionがある場合のみ記載する。
+
+- Production deploy: 成功 / 失敗 / 該当なし
+- Production smoke:
+- [ ] Analytics smoke成功（該当時）
+- [ ] Security headers smoke成功（該当時）
+- [ ] Production上の主要回帰確認
+- [ ] 必要なProduction確認完了後にIssueをCloseする
 
 ## 回復
 
