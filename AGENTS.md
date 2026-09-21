@@ -4,6 +4,10 @@
 
 AIは、速くコードを書くことより、設計・証跡・レビュー可能性・安全な回復を優先する。
 
+## 作業開始時の必須ガードレール
+
+Humanとの共同作業では、最初に `docs/HUMAN_AI_COLLABORATION.md` を確認する。特にGitHub URLの提示、画像等バイナリの受け渡し、画像生成、新規制作への工程遷移では、同文書のSTOP Gateを実行前に適用する。Repository固有ルールはこの共通ガードレールを暗黙に弱めてはならない。外部サービスのQuota・権限・障害等がある場合はGR-007を適用し、実行されていないCI / Preview / Deploy等を成功・確認済みとして扱わない。
+
 ## 設計書の読み方
 
 作業開始時は `docs/README.md` を入口にし、変更内容に対応する正本を読む。
@@ -46,6 +50,27 @@ AIは、速くコードを書くことより、設計・証跡・レビュー可
 - 破壊的操作、本番公開、重要なMerge、認証は人間判断を残す
 - コードが動いていても、必要な設計更新が欠けていれば完了扱いにしない
 
+## AI変更制御
+
+AIによる変更は、調査・契約・変更・検証の境界を分ける。
+
+- **Scope Lock**: 変更前にGoal、In Scope / Out of Scope、Planned Files、Validation、Stop Conditionsを確認し、合意した範囲を固定する
+- **Read-only First**: 変更前にmain、Issue、関連設計書、関連test / workflow、外部制約を読み、現状を確認する
+- **Pre-flight**: 変更対象・依存関係・Risk Level・実行可能な検証を先に整理する
+- **Discovery / Modification separation**: 調査中に見つけた別問題を、そのまま同じ変更へ混ぜない
+- **Unexpected File Change Stop**: Planned Files外の変更が必要になったら停止し、理由と影響をHumanへ報告する
+- **No Opportunistic Fix**: ついで修正をしない。別問題はIssue候補として分離する
+- **Minimum Necessary Diff**: 目的達成に必要な最小差分を優先する
+- **Instruction Boundary**: 「続けて」は現在合意済み工程の継続であり、Scope拡張・破壊的操作・Merge・Production releaseの承認ではない
+- **Approval Boundary**: Human承認が必要な工程は、明示承認前に越えない
+- **Evidence Before Claim**: 実行していないCI / Preview / Deploy / smokeを成功・確認済みとして扱わない
+- **Risk Level**: Low / Medium / Highを作業前に判定し、Highはrollback・停止条件・Human確認点を明記する
+- **Stop報告**: 停止理由、影響範囲、実施済み、未実施、次に必要な確認を分けて記載する
+
+ルールの優先順位は、Security・明示されたHuman承認境界・このRepositoryの必須規約・IssueのChange Contract・通常手順の順とし、利便性のために上位ルールを弱めない。
+
+CI失敗やActions制約の分類は `docs/GIT_WORKFLOW.md` と `docs/TROUBLESHOOTING.md` を正本とする。
+
 ## 設計変更
 
 Small Changeは同一Branch内で設計を先に更新してから実装してよい。
@@ -59,6 +84,14 @@ Architecture、画面構造、データschema、認証、課金、外部IF等の
 PR本文にはIssue、変更内容、非対象、変更した設計書/設計ID、テスト、Security、SEO、Preview、人間確認、回復方法を記載する。
 
 Draft解除コネクタの互換性が確認できるまでは通常PRを使用し、レビューゲートでマージを止める。Replacement PRを作る場合は元PR、同一head SHA、承認内容、CI run、Preview runを引き継ぐ。
+
+## 人間・AIのGitHub作業分担
+
+- AIがConnector/APIで実行可能なGitHub操作はAIが担当し、人間へ手作業として押し戻さない
+- 人間へ依頼するのは、認証・承認・実機確認・Connectorで扱えないbinary upload等、本当に人間操作が必要な作業に限定する
+- 人間へbinary uploadを依頼する前に、AIがrepository、branch、配置path、filename、extensionを確定する
+- directory作成、branch作成、code/doc更新、commit、PR等をAIが実行可能なら、人間へ事前作業として要求しない
+- 人間操作後はAIがRepository上の結果を再確認してから次工程へ進む
 
 ## Asset
 
