@@ -21,6 +21,7 @@ Closes #
 - [ ] Preview Deploy
 - [ ] スマホ実機
 - [ ] 主要回帰
+- [ ] Merge後のProduction deploy / smoke確認（該当時）
 
 ## 影響
 
@@ -30,6 +31,37 @@ Closes #
 - Cloudflare:
 - Operations:
 - Asset:
+
+## Issue Contract / Scope Evidence
+
+- [ ] IssueのGoal / In Scope / Out of Scopeと一致している
+- [ ] Planned Filesと実変更fileを比較した
+- 実変更file:
+- 予定外変更: あり / なし
+- Scope拡張承認: 該当なし / 承認済み / 未承認
+- Risk Level: Low / Medium / High
+- CI Trigger:
+- 実施済み検証:
+- 未検証:
+- 完了ステータス: Implemented / CI Validated / Blocked / Production Verified
+- [ ] Planned Files外の変更がある場合、理由とHuman承認を記録した
+- [ ] ついで修正を混ぜていない
+
+## Collaboration Guardrails
+
+- [ ] `docs/HUMAN_AI_COLLABORATION.md` の該当STOP Gateを確認した
+- [ ] GitHub URLをHumanへ渡す場合、コードブロック内の生URLで提示した
+- [ ] Binary Assetがある場合、Human Upload標準フローを使用した
+- [ ] 新規画像生成がある場合、生成前にHumanの明示承認を確認した
+- [ ] 外部制約がある場合、影響範囲と未実行の検証を明記した
+- [ ] 未実行のCI / Preview / Deploy等を成功・確認済みとして扱っていない
+
+## External Capability / Quota（該当時のみ）
+
+- 制限中の機能:
+- 影響する検証:
+- 代替して実施した確認:
+- 制限解除後の再検証:
 
 ## Review Gate
 
@@ -53,6 +85,17 @@ Closes #
 - 引き継ぐ承認内容:
 - [ ] 元PRと同一head SHAを確認した
 - [ ] head SHAが異なる場合は再レビューした
+
+## Production Verified
+
+Merge後にProductionがある場合のみ記載する。
+
+- Production deploy: 成功 / 失敗 / 該当なし
+- Production smoke:
+- [ ] Analytics smoke成功（該当時）
+- [ ] Security headers smoke成功（該当時）
+- [ ] Production上の主要回帰確認
+- [ ] 必要なProduction確認完了後にIssueをCloseする
 
 ## 回復
 

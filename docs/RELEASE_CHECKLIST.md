@@ -115,7 +115,8 @@ URL限定共有の場合:
 - [ ] Permissions-Policy
 - [ ] X-Permitted-Cross-Domain-Policies
 - [ ] Pages Functions / Workersがある場合、動的レスポンスも確認
-- [ ] 初回公開 / Header変更 / 大きなArchitecture変更時は外部診断の要否を確認
+- [ ] 初回公開 / Header変更 / 大きなArchitecture変更 / 公開ドメイン変更に該当する場合、SSL.org等で外部Security Headers診断を実施
+- [ ] 外部診断の対象URL・実施日・Recommended項目の結果・追加対応判断をIssue / PRへ記録
 
 ## 7. Cloudflare・Runtime
 

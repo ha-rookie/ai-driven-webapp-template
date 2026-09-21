@@ -52,6 +52,22 @@
 - Design用とProduction用で同じ原本を使う場合に有効
 - 片方だけ差し替わった場合は別内容として扱う
 
+## Asset変更前のPre-check
+
+既存Assetの差し替え前に、現在のProduction仕様と参照関係を確認する。
+
+- dimensions
+- format
+- filename / path
+- aspect ratio
+- references
+- related tests / CI
+- Production current spec
+
+単純な画像差し替えと、技術仕様変更を分ける。既存dimensions、path、format、参照方式は、変更理由とHuman承認がない限り原則維持する。
+
+testを通すこと自体を目的に仕様を広げない。OGP差し替えからHTMLのwidth / height、cache parameter、URL仕様、参照方式等へ変更が波及する場合は、**Scope拡張**として停止し、Issue / Change Contractを更新してから進める。
+
 ## Assetのライフサイクル
 
 ```text
@@ -116,52 +132,38 @@ OGPは共有時に表示されるため、通常のUI Assetとは別に契約を
 
 正本の場所はProject OverviewまたはAsset設計に明記する。
 
-## ChatGPTからGitHubへバイナリ画像を渡す場合
+## ChatGPTとHumanでGitHubへバイナリ画像を渡す場合
 
-承認済みJPEG / PNG等をChatGPTからGitHubへ登録する場合は、**Git Blob + Base64直接輸送**を第一候補とする。
+Human/AI間の操作手順は `docs/HUMAN_AI_COLLABORATION.md` を正本とする。
+
+画像等のバイナリは **Human Uploadを標準経路** とする。Humanへ依頼する作業は原則file uploadだけとし、branch / folder / path / filenameの準備とupload後確認はAIが担当する。
 
 ```text
-原本画像
+承認済み原本
 ↓
-Base64化（輸送用）
+AIがIssue専用Branch / Upload先Folderを準備
 ↓
-Git Blob作成
+AIがBranch・Folder・期待ファイル名・コピー用GitHub生URLを提示
 ↓
-Blob SHA確認
+HumanがGitHubへUpload
 ↓
-Tree
+AIがGitHub上の実ファイルを確認
 ↓
-Commit
-↓
-Branch ref
-↓
-GitHub上の画像
+hash / Blob SHA / 寸法 / 形式を確認
 ↓
 CI / Preview / Production
 ```
 
 ### 原則
 
-- Base64は保存形式ではなく輸送形式として使う
-- Base64分割ファイルを恒久的にRepositoryへ残さない
-- create_blobが成功しても、期待する画像と同一とは即断しない
-- Blob SHA、最終ファイル、サイズ、寸法、形式、Previewを確認する
-- 直接輸送に制約がある場合のみGoogle Drive等のクラウドストレージ中継を代替候補とする
-- 中継を使った場合も原本とGitHub上の成果物の同一性を確認する
-- 「Base64が長い」「GitHub APIだから」だけで失敗原因を決めつけない
-
-### 失敗時の切り分け
-
-1. 元画像は正常か
-2. バイト数・hashは確定しているか
-3. Base64全文は欠損していないか
-4. create_blobへ渡した内容は同一か
-5. 返却Blob SHAは想定どおりか
-6. Treeのpath / mode / type / shaは正しいか
-7. CommitのTreeは正しいか
-8. Branch refは新Commitを指しているか
-9. GitHub上の最終ファイルは正常か
-10. Preview / Productionで正常配信されるか
+- ChatGPTからGitHubへバイナリを直接登録できる前提を置かない
+- API/Connectorに輸送手段が見えても、直接Uploadを標準経路として再試行しない
+- GitHub URLの提示形式は `GR-001` に従う
+- Human Uploadは `GR-002` に従う
+- HumanがUpload完了を伝えた後は、再Uploadを依頼する前にGitHub上を確認する
+- 承認済み原本をUpload都合で再生成・色変更・トリミングしない
+- GitHub上の最終ファイルについて、必要に応じてBlob SHA、hash、サイズ、寸法、形式、Previewを確認する
+- Human Uploadが技術的に不可能な場合だけ、別輸送経路をHumanと相談して決める
 
 ## 実装Issueへの引き継ぎ
 

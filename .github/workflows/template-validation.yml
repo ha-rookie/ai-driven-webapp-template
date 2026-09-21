@@ -43,6 +43,7 @@ jobs:
             docs/adr/ADR-0000-template.md
             docs/GIT_WORKFLOW.md
             docs/ASSET_WORKFLOW.md
+            docs/HUMAN_AI_COLLABORATION.md
             docs/CLOUDFLARE_SETUP.md
             docs/TROUBLESHOOTING.md
             docs/RELEASE_CHECKLIST.md
@@ -113,7 +114,35 @@ jobs:
           grep -q "同一Blob再利用型" docs/ASSET_WORKFLOW.md
           grep -q "## OGP" docs/ASSET_WORKFLOW.md
           grep -q "## favicon / App Icon / PWA Icon" docs/ASSET_WORKFLOW.md
-          grep -q "Git Blob + Base64直接輸送" docs/ASSET_WORKFLOW.md
+          grep -q "Human Uploadを標準経路" docs/ASSET_WORKFLOW.md
+          grep -q "GR-001 GitHub URL presentation" docs/HUMAN_AI_COLLABORATION.md
+          grep -q "GR-002 Binary files use Human Upload by default" docs/HUMAN_AI_COLLABORATION.md
+          grep -q "GR-003 Image generation requires explicit approval" docs/HUMAN_AI_COLLABORATION.md
+          grep -q "GR-007 External capability / quota limitation" docs/HUMAN_AI_COLLABORATION.md
+          grep -q "External Capability / Quota" .github/PULL_REQUEST_TEMPLATE.md
+
+      - name: Confirm consolidated pending standards exist
+        shell: bash
+        run: |
+          set -eu
+          grep -q "## AI変更制御" AGENTS.md
+          grep -q "## 人間・AIのGitHub作業分担" AGENTS.md
+          grep -q "## Change Contract / Pre-flight" docs/GIT_WORKFLOW.md
+          grep -q "### CI失敗分類" docs/GIT_WORKFLOW.md
+          grep -q "A: 今回の変更" docs/GIT_WORKFLOW.md
+          grep -q "Implemented" docs/GIT_WORKFLOW.md
+          grep -q "Actionsが起動しない・開始前に失敗する" docs/TROUBLESHOOTING.md
+          grep -q "Asset変更前のPre-check" docs/ASSET_WORKFLOW.md
+          grep -q "Production current spec" docs/ASSET_WORKFLOW.md
+          grep -q "label: Planned Files" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "label: Risk Level" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "label: Stop Conditions" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "label: Planned Files" .github/ISSUE_TEMPLATE/bug.yml
+          grep -q "## Issue Contract / Scope Evidence" .github/PULL_REQUEST_TEMPLATE.md
+          grep -q "## Production Verified" .github/PULL_REQUEST_TEMPLATE.md
+          grep -q "人間によるbinary upload:" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "SSL.org" docs/SECURITY_BASELINE.md
+          grep -q "SSL.org" docs/RELEASE_CHECKLIST.md
 
       - name: Confirm Cloudflare v0.2 standards exist
         shell: bash
