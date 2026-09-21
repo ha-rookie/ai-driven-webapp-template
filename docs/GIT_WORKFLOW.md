@@ -89,6 +89,62 @@ Actions上限や外部制約だけを理由にGitHub作業全体を停止しな�
 
 これらを混同しない。
 
+## Public Repository Gate / Ruleset
+
+RepositoryをPrivateからPublicへ変更する場合、visibility変更だけで完了としない。
+
+GitHub Templateから作成したRepositoryには、Template RepositoryのSettings / Rulesetは引き継がれない。したがって、Public化するRepositoryごとにRulesetを作成する。
+
+### Public化前
+
+- `.github/workflows/fork-monitor.yml` がdefault branchへ反映済み
+- RepositoryのIssuesが有効
+- Secret、token、credential、個人情報、非公開資料、公開禁止Assetが履歴を含めて存在しないことを確認する
+
+### Public化直後
+
+Repository Settings → Rules → Rulesets でbranch ruleset `main protection` を作成する。
+
+必須設定:
+
+- Enforcement: `Active`
+- Target: Default branch
+- Bypass: なし
+- Restrict deletions: ON
+- Require a pull request before merging: ON
+- Required approvals: 0
+- Require conversation resolution before merging: ON
+- Allowed merge methods: Merge / Squash
+- Block force pushes: ON
+
+PR用CIが存在するRepositoryでは追加で:
+
+- Require status checks to pass: ON
+- Required checksはRepository固有の実在checkを登録する
+- 対象PRで常に生成されるcheckだけをRequiredにする
+- Require branches to be up to date before merging: ON
+
+Template Repository自身をPublic化する場合も同じRulesetを作成する。
+
+### 完了確認
+
+画面設定だけで完了扱いにしない。GitHub API等のRead-only確認で次を実測する。
+
+- visibility = `public`
+- default branch上にFork monitorが存在
+- Ruleset `main protection` が存在
+- enforcement = `active`
+- default branch対象
+- deletion禁止
+- PR必須
+- conversation resolution必須
+- allowed merge methodsが意図どおり
+- force push禁止
+- bypassなし
+- Required status checks採用時はcheck名とup-to-date設定が意図どおり
+
+全項目確認後に **Public Repository Gate = Passed** と記録する。
+
 ## Branch保護が強制できない場合
 
 GitHub画面でRulesetが強制されないと表示される場合、設定済みと扱わない。

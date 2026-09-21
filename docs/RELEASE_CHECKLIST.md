@@ -33,6 +33,41 @@ Issue Close / Lessons Learned
 - [ ] rollback / recovery方法を確認
 - [ ] 公開範囲（検索公開 / URL限定共有）を決定
 
+## 1.5 Public Repository Gate（Public化する場合）
+
+### Public化前
+
+- [ ] `.github/workflows/fork-monitor.yml` がdefault branchに存在
+- [ ] RepositoryのIssuesが有効
+- [ ] Secret / token / credential / 個人情報 / 非公開資料 / 公開禁止Assetを公開しないことを確認
+
+### Public化直後
+
+- [ ] Ruleset `main protection` を作成
+- [ ] Enforcement = Active
+- [ ] Target = Default branch
+- [ ] Bypassなし
+- [ ] Restrict deletions = ON
+- [ ] Require a pull request before merging = ON
+- [ ] Required approvals = 0
+- [ ] Require conversation resolution before merging = ON
+- [ ] Allowed merge methods = Merge / Squash
+- [ ] Block force pushes = ON
+- [ ] PR用CIがある場合、Repository固有のRequired status checksを登録
+- [ ] Required status checks採用時、Require branches to be up to date before merging = ON
+
+GitHub TemplateのSettings / Rulesetは派生Repositoryへ引き継がれないため、Public化するRepositoryごとに作成する。Template Repository自身をPublic化する場合も同じ。
+
+### 実測確認
+
+- [ ] GitHub API等でvisibility = publicを確認
+- [ ] default branch上のFork monitor実体を確認
+- [ ] Rulesetの存在とenforcement = activeを確認
+- [ ] default branch対象、deletion禁止、PR必須、conversation resolution、merge method、force push禁止を確認
+- [ ] bypassなしを確認
+- [ ] Required status checks採用時、check名とup-to-date設定を確認
+- [ ] **Public Repository Gate = Passed** をIssue / PRへ記録
+
 ## 2. Code・CI
 
 - [ ] lint・test・build成功
