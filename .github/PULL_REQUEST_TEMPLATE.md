@@ -31,6 +31,13 @@ Closes #
 - Operations:
 - Asset:
 
+## Collaboration Guardrails
+
+- [ ] `docs/HUMAN_AI_COLLABORATION.md` の該当STOP Gateを確認した
+- [ ] GitHub URLをHumanへ渡す場合、コードブロック内の生URLで提示した
+- [ ] Binary Assetがある場合、Human Upload標準フローを使用した
+- [ ] 新規画像生成がある場合、生成前にHumanの明示承認を確認した
+
 ## Review Gate
 
 - [ ] 最新mainを取り込み済み
