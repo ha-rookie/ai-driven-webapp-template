@@ -50,6 +50,7 @@ jobs:
             .github/ISSUE_TEMPLATE/feature.yml
             .github/ISSUE_TEMPLATE/bug.yml
             .github/PULL_REQUEST_TEMPLATE.md
+            .github/workflows/fork-monitor.yml
           )
           for path in "${required[@]}"; do
             test -s "$path" || { echo "Missing or empty: $path"; exit 1; }
@@ -143,6 +144,20 @@ jobs:
           grep -q "人間によるbinary upload:" .github/ISSUE_TEMPLATE/feature.yml
           grep -q "SSL.org" docs/SECURITY_BASELINE.md
           grep -q "SSL.org" docs/RELEASE_CHECKLIST.md
+
+      - name: Confirm Public Repository Gate exists
+        shell: bash
+        run: |
+          set -eu
+          grep -q "^  fork:$" .github/workflows/fork-monitor.yml
+          grep -q "^  contents: read$" .github/workflows/fork-monitor.yml
+          grep -q "^  issues: write$" .github/workflows/fork-monitor.yml
+          grep -q "github.rest.issues.create" .github/workflows/fork-monitor.yml
+          grep -q "## Public Repository Gate" docs/GIT_WORKFLOW.md
+          grep -q "main protection" docs/GIT_WORKFLOW.md
+          grep -q "Public Repository Gate = Passed" docs/GIT_WORKFLOW.md
+          grep -q "## 1.5 Public Repository Gate" docs/RELEASE_CHECKLIST.md
+          grep -q "Block force pushes" docs/RELEASE_CHECKLIST.md
 
       - name: Confirm Cloudflare v0.2 standards exist
         shell: bash
