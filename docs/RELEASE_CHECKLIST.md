@@ -43,7 +43,9 @@ Issue Close / Lessons Learned
 
 ### Public化直後
 
-- [ ] Ruleset `main protection` を作成
+- [ ] HumanがGitHub UIでRuleset `main protection` を作成
+- [ ] 管理権限を持つPAT / GitHub App / WorkflowでRulesetを自動作成していない
+- [ ] AIは作成後のRulesetをRead-only APIで実測確認
 - [ ] Enforcement = Active
 - [ ] Target = Default branch
 - [ ] Bypassなし
