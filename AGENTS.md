@@ -60,9 +60,19 @@ PR本文にはIssue、変更内容、非対象、変更した設計書/設計ID�
 
 Draft解除コネクタの互換性が確認できるまでは通常PRを使用し、レビューゲートでマージを止める。Replacement PRを作る場合は元PR、同一head SHA、承認内容、CI run、Preview runを引き継ぐ。
 
+## 人間・AIのGitHub作業分担
+
+- AIがConnector/APIで実行可能なGitHub操作はAIが担当し、人間へ手作業として押し戻さない
+- 人間へ依頼するのは、認証・承認・実機確認・Connectorで扱えないbinary upload等、本当に人間操作が必要な作業に限定する
+- 人間へbinary uploadを依頼する前に、AIがrepository、branch、配置path、filename、extensionを確定する
+- directory作成、branch作成、code/doc更新、commit、PR等をAIが実行可能なら、人間へ事前作業として要求しない
+- 人間操作後はAIがRepository上の結果を再確認してから次工程へ進む
+
 ## Asset
 
 画像要件 → 生成 → 人間確認 → Design Preview → 承認head SHA → 本番配置の順に扱う。Chat上の生成物が自動的にRepositoryへ入る前提を置かない。
+
+Connectorでbinary Assetを直接登録できない場合は、人間へAsset fileのuploadだけを依頼し、branch/path/filenameの確定、upload後確認、code/test/PRはAI側で継続する。詳細は `docs/ASSET_WORKFLOW.md` を参照する。
 
 ## Cloudflare
 
