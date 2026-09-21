@@ -126,7 +126,11 @@ Functions/APIがある場合、HTMLだけでなく重要な動的レスポンス
 
 Security Headers外部診断は常時実行しない。
 
-実施タイミング:
+標準候補:
+
+- SSL.org Security Headers Test: https://www.ssl.org/security-headers
+
+実施条件:
 
 - 初回公開
 - Security Headers変更時
@@ -134,7 +138,17 @@ Security Headers外部診断は常時実行しない。
 - 公開ドメイン変更時
 - Production smokeと外部挙動が一致しない時
 
-毎DeployではProduction smokeを使う。
+上記のいずれかに該当する場合は、Production smoke成功だけでSecurity確認を完了扱いにせず、外部診断まで実施する。
+
+診断後は最低限、以下をIssueまたはPull Requestへ記録する。
+
+- 診断対象のProduction URL
+- 実施日
+- Recommended baselineのPresent状況
+- Missing項目のうちOptional / Informationalを追加しない判断
+- 必要な追加対応の有無
+
+毎DeployではProduction smokeを使い、外部診断は上記条件に該当するときだけ実施する。
 
 外部診断結果は「Present数」を競うのではなく、Recommended baselineが意図どおり返っているかを判断する。
 
