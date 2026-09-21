@@ -37,6 +37,15 @@ Closes #
 - [ ] GitHub URLをHumanへ渡す場合、コードブロック内の生URLで提示した
 - [ ] Binary Assetがある場合、Human Upload標準フローを使用した
 - [ ] 新規画像生成がある場合、生成前にHumanの明示承認を確認した
+- [ ] 外部制約がある場合、影響範囲と未実行の検証を明記した
+- [ ] 未実行のCI / Preview / Deploy等を成功・確認済みとして扱っていない
+
+## External Capability / Quota（該当時のみ）
+
+- 制限中の機能:
+- 影響する検証:
+- 代替して実施した確認:
+- 制限解除後の再検証:
 
 ## Review Gate
 
