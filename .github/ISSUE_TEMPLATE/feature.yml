@@ -19,7 +19,7 @@ body:
   - type: textarea
     id: expected
     attributes:
-      label: 期待する動作
+      label: Goal / 期待する動作
     validations:
       required: true
   - type: textarea
@@ -29,6 +29,39 @@ body:
       placeholder: |
         対象:
         非対象:
+    validations:
+      required: true
+  - type: textarea
+    id: planned_files
+    attributes:
+      label: Planned Files
+      description: 変更予定のfile / directory。未確定の場合は候補と未確定理由を記載
+      placeholder: |
+        - path/to/file
+    validations:
+      required: true
+  - type: dropdown
+    id: risk_level
+    attributes:
+      label: Risk Level
+      options:
+        - Low
+        - Medium
+        - High
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation
+      description: lint、test、build、Preview、実機、Production等、完了判定に必要な確認
+    validations:
+      required: true
+  - type: textarea
+    id: stop_conditions
+    attributes:
+      label: Stop Conditions
+      description: Scope拡張、Planned Files外変更、外部制約など、Human確認へ戻る条件
     validations:
       required: true
   - type: textarea
@@ -46,6 +79,8 @@ body:
         元Design Issue/PR:
         承認済みAsset一覧:
         Asset配置場所:
+        人間によるbinary upload: 必要 / 不要
+        人間作業が必要な場合の範囲:
         file hash または承認head SHA:
         承認Preview:
         補足:
