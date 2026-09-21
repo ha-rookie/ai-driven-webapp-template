@@ -103,7 +103,9 @@ GitHub Templateから作成したRepositoryには、Template RepositoryのSettin
 
 ### Public化直後
 
-Repository Settings → Rules → Rulesets でbranch ruleset `main protection` を作成する。
+Repository Settings → Rules → Rulesets でbranch ruleset `main protection` をHumanが作成する。
+
+Ruleset作成は **Human operation** とする。管理権限を持つPAT / GitHub App / WorkflowへAdministration write権限を渡して自動作成しない。AIはGitHub UIでの設定手順案内と、作成後のRead-only API確認を担当する。
 
 必須設定:
 
