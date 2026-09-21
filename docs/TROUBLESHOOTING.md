@@ -30,6 +30,31 @@ Draft解除APIを疑う。CIとmergeableが正常なら、同一head SHAから�
 
 GitHub Actionsの利用量が80%・90%へ近づいた場合は、不要なscheduled workflow、重複trigger、旧Workflow、過度に長いtimeoutを点検する。品質確認を省略するのではなく、必須CI・Release関連へ実行枠を優先する。
 
+### 原因分類
+
+CI失敗は、修正やrerunの前に分類する。
+
+| 分類 | 内容 | 初動 |
+| --- | --- | --- |
+| A | 今回の変更が原因 | 差分を修正 |
+| B | 古いtest / validation | 現仕様とtestのどちらが正本か確認 |
+| C | 環境・外部制約 | quota、billing、権限、runner、外部サービスを確認 |
+| D | 既存問題 | 今回Scopeから分離し、影響を記録 |
+| E | 未確定 | 追加証拠を集め、推測で修正しない |
+
+### Actionsが起動しない・開始前に失敗する
+
+1. RepositoryがPublic / Privateか確認する
+2. runner種別を確認する
+3. Workflow triggerが今回のeventを対象にしているか確認する
+4. Workflow run / Jobが実際に開始したか確認する
+5. quota / billing / permission / GitHub側障害を確認する
+6. JobのStepが開始していない場合、コード失敗と断定しない
+7. 外部制約なら分類Cとし、依存しない作業だけ継続する
+8. CIは未検証として残し、制限解除後の再検証対象へ入れる
+
+rerunは、設定変更、一時障害の解消、利用枠回復など**結果が変わる根拠がある場合のみ**行う。
+
 ## Preview Deploy失敗
 
 BuildとDeployを分ける。出力先、変数、Secrets、Bindings、Cloudflare側機能、Production依存を確認する。
