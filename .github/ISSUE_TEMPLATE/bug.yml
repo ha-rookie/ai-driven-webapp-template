@@ -28,7 +28,47 @@ body:
   - type: textarea
     id: expected
     attributes:
-      label: 期待する動作
+      label: Goal / 期待する動作
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: In Scope / Out of Scope
+      placeholder: |
+        In Scope:
+        Out of Scope:
+    validations:
+      required: true
+  - type: textarea
+    id: planned_files
+    attributes:
+      label: Planned Files
+      description: 変更予定のfile / directory
+    validations:
+      required: true
+  - type: dropdown
+    id: risk_level
+    attributes:
+      label: Risk Level
+      options:
+        - Low
+        - Medium
+        - High
+    validations:
+      required: true
+  - type: textarea
+    id: validation_plan
+    attributes:
+      label: Validation
+      description: 修正後に必要なlint、test、build、Preview、実機、Production確認
+    validations:
+      required: true
+  - type: textarea
+    id: stop_conditions
+    attributes:
+      label: Stop Conditions
+      description: Scope拡張、Planned Files外変更、外部制約など、Human確認へ戻る条件
     validations:
       required: true
   - type: textarea
@@ -50,6 +90,7 @@ body:
         - Binding / Secret
         - Asset
         - 外部サービス
+        - GitHub Actions / Quota
     validations:
       required: true
   - type: textarea
