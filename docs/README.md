@@ -14,6 +14,7 @@
 
 | 文書 | 答える質問 | 主な更新契機 |
 | --- | --- | --- |
+| `HUMAN_AI_COLLABORATION.md` | HumanとAIがどう共同作業し、どこで停止するか | GitHub受け渡し・画像生成・共同作業ガードレールの変更 |
 | `00_PROJECT_OVERVIEW.md` | なぜ作るか、誰の何を解決するか | 目的・対象・成功条件の変更 |
 | `01_REQUIREMENTS.md` | 何を満たすか | 機能・非機能・制約の変更 |
 | `02_SYSTEM_ARCHITECTURE.md` | システム全体をどう構成するか | Hosting、外部サービス、データ経路、環境分離の変更 |
