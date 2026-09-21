@@ -89,6 +89,69 @@ Actions上限や外部制約だけを理由にGitHub作業全体を停止しな�
 
 これらを混同しない。
 
+## Public Repository Gate
+
+RepositoryをPrivateからPublicへ変更する操作はHigh Riskとして扱い、単なるvisibility変更ではなく次のGateを完了して初めて「Public化完了」とする。
+
+### Public化前 Gate
+
+Publicへ変更する前に、default branchのmainへ次を反映済みにする。
+
+- `.github/workflows/fork-monitor.yml` が存在する
+- Workflow triggerが `fork` である
+- Workflow権限は `contents: read` と `issues: write` の必要最小限である
+- Fork検知時にSource、Fork URL、Fork owner、Created atをIssueへ記録する
+- RepositoryのIssuesが有効である
+- Secret、token、credential、個人情報、非公開資料、公開禁止Assetが履歴を含めて存在しないことを別のSecurity確認で確認する
+
+Fork monitorはコピー防止ではない。GitHub上のForkイベントを観測するためのものであり、`git clone`、ZIP download、手動コピーを完全に検知・防止するものではない。
+
+### Public化直後 Gate
+
+Public化後は、他の変更・Merge・Production releaseへ進む前にRuleset `main protection` を作成する。
+
+必須設定:
+
+- Enforcement: `Active`
+- Target: default branch
+- Bypass: なし
+- Restrict deletions: ON
+- Require a pull request before merging: ON
+- Required approvals: 0
+- Require conversation resolution before merging: ON
+- Allowed merge methods: Merge / Squash
+- Block force pushes: ON
+
+PR用CIが存在するRepositoryでは追加で:
+
+- Require status checks to pass: ON
+- Required checksはRepository固有の実在checkを登録する
+- Required checkは対象PRで常に生成されるcheckだけを指定する。path filter等で実行されない可能性があるcheckを直接Requiredにしない
+- Require branches to be up to date before merging: ON
+
+Ruleset名やRequired check名をテンプレートから推測しない。実際のRepository / Workflow / Check RunをRead-onlyで確認して設定する。
+
+### 完了確認
+
+画面で設定しただけではGate Passedとしない。GitHub API等のRead-only確認で最低限次を実測する。
+
+- Repository visibilityが `public`
+- default branch上に `.github/workflows/fork-monitor.yml` が存在する
+- Ruleset `main protection` が存在する
+- `enforcement = active`
+- default branchが対象
+- deletion禁止
+- PR必須
+- conversation resolution必須
+- allowed merge methodsが意図どおり
+- force push禁止
+- bypassなし
+- Required status checks採用時はcheck名とup-to-date設定が意図どおり
+
+全項目を確認して初めて **Public Repository Gate = Passed** と記録する。
+
+Public化後にRuleset未設定が判明した場合は、通常開発を継続せずGate修復を優先する。ただしRepositoryをPrivateへ戻すかどうかはHuman decisionとする。
+
 ## Branch保護が強制できない場合
 
 GitHub画面でRulesetが強制されないと表示される場合、設定済みと扱わない。
