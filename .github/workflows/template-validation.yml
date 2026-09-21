@@ -115,6 +115,16 @@ jobs:
           grep -q "## favicon / App Icon / PWA Icon" docs/ASSET_WORKFLOW.md
           grep -q "Git Blob + Base64直接輸送" docs/ASSET_WORKFLOW.md
 
+      - name: Confirm GitHub human/AI and Production Verified rules exist
+        shell: bash
+        run: |
+          set -eu
+          grep -q "## 人間・AIのGitHub作業分担" AGENTS.md
+          grep -q "人間uploadが必要な場合の標準フロー" docs/ASSET_WORKFLOW.md
+          grep -q "人間によるbinary upload:" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "## Production Verified" .github/PULL_REQUEST_TEMPLATE.md
+          grep -q "Production deploy:" .github/PULL_REQUEST_TEMPLATE.md
+
       - name: Confirm Cloudflare v0.2 standards exist
         shell: bash
         run: |
