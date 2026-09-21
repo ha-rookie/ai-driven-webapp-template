@@ -118,7 +118,25 @@ OGPは共有時に表示されるため、通常のUI Assetとは別に契約を
 
 ## ChatGPTからGitHubへバイナリ画像を渡す場合
 
-承認済みJPEG / PNG等をChatGPTからGitHubへ登録する場合は、**Git Blob + Base64直接輸送**を第一候補とする。
+承認済みJPEG / PNG等をGitHubへ登録するときは、**利用中のConnector/APIがbinaryを安全に扱えるかを先に確認する**。Git Blob + Base64直接輸送を固定の第一候補にはしない。
+
+Connectorでbinary登録を扱えない場合、人間の担当は原則として**確定済みpathへのfile uploadだけ**とする。
+
+### 人間uploadが必要な場合の標準フロー
+
+1. AIが対象repository / branchを確認する
+2. AIが配置directory / filename / extensionを確定する
+3. AIが可能なら必要なdirectory / branchを作成する
+4. AIが人間へupload対象fileと配置先だけを提示する
+5. 人間がbinary fileをuploadする
+6. AIがGitHub上のfile、path、size等を再確認する
+7. AIがcode / docs / test / PR作業を継続する
+
+人間にdirectory作成、branch作成、code編集等まで依頼しない。既にAssetが準備済みなら、技術的理由がない限り再作成を求めない。
+
+### Git Blob + Base64を利用する場合
+
+Connector/APIが対応し、完全なbyte列を安全に輸送できる場合の選択肢として利用できる。
 
 ```text
 原本画像
