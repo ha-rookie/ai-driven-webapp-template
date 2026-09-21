@@ -43,6 +43,7 @@ jobs:
             docs/adr/ADR-0000-template.md
             docs/GIT_WORKFLOW.md
             docs/ASSET_WORKFLOW.md
+            docs/HUMAN_AI_COLLABORATION.md
             docs/CLOUDFLARE_SETUP.md
             docs/TROUBLESHOOTING.md
             docs/RELEASE_CHECKLIST.md
@@ -113,7 +114,12 @@ jobs:
           grep -q "同一Blob再利用型" docs/ASSET_WORKFLOW.md
           grep -q "## OGP" docs/ASSET_WORKFLOW.md
           grep -q "## favicon / App Icon / PWA Icon" docs/ASSET_WORKFLOW.md
-          grep -q "Git Blob + Base64直接輸送" docs/ASSET_WORKFLOW.md
+          grep -q "Human Uploadを標準経路" docs/ASSET_WORKFLOW.md
+          grep -q "GR-001 GitHub URL presentation" docs/HUMAN_AI_COLLABORATION.md
+          grep -q "GR-002 Binary files use Human Upload by default" docs/HUMAN_AI_COLLABORATION.md
+          grep -q "GR-003 Image generation requires explicit approval" docs/HUMAN_AI_COLLABORATION.md
+          grep -q "GR-007 External capability / quota limitation" docs/HUMAN_AI_COLLABORATION.md
+          grep -q "External Capability / Quota" .github/PULL_REQUEST_TEMPLATE.md
 
       - name: Confirm Cloudflare v0.2 standards exist
         shell: bash
