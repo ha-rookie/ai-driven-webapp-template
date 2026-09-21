@@ -46,6 +46,8 @@ body:
         元Design Issue/PR:
         承認済みAsset一覧:
         Asset配置場所:
+        人間によるbinary upload: 必要 / 不要
+        人間作業が必要な場合の範囲:
         file hash または承認head SHA:
         承認Preview:
         補足:
