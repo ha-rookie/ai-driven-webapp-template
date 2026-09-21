@@ -33,6 +33,46 @@ Issue Close / Lessons Learned
 - [ ] rollback / recovery方法を確認
 - [ ] 公開範囲（検索公開 / URL限定共有）を決定
 
+## 1.5 Public Repository Gate（Public化する場合）
+
+RepositoryをPrivateからPublicへ変更する場合、visibility変更だけでは完了としない。
+
+### Public化前
+
+- [ ] `.github/workflows/fork-monitor.yml` がmainに存在
+- [ ] triggerが `fork`
+- [ ] Workflow権限が `contents: read` / `issues: write` の必要最小限
+- [ ] Fork検知時にIssueを作成する
+- [ ] RepositoryのIssuesが有効
+- [ ] Secret / token / credential / 個人情報 / 非公開資料 / 公開禁止Assetを公開しないことを確認
+
+### Public化直後
+
+- [ ] Ruleset `main protection` を作成
+- [ ] Enforcement = Active
+- [ ] Target = default branch
+- [ ] Bypassなし
+- [ ] Restrict deletions
+- [ ] Require a pull request before merging
+- [ ] Required approvals = 0
+- [ ] Require conversation resolution before merging
+- [ ] Allowed merge methods = Merge / Squash
+- [ ] Block force pushes
+- [ ] PR用CIがある場合、常に生成されるRepository固有checkをRequired status checksへ登録
+- [ ] Required status checks採用時、Require branches to be up to date before mergingを有効化
+
+### 実測確認
+
+- [ ] GitHub API等でvisibility = publicを確認
+- [ ] default branch上のFork monitor実体を確認
+- [ ] Rulesetの存在と `enforcement = active` を確認
+- [ ] default branch対象、deletion禁止、PR必須、conversation resolution、merge method、force push禁止を確認
+- [ ] bypassなしを確認
+- [ ] Required status checks採用時、check名とup-to-date設定を確認
+- [ ] **Public Repository Gate = Passed** をIssue / PRへ記録
+
+Fork monitorはForkイベント観測用であり、Clone / ZIP download / 手動コピーの完全監視ではない。
+
 ## 2. Code・CI
 
 - [ ] lint・test・build成功
