@@ -11,6 +11,21 @@
 - `design/issue-<number>-<summary>`
 - `docs/issue-<number>-<summary>`
 
+## Change Contract / Pre-flight
+
+変更前にIssueで次を確定する。
+
+- Goal
+- In Scope / Out of Scope
+- Planned Files
+- Risk Level
+- Validation
+- Stop Conditions
+
+AIは最初にRead-onlyでmain、Issue、関連設計書、関連test / workflowを確認する。Planned Files外の変更、Scope拡張、別問題の修正が必要になった場合は、その場で変更を広げず停止してHumanへ報告する。
+
+調査と変更を分け、ついで修正を避け、目的達成に必要な最小差分を優先する。
+
 ## PR作成前
 
 - Issueの受け入れ条件を確認
@@ -50,6 +65,29 @@ CIは品質ゲートであると同時に、月次利用枠を消費する有限
 - 90%到達時: 必須CIとリリース関連を優先し、任意検証や頻繁な手動実行を抑える
 - 残量とリセット日を確認し、期限のあるProduction Releaseに必要な実行枠を残す
 - 品質ゲート自体は外さず、実行回数・対象・順序を最適化する
+
+### CI失敗分類
+
+CI失敗は次のどれかに分類してから対応する。
+
+- **A: 今回の変更** — 現在の差分が直接原因
+- **B: 古いtest / validation** — 現仕様とtest・検証条件がずれている
+- **C: 環境・外部制約** — Actions quota、billing、権限、外部サービス、runner等
+- **D: 既存問題** — 今回の差分以前から存在する問題
+- **E: 未確定** — 証拠不足でまだ分類できない
+
+分類前に、RepositoryがPublic / Privateのどちらか、runnerがstandard GitHub-hosted / larger / self-hostedのどれか、Workflow trigger、Jobが実際に開始したかを確認する。
+
+Actions上限や外部制約だけを理由にGitHub作業全体を停止しない。設計、コード、文書、静的レビューなど制約に依存しない作業は継続できる。ただし依存するCI / Preview / Deployは **未検証** と記録し、必要なReview Gate / Merge Gateで停止する。
+
+### 実装状態の表現
+
+- **Implemented**: 変更は作成済み
+- **CI Validated**: 必須CIが実行され成功
+- **Blocked**: 外部制約または未解決問題で次Gateへ進めない
+- **Production Verified**: Merge後のProduction確認まで完了
+
+これらを混同しない。
 
 ## Branch保護が強制できない場合
 
