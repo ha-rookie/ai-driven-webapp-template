@@ -89,6 +89,27 @@ This document defines Human/AI collaboration behavior.
 
 Do not rewrite a collaboration preference as an application architecture decision. If both apply, satisfy both.
 
+
+## GR-007 External capability / quota limitation
+
+When a required external capability is unavailable because of quota, billing, permission, service outage, plan limitation, or another execution constraint, do not treat the dependent verification as successful or completed.
+
+Examples include GitHub Actions, Cloudflare deployment/Preview, connectors, and other external execution services.
+
+During a limitation:
+
+1. identify the unavailable capability and affected repositories/workflows
+2. continue only work that does not depend on that capability, such as design, code changes, documentation, and static review where appropriate
+3. record each dependent check as **unverified / not executed**
+4. distinguish a limitation from an implementation failure
+5. keep a clear re-verification queue for after the limitation is removed
+6. do not claim CI, Preview, deployment, smoke test, or other dependent checks passed when they did not run
+7. do not use an unexecuted check as evidence for a Human approval gate, Merge gate, or Production decision that requires that check
+
+A limitation in one repository or service must not be generalized to another repository without checking whether the same limitation actually applies there.
+
+**STOP:** If a required gate depends on a currently unavailable capability, stop at that gate. Do not label the work verified or complete. Resume the blocked verification after the limitation is removed.
+
 ## Recurrence handling
 
 When the Human reports a repeated violation:
