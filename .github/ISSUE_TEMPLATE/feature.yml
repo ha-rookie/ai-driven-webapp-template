@@ -60,6 +60,19 @@ body:
         - High
     validations:
       required: true
+  - type: checkboxes
+    id: impact_flags
+    attributes:
+      label: Impact Flags
+      description: 該当する影響だけ選択する。未選択項目はNoとして扱う
+      options:
+        - label: Runtime
+        - label: UI
+        - label: Mobile / Sensor
+        - label: Asset
+        - label: Security / Secret / Infra
+        - label: Public Repository
+        - label: Design / Operation Meaning
   - type: textarea
     id: validation
     attributes:
