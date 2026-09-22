@@ -94,7 +94,9 @@ Do not rewrite a collaboration preference as an application architecture decisio
 
 When a required external capability is unavailable because of quota, billing, permission, service outage, plan limitation, or another execution constraint, do not treat the dependent verification as successful or completed.
 
-Examples include GitHub Actions, Cloudflare deployment/Preview, connectors, and other external execution services.
+Examples include GitHub Actions, Cloudflare deployment/Preview, connectors, and other external execution services. A capability limitation also includes a case where the currently available Tool / Connector does not provide the requested operation at all.
+
+Before asking the Human to approve an operation, first verify that the currently available AI Tool / Connector can actually perform that operation after approval. Human approval does not create a capability that the AI does not have.
 
 During a limitation:
 
@@ -107,6 +109,8 @@ During a limitation:
 7. do not use an unexecuted check as evidence for a Human approval gate, Merge gate, or Production decision that requires that check
 
 A limitation in one repository or service must not be generalized to another repository without checking whether the same limitation actually applies there.
+
+**STOP:** If AI is about to ask for Human approval while the post-approval operation has not been verified as available to the current Tool / Connector, verify capability first. If the operation is unavailable, state that limitation instead of implying that approval would make execution possible.
 
 **STOP:** If a required gate depends on a currently unavailable capability, stop at that gate. Do not label the work verified or complete. Resume the blocked verification after the limitation is removed.
 
