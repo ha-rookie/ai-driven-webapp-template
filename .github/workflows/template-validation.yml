@@ -49,6 +49,7 @@ jobs:
             docs/RELEASE_CHECKLIST.md
             .github/ISSUE_TEMPLATE/feature.yml
             .github/ISSUE_TEMPLATE/bug.yml
+            .github/ISSUE_TEMPLATE/quick-change.yml
             .github/PULL_REQUEST_TEMPLATE.md
             .github/workflows/fork-monitor.yml
           )
@@ -139,8 +140,19 @@ jobs:
           grep -q "Production current spec" docs/ASSET_WORKFLOW.md
           grep -q "label: Planned Files" .github/ISSUE_TEMPLATE/feature.yml
           grep -q "label: Risk Level" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "label: Impact Flags" .github/ISSUE_TEMPLATE/feature.yml
           grep -q "label: Stop Conditions" .github/ISSUE_TEMPLATE/feature.yml
           grep -q "label: Planned Files" .github/ISSUE_TEMPLATE/bug.yml
+          grep -q "label: Impact Flags" .github/ISSUE_TEMPLATE/bug.yml
+          grep -q "label: Goal" .github/ISSUE_TEMPLATE/quick-change.yml
+          grep -q "Quick ChangeはLow Risk専用" .github/ISSUE_TEMPLATE/quick-change.yml
+          grep -q "label: Impact Flags" .github/ISSUE_TEMPLATE/quick-change.yml
+          grep -q "Human Gate" .github/ISSUE_TEMPLATE/quick-change.yml
+          grep -q "## Risk / Impact Execution Profile" docs/GIT_WORKFLOW.md
+          grep -q "Human Gateまで連続実行" docs/GIT_WORKFLOW.md
+          grep -q "1 Issue = 1 coherent goal" docs/GIT_WORKFLOW.md
+          grep -q "## 0.5 Risk / Impact 適用範囲" docs/RELEASE_CHECKLIST.md
+          grep -q "## Execution Profile / Impact Flags" .github/PULL_REQUEST_TEMPLATE.md
           grep -q "## Issue Contract / Scope Evidence" .github/PULL_REQUEST_TEMPLATE.md
           grep -q "## Production Verified" .github/PULL_REQUEST_TEMPLATE.md
           grep -q "人間によるbinary upload:" .github/ISSUE_TEMPLATE/feature.yml

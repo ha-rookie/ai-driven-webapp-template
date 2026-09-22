@@ -21,12 +21,73 @@ Issueは「何を変えるか」を定義するChange Contract、Branchは「そ
 - In Scope / Out of Scope
 - Planned Files
 - Risk Level
+- Impact Flags
 - Validation
 - Stop Conditions
 
 AIは最初にRead-onlyでmain、Issue、関連設計書、関連test / workflowを確認する。Planned Files外の変更、Scope拡張、別問題の修正が必要になった場合は、その場で変更を広げず停止してHumanへ報告する。
 
 調査と変更を分け、ついで修正を避け、目的達成に必要な最小差分を優先する。
+
+## Risk / Impact Execution Profile
+
+既存の `Risk Level: Low / Medium / High` を、単なる記録ではなく実行プロファイルとして使う。別のLite / Standard / Strict分類は増やさない。
+
+### Impact Flags
+
+Change Contractでは次をYes / Noで判定する。
+
+- Runtime
+- UI
+- Mobile / Sensor
+- Asset
+- Security / Secret / Infra
+- Public Repository
+- Design / Operation Meaning
+
+Riskは変更の危険度、Impact Flagsは必要な確認面を表す。RiskだけでPreviewやProduction確認の有無を決めない。
+
+### Low
+
+主な対象はdocs、README、文言、小さなCSS、非Runtime整理、既存仕様を変えない軽微修正。
+
+必須はGoal / Scope / Planned Files / Risk / Impact Flags / Validation / Stop Conditions / Branch / PR / Human Merge approval。ImpactがなければDesign Preview、実機、Production Verification、ADR、Notion同期、外部Security診断を要求しない。
+
+Human介入は原則として最終Review / Merge判断の1回を目標とする。Stop Conditionに入った場合のみ追加確認する。
+
+### Medium
+
+通常Feature、UI変更、API接続、PWA、Local Storage等。Impact Flagsに応じてPreview、実機、Production Verification、Notion同期等を適用する。
+
+Human介入は原則1〜2回とし、必要なUI / 実機Reviewと最終Merge判断へ集中させる。
+
+### High
+
+Security、Auth、Secrets、Data migration、Production infra、Public / Private変更、Ruleset、課金、大きなArchitecture変更、破壊的操作等。Full Gateを維持し、軽量化対象にしない。
+
+### Human Gateまで連続実行
+
+Change Contractが合意済みなら、AIは次のHuman GateまたはStop Conditionまで連続して進める。
+
+1. Read-only確認
+2. Issue専用Branch
+3. 実装
+4. 適用対象のlint / test / build
+5. PR作成
+6. CI確認
+7. Impactに応じたPreview準備・確認
+
+途中でHumanへ戻すのは、Planned Files外変更、Scope拡張、Risk上昇、material Design decision、画像生成、Binary Upload、実機Human Review、Merge、Production / Publicの重要操作、Connector / Tool limitation等。
+
+GR-004「Continue is scoped」は維持する。承認境界を減らすのではなく、**承認境界と単なる工程境界を分ける**。
+
+### 1 Issue = 1 coherent goal
+
+「1 Issue = 1変更」は、ファイル単位・微修正単位ではなく、1つのまとまった目的を基本とする。
+
+同じHuman Review、同じ画面・機能領域、同じRisk、同じValidationで確認でき、Architecture / Security / Dataへ波及しない軽微修正は1つのReview Fix Issueへまとめてよい。
+
+Scopeが別機能へ広がる、Riskが変わる、別のHuman decisionが必要、Architecture / Security / Dataへ波及する場合は別Issueへ分離する。
 
 ## 作業復帰 / Recognition Mismatch Guardrail
 
@@ -56,13 +117,13 @@ Humanから「前にやった」「認識が違う」「それではない」「
 
 - Issueの受け入れ条件を確認
 - 最新mainを取り込む
-- lint・test・buildを実行
+- Risk / Impactに応じて必要なlint・test・buildを実行
 - 設計書、Security、SEO、データ、運用影響を確認
-- Preview確認方法を用意
+- UI / Runtime等のImpactがある場合だけ必要なPreview確認方法を用意
 
 ## Review Gate
 
-通常PRを第一候補とする。CI、Preview、スマホ実機、人間承認、承認head SHAを記録してからMergeする。
+通常PRを第一候補とする。Risk / Impactに応じて必要なCI、Preview、スマホ実機を実施し、人間承認と承認head SHAを記録してからMergeする。非該当のGateを形式的に要求しない。
 
 ## GitHub Actions 実行資源
 

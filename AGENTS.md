@@ -77,9 +77,11 @@ AIによる変更は、調査・契約・変更・検証の境界を分ける。
 - **No Opportunistic Fix**: ついで修正をしない。別問題はIssue候補として分離する
 - **Minimum Necessary Diff**: 目的達成に必要な最小差分を優先する
 - **Instruction Boundary**: 「続けて」は現在合意済み工程の継続であり、Scope拡張・破壊的操作・Merge・Production releaseの承認ではない
-- **Approval Boundary**: Human承認が必要な工程は、明示承認前に越えない
+- **Approval Boundary**: Human承認が必要な工程は、明示承認前に越えない。Human GateはDesign判断、実機確認、Binary Upload、重要なMerge、Production/Publicの重要操作、破壊的操作、Risk上昇、Scope拡張などに限定し、単なる工程境界と区別する
 - **Evidence Before Claim**: 実行していないCI / Preview / Deploy / smokeを成功・確認済みとして扱わない
-- **Risk Level**: Low / Medium / Highを作業前に判定し、Highはrollback・停止条件・Human確認点を明記する
+- **Risk Level**: Low / Medium / Highを作業前に判定し、Riskに応じて必要なGateと証跡量を変える。Highはrollback・停止条件・Human確認点を明記する
+- **Impact Flags**: Runtime / UI / Mobile・Sensor / Asset / Security・Secret・Infra / Public Repository / Design・Operation Meaning をYes/No判定し、Preview・実機・Production・Notion同期等を条件適用する
+- **Human Gateまで連続実行**: Change Contractが合意済みなら、AIはRead-only確認 → Branch → 実装 → 適用対象のlint/test/build → PR → CI → 条件付きPreviewまで、次のHuman GateまたはStop Conditionに当たるまで連続して進める。「続けて」を各機械工程の再承認として要求しない
 - **Stop報告**: 停止理由、影響範囲、実施済み、未実施、次に必要な確認を分けて記載する
 
 ルールの優先順位は、Security・明示されたHuman承認境界・このRepositoryの必須規約・IssueのChange Contract・通常手順の順とし、利便性のために上位ルールを弱めない。
