@@ -8,6 +8,20 @@ AIは、速くコードを書くことより、設計・証跡・レビュー可
 
 Humanとの共同作業では、最初に `docs/HUMAN_AI_COLLABORATION.md` を確認する。特にGitHub URLの提示、画像等バイナリの受け渡し、画像生成、新規制作への工程遷移では、同文書のSTOP Gateを実行前に適用する。Repository固有ルールはこの共通ガードレールを暗黙に弱めてはならない。外部サービスのQuota・権限・障害等がある場合はGR-007を適用し、実行されていないCI / Preview / Deploy等を成功・確認済みとして扱わない。
 
+## 作業復帰時の必須ガードレール
+
+新しいチャットや中断後は、過去チャットの記憶だけから現在地を決めない。
+
+- Notionの最終設計・現在地を確認する
+- Open Issueは変更仕様として読む
+- 対応Branch / PRを確認し、実装途中の事実を読む
+- mainとの差分とMerge状態を確認する
+- 必要な場合だけGoogle Driveの作業データを確認する
+- Boxは普遍的な原典・生データの確認が必要な場合だけ参照する
+- Open Issueだけを根拠に「未着手」「未実装」と判断しない
+
+Humanから「前にやった」「認識が違う」「それではない」「もう実装したはず」等の指摘があった場合は推測を停止し、Issue → Branch / PR → main → 必要な作業データをRead-onlyで確認して差分を特定する。
+
 ## 設計書の読み方
 
 作業開始時は `docs/README.md` を入口にし、変更内容に対応する正本を読む。
@@ -31,11 +45,12 @@ Humanとの共同作業では、最初に `docs/HUMAN_AI_COLLABORATION.md` を�
 3. 仕様変更なら正本設計書を先に更新する
 4. Architecture上の重要判断ならADRを更新・追加する
 5. Requirement変更ならTraceabilityも更新する
-6. 1 Issue専用Branchで実装する
+6. 1 Issue専用Branchで実装する。Branch名にIssue番号を含め、Issue → Branch → PR → Mergeを追跡可能にする
 7. lint・test・buildを実行する
 8. Previewで確認可能な状態にする
 9. 人間承認前にmainへマージしない
 10. Merge後にProductionと主要回帰を確認する
+11. 設計・仕様・運用が変わった場合はNotion最終設計をmainへ同期する。設計変更なしならIssue / PRへ更新不要を記録する
 
 ## 必須ルール
 
