@@ -110,6 +110,36 @@ A limitation in one repository or service must not be generalized to another rep
 
 **STOP:** If a required gate depends on a currently unavailable capability, stop at that gate. Do not label the work verified or complete. Resume the blocked verification after the limitation is removed.
 
+## GR-008 Evidence-based work resumption / Recognition mismatch
+
+When resuming work after a new chat, interruption, context loss, or a Human/AI recognition mismatch, do not decide the current state from conversation memory, a single search result, or an Issue state alone.
+
+Evidence reconciliation:
+
+1. prefer a known direct reference such as path, SHA, Issue, Branch, or PR over a broad search result
+2. inspect the Issue / Change Contract
+3. inspect the corresponding Branch / PR and actual changed files
+4. compare with main and determine whether the change is merged
+5. compare main with the current Notion design/state when the design or operational meaning is relevant
+6. inspect Google Drive only when working data or generated output is relevant
+7. return to Box only when immutable original/raw evidence must be verified
+
+Search is a discovery mechanism. A zero-result search is not, by itself, proof that a known file, rule, implementation, or historical work does not exist.
+
+When the Human says or clearly indicates “that is different,” “we did that before,” “that should already be implemented,” or another recognition mismatch, stop extending the current assumption and reconcile the direct evidence first.
+
+Distinguish at least:
+
+- not found
+- wrong path/ref/branch
+- search/index limitation
+- connector/capability limitation
+- unmerged implementation
+- merged implementation
+- Notion synchronization lag
+
+**STOP:** If AI is about to claim “does not exist,” “not implemented,” “not started,” or an equivalent state from memory, search results, or Issue state alone while stronger direct evidence can be checked, stop and perform evidence reconciliation first.
+
 ## Recurrence handling
 
 When the Human reports a repeated violation:

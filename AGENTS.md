@@ -10,7 +10,7 @@ Humanとの共同作業では、最初に `docs/HUMAN_AI_COLLABORATION.md` を�
 
 ## 作業復帰時の必須ガードレール
 
-新しいチャットや中断後は、過去チャットの記憶だけから現在地を決めない。
+新しいチャットや中断後、またはHumanとの認識不一致が生じた場合は `docs/HUMAN_AI_COLLABORATION.md` の **GR-008** を適用し、過去チャットの記憶や単一の検索結果だけから現在地・不存在・未実装を決めない。既知のpath / SHA / Issue / Branch / PRがある場合は、検索結果より直接Evidenceを優先する。
 
 - Notionの最終設計・現在地を確認する
 - Open Issueは変更仕様として読む
