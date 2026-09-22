@@ -8,12 +8,27 @@ Closes #
 
 ## 非対象
 
+## Execution Profile / Impact Flags
+
+- Risk Level: Low / Medium / High
+- Runtime: Yes / No
+- UI: Yes / No
+- Mobile / Sensor: Yes / No
+- Asset: Yes / No
+- Security / Secret / Infra: Yes / No
+- Public Repository: Yes / No
+- Design / Operation Meaning: Yes / No
+- Human Review needed: Yes / No
+- 次のHuman Gate:
+
 ## 設計
 
 - [ ] 設計書更新済み
 - [ ] 更新不要。理由を記載した
 
 ## 検証
+
+Impact Flagsに該当する項目だけを必須とする。非該当Gateを形式的に実施しない。
 
 - [ ] lint
 - [ ] test
@@ -40,6 +55,7 @@ Closes #
 - 予定外変更: あり / なし
 - Scope拡張承認: 該当なし / 承認済み / 未承認
 - Risk Level: Low / Medium / High
+- Impact FlagsがIssueと一致: Yes / No
 - CI Trigger:
 - 実施済み検証:
 - 未検証:
@@ -99,4 +115,4 @@ Merge後にProductionがある場合のみ記載する。
 
 ## 回復
 
-Rollbackまたは変更の戻し方を記載する。
+Rollbackまたは変更の戻し方を記載する。Low Riskで単純なGit revertで十分な場合は、その旨だけでよい。
