@@ -24,6 +24,19 @@ Production verification
 Issue Close / Lessons Learned
 ```
 
+## 0.5 Risk / Impact 適用範囲
+
+このChecklistは**Production Releaseへ影響する変更のFull Checklist**として扱う。すべてのPRへ全項目を機械的に要求しない。
+
+- Runtime impact = No: Production Release Checklistは原則不要。Issue / PRのValidationで完了判定する
+- Runtime impact = Yes かつ Low / Medium: 該当するSectionだけ適用する
+- High: 原則Full Checklist。適用除外がある場合は理由を記録する
+- UI / Mobile / Sensor / Asset / Security / Public Repository等は、IssueのImpact Flagsに応じて該当Sectionを追加する
+- Design / Operation Meaning = Yes: main確定後にNotion最終設計同期を確認する
+- Design / Operation Meaning = No: Notionを形式的に更新せず、Issue / PRへ更新不要を記録する
+
+Human Merge approval、Evidence Before Claim、必要なProduction VerificationはRisk軽量化の対象外とする。
+
 ## 1. 設計・Issue
 
 - [ ] 要件と非対象が明確
