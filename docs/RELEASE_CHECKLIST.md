@@ -245,6 +245,13 @@ Production確認後:
 
 「実装が正しくて設計書が古い」状態も未完了として扱う。
 
+## 12.5 Notion最終設計同期
+
+- [ ] mainの確定実装とNotion最終設計の差分を確認
+- [ ] 設計・仕様・運用変更がある場合はNotionを同期
+- [ ] 設計変更がない場合はIssue / PRへ「Notion更新不要」を記録
+- [ ] Open Issueだけで実装状態を判断せず、対応Branch / PR / mainを確認
+
 ## 13. Issue Close Evidence
 
 Issue / PRへ最低限残す:
