@@ -120,6 +120,7 @@ jobs:
           grep -q "GR-002 Binary files use Human Upload by default" docs/HUMAN_AI_COLLABORATION.md
           grep -q "GR-003 Image generation requires explicit approval" docs/HUMAN_AI_COLLABORATION.md
           grep -q "GR-007 External capability / quota limitation" docs/HUMAN_AI_COLLABORATION.md
+          grep -q "Human approval does not create a capability that the AI does not have" docs/HUMAN_AI_COLLABORATION.md
           grep -q "GR-008 Evidence-based work resumption / Recognition mismatch" docs/HUMAN_AI_COLLABORATION.md
           grep -q "External Capability / Quota" .github/PULL_REQUEST_TEMPLATE.md
 
