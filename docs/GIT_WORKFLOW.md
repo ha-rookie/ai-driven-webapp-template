@@ -4,6 +4,8 @@
 
 1 Issue・1 Branch・1 Pull Requestを基本とし、mainは直接変更しない。
 
+Issueは「何を変えるか」を定義するChange Contract、Branchは「その変更が現在どこまで実装されているか」を示す作業状態として1セットで扱う。Open Issueだけを見て未着手・未実装と判断しない。
+
 ## Branch命名
 
 - `feat/issue-<number>-<summary>`
@@ -25,6 +27,30 @@
 AIは最初にRead-onlyでmain、Issue、関連設計書、関連test / workflowを確認する。Planned Files外の変更、Scope拡張、別問題の修正が必要になった場合は、その場で変更を広げず停止してHumanへ報告する。
 
 調査と変更を分け、ついで修正を避け、目的達成に必要な最小差分を優先する。
+
+## 作業復帰 / Recognition Mismatch Guardrail
+
+新しいChatGPTチャット、長時間中断、コンテキスト喪失後は会話記憶から復帰しない。原則として次を確認する。
+
+1. Notionの対象プロジェクト最終設計・現在地
+2. Open Issue / Change Contract
+3. Issue番号を含む対応BranchとPR
+4. mainとの差分とMerge状態
+5. データ処理・分析では必要なGoogle Drive作業データ
+6. 原典そのものの確認が必要な場合のみBox
+
+Branch名にはIssue番号を含め、Issue → Branch → PR → Merge commitを追跡可能にする。
+
+Humanから「前にやった」「認識が違う」「それではない」「もう実装したはず」等の指摘があった場合、AIはIssue本文や会話記憶だけで推測を続けない。Issue → Branch / PR → main → 必要な作業データをRead-onlyで確認し、管理情報と実装事実の差分を特定してから再開する。
+
+## 情報層
+
+- **Box**: 普遍的な原典・生データ。加工・意味付けしないRaw / Immutable層
+- **Google Drive**: 作業・加工・集計・比較等のWorking層
+- **GitHub**: 開発作業場。Issue / Branch / PR / Actions / test / sourceを保持し、mainを確定実装の現在値とする
+- **Notion**: mainに対応する最終設計、意味付けされた成果、判断、現在地、再利用知識
+
+同じ情報を全層へ複製しない。必要な参照先へ辿れる状態を優先する。
 
 ## PR作成前
 
@@ -170,4 +196,8 @@ Git競合と決めつけない。CI、mergeable、Draft状態、解除API、base
 
 ## Merge後
 
-main CI、Production Deploy、本番表示、主要回帰、Issue Closeを確認する。
+main CI、Production Deploy、本番表示、主要回帰を確認する。
+
+設計・仕様・運用が変わった場合は、mainの確定実装に合わせてNotionの最終設計書を同期する。設計変更を伴わない修正はNotionを無理に更新せず、Issue / PRへ「Notion更新不要」と記録する。
+
+Issue Closeは、必要なValidation・Human Review・Merge・Production Verified・Notion同期（または更新不要確認）が完了してから行う。
