@@ -32,6 +32,16 @@ body:
     validations:
       required: true
   - type: textarea
+    id: branch_tracking
+    attributes:
+      label: Branch / PR Tracking
+      description: Issueと実装状態を追跡可能にする。Branch名にはIssue番号を含める
+      placeholder: |
+        Branch: feat/issue-<number>-<summary>
+        PR: 作成後に追記
+    validations:
+      required: true
+  - type: textarea
     id: planned_files
     attributes:
       label: Planned Files
