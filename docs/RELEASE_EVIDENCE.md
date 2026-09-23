@@ -120,8 +120,14 @@ Human Reviewでは、PR本文とActions Job Summaryを合わせて確認する�
 
 Release Evidenceはこれらの状態を明示し、上位状態を推測しない。
 
-## 9. 今後の拡張
+## 9. Production Evidence
 
-Production Verification標準化後、Production deploy / smoke / security headers / analytics等のProduction Evidenceを追加できる。
+Production Verificationでは `docs/PRODUCTION_VERIFICATION.md` と `scripts/verify-production.sh` により、GitHub Actions Job SummaryへProduction Evidenceを出力する。
 
-ただしPR CI EvidenceとProduction Evidenceは別フェーズとして扱い、同じsuccess表示へ混ぜない。
+PR CI Evidenceとは別フェーズとして扱う。
+
+- PR CI Evidence: Merge前のScope / SHA / CI結果
+- Production Evidence: Merge後のProduction実レスポンス
+- Human / Project-specific Evidence: Browser / Smartphone / Sensor / business flow / Analytics / GSC / external security diagnostics
+
+Production Evidenceが生成されても、Project要件上必要なHuman / Project-specific確認が未完了ならRelease完了とは扱わない。
