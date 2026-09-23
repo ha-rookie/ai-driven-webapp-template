@@ -106,7 +106,7 @@ FunctionsやWorkersを経由するレスポンスは、静的 `_headers` と同�
 
 共通確認は `scripts/verify-production.sh` の `REQUIRE_SECURITY_HEADERS=true` を利用できる。詳細は `docs/PRODUCTION_VERIFICATION.md`。
 
-この自動確認はRecommended baselineの存在確認であり、CSPの内容妥当性、Sensor / iframe / API等の機能影響、外部Security診断を代替しない。
+この自動確認はRecommended baselineの存在に加え、共通化できる値（HSTSの1年以上のmax-age、`nosniff`、`DENY` / `SAMEORIGIN`のframe protection、`X-Permitted-Cross-Domain-Policies: none`）まで実レスポンスで確認する。CSP・Referrer-Policy・Permissions-PolicyのProject固有の内容妥当性、Sensor / iframe / API等の機能影響、外部Security診断は代替しない。
 
 概念例:
 
