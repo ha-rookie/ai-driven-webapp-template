@@ -82,6 +82,7 @@ body:
     id: planned_files
     attributes:
       label: Planned Files
+      description: machine-readable。1行1path。exact pathまたはdirectory/**を使用し、TBDやRepository全体を許可するglobは禁止
       value: |
         - README.md
         - docs/00_PROJECT_OVERVIEW.md

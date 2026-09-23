@@ -6,6 +6,8 @@ on:
 
 permissions:
   contents: read
+  issues: read
+  pull-requests: read
 
 concurrency:
   group: repository-validation-${{ github.event.pull_request.number || github.ref }}
@@ -17,6 +19,97 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
+
+      - name: Scope Guard
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
+
+          mapfile -t issue_numbers < <(
+            printf '%s\n' "$PR_BODY"               | grep -Eio '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]+'               | grep -Eo '[0-9]+'               | sort -u || true
+          )
+
+          if [ "${#issue_numbers[@]}" -ne 1 ]; then
+            echo "Scope Guard requires exactly one closing Issue in the PR body."
+            echo "Detected closing Issues: ${issue_numbers[*]:-none}"
+            exit 1
+          fi
+
+          issue_number="${issue_numbers[0]}"
+          issue_body="$(gh api "repos/$GITHUB_REPOSITORY/issues/$issue_number" --jq '.body // ""')"
+
+          planned_section="$(
+            printf '%s\n' "$issue_body" | awk '
+              /^#{2,3}[[:space:]]+Planned Files[[:space:]]*$/ {in_section=1; found=1; next}
+              in_section && /^#{2,3}[[:space:]]+/ {exit}
+              in_section {print}
+              END {if (!found) exit 3}
+            '
+          )" || {
+            echo "Issue #$issue_number does not contain a Planned Files section."
+            exit 1
+          }
+
+          mapfile -t planned_patterns < <(
+            printf '%s\n' "$planned_section"               | grep -E '^[[:space:]]*[-*][[:space:]]+'               | sed -E '
+                  s/^[[:space:]]*[-*][[:space:]]+//;
+                  s/^[[:space:]]*\[[ xX]\][[:space:]]+//;
+                  s/`//g;
+                  s/[[:space:]]+\((new|modified|existing|delete|deleted|rename|renamed)\)[[:space:]]*$//;
+                  s/[[:space:]]+$//
+                '               | sed '/^[[:space:]]*$/d'
+          )
+
+          [ "${#planned_patterns[@]}" -gt 0 ] || {
+            echo "Planned Files is empty."
+            exit 1
+          }
+
+          for pattern in "${planned_patterns[@]}"; do
+            case "$pattern" in
+              TBD|tbd|CHANGE-ME|change-me|"*"|"**")
+                echo "Invalid Planned Files entry: $pattern"
+                exit 1
+                ;;
+            esac
+            if [[ "$pattern" = /* ]] || [[ "$pattern" == *".."* ]]; then
+              echo "Unsafe Planned Files entry: $pattern"
+              exit 1
+            fi
+          done
+
+          mapfile -t changed_files < <(
+            gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files?per_page=100"               --jq '.[] | .filename, (.previous_filename // empty)'               | sed '/^[[:space:]]*$/d'               | sort -u
+          )
+
+          [ "${#changed_files[@]}" -gt 0 ] || {
+            echo "No changed files found."
+            exit 1
+          }
+
+          unexpected=0
+          for file in "${changed_files[@]}"; do
+            matched=0
+            for pattern in "${planned_patterns[@]}"; do
+              if [[ "$file" == $pattern ]]; then
+                matched=1
+                break
+              fi
+            done
+            if [ "$matched" -ne 1 ]; then
+              echo "::error title=Unplanned file::$file is not covered by Issue #$issue_number Planned Files"
+              unexpected=1
+            fi
+          done
+
+          [ "$unexpected" -eq 0 ] || exit 1
+          echo "Scope Guard passed for Issue #$issue_number."
+
       - name: Check required files
         shell: bash
         run: |
@@ -40,6 +133,7 @@ jobs:
             docs/design-public/_headers
             docs/DESIGN_PREVIEW.md
             docs/PROJECT_BOOTSTRAP.md
+            docs/PLANNED_FILES_GUARD.md
             docs/RISK_AWARE_CI.md
             docs/SECURITY_BASELINE.md
             docs/PUBLIC_WEB_QUALITY.md
@@ -189,6 +283,11 @@ jobs:
           grep -q "Asset変更前のPre-check" docs/ASSET_WORKFLOW.md
           grep -q "Production current spec" docs/ASSET_WORKFLOW.md
           grep -q "label: Planned Files" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "directory/\*\*" .github/ISSUE_TEMPLATE/feature.yml
+          grep -q "directory/\*\*" .github/ISSUE_TEMPLATE/bug.yml
+          grep -q "directory/\*\*" .github/ISSUE_TEMPLATE/quick-change.yml
+          grep -q "machine-readable" .github/ISSUE_TEMPLATE/project-bootstrap.yml
+          grep -q "Planned Files Guard" .github/PULL_REQUEST_TEMPLATE.md
           grep -q "label: Risk Level" .github/ISSUE_TEMPLATE/feature.yml
           grep -q "label: Impact Flags" .github/ISSUE_TEMPLATE/feature.yml
           grep -q "label: Stop Conditions" .github/ISSUE_TEMPLATE/feature.yml
@@ -207,12 +306,21 @@ jobs:
           grep -q "Project Bootstrap" README.md
           grep -q "Risk-aware CI" README.md
           grep -q "## 新規Project Bootstrap" AGENTS.md
+          grep -q "### Planned Files Guard" docs/GIT_WORKFLOW.md
           grep -q "### Risk-aware CI" docs/GIT_WORKFLOW.md
+          grep -q "## 2. Source of Truth" docs/PLANNED_FILES_GUARD.md
+          grep -q "previous_filename" docs/PLANNED_FILES_GUARD.md
+          grep -q "pull_request_target" docs/PLANNED_FILES_GUARD.md
           grep -q "## 2. Profile" docs/RISK_AWARE_CI.md
           grep -q "unknown path" docs/RISK_AWARE_CI.md
           grep -q "CI Gate" docs/RISK_AWARE_CI.md
           grep -q "docs/workflow-templates/risk-aware-ci.yml" docs/PROJECT_BOOTSTRAP.md
           grep -q "name: Project CI" docs/workflow-templates/risk-aware-ci.yml
+          grep -q "name: Scope Guard" docs/workflow-templates/risk-aware-ci.yml
+          grep -q "issues: read" docs/workflow-templates/risk-aware-ci.yml
+          grep -q "pull-requests: read" docs/workflow-templates/risk-aware-ci.yml
+          grep -q "previous_filename" docs/workflow-templates/risk-aware-ci.yml
+          grep -q "Unplanned file" docs/workflow-templates/risk-aware-ci.yml
           grep -q "name: Classify changes" docs/workflow-templates/risk-aware-ci.yml
           grep -q "Unknown path -> strict" docs/workflow-templates/risk-aware-ci.yml
           grep -q "name: CI Gate" docs/workflow-templates/risk-aware-ci.yml

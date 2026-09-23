@@ -49,7 +49,9 @@ Impact Flagsに該当する項目だけを必須とする。非該当Gateを形�
 
 ## Issue Contract / Scope Evidence
 
+- [ ] `Closes #<Issue>` 等でChange Contract Issueを1件だけ関連付けた
 - [ ] IssueのGoal / In Scope / Out of Scopeと一致している
+- [ ] Planned Files Guardが実変更fileとの自動比較に成功した
 - [ ] Planned Filesと実変更fileを比較した
 - 実変更file:
 - 予定外変更: あり / なし

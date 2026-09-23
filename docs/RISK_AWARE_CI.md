@@ -11,6 +11,7 @@ Risk-aware CIは「Low Riskだから検証しない」という仕組みでは�
 - 分類結果に応じて重いJobだけ条件実行する
 - unknown pathは安全側のstrictへ倒す
 - 最後のCI Gateは常に生成する
+- PR時はIssueのPlanned Filesと実変更fileをScope Guardで照合する
 
 ## 2. Profile
 
@@ -91,6 +92,20 @@ strict > runtime > design > docs
 - docsだけ → docs
 - 未知のroot file → strict
 
+## 3.5 Scope Guard
+
+Project CIでは、Risk profile判定より前にIssue Change Contractの `Planned Files` と実変更fileを照合する。
+
+詳細は `docs/PLANNED_FILES_GUARD.md` を正本とする。
+
+- PR本文のclosing keywordから同一RepositoryのIssueを1件だけ解決
+- GitHub Pull Request Files APIで実変更fileを取得
+- renameはprevious filenameも確認
+- Scope外fileが1件でもあればfail
+- Scope拡張はIssueのPlanned FilesをHuman承認後に更新して再実行
+- PR本文だけのbypassは作らない
+- `pull_request_target` は使わずread-only権限で動かす
+
 ## 4. CI Gate
 
 conditional jobそのものをRequired Checkにすると、そのjobがskipされたPRでRequired Checkが生成されない可能性がある。
@@ -98,8 +113,8 @@ conditional jobそのものをRequired Checkにすると、そのjobがskipさ�
 そのためProject CIでは最後に常時実行される `CI Gate` を置く。
 
 ```text
-Classify
-├─ docs validation
+Scope Guard ──────────┐
+Classify ──────────────┼─ docs validation
 ├─ design validation
 ├─ runtime validation
 └─ strict validation
@@ -109,6 +124,8 @@ Classify
 
 CI Gateは以下を確認する。
 
+- PR時はScope Guardがsuccess
+- workflow_dispatch時はScope Guardがskipped
 - Classifyがsuccess
 - 実行対象Jobがsuccess
 - 非対象Jobのskippedはfailure扱いしない
@@ -196,6 +213,5 @@ Project Bootstrap完了後、次が分かった段階で有効化する。
 
 次候補:
 
-- Planned Files vs changed files自動比較
 - CI result / changed files / SHAのRelease Evidence自動生成
 - Production Verification共通化
