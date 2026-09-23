@@ -393,6 +393,12 @@ jobs:
           grep -q 'INDEX_POLICY must be index, noindex, or skip' scripts/verify-production.sh
           grep -q 'Missing required security header' scripts/verify-production.sh
           grep -q 'Required asset is not reachable' scripts/verify-production.sh
+          grep -q 'Missing required OGP meta' scripts/verify-production.sh
+          grep -q 'og:title' scripts/verify-production.sh
+          grep -q 'og:description' scripts/verify-production.sh
+          grep -q 'twitter:card summary_large_image not found' scripts/verify-production.sh
+          grep -q 'twitter:image does not match OG_IMAGE_URL' scripts/verify-production.sh
+          grep -q 'OGP image is empty' scripts/verify-production.sh
           grep -q '## Production Evidence' scripts/verify-production.sh
 
           if grep -Fq '\${' scripts/verify-production.sh; then
@@ -406,6 +412,15 @@ jobs:
           printf '%s\n' "$output"
           printf '%s\n' "$output" | grep -q 'PRODUCTION_URL must use HTTPS' || {
             echo "Optional defaults must expand before the HTTPS fail-fast check"
+            exit 1
+          }
+
+          og_output="$(
+            PRODUCTION_URL="https://example.invalid" STABLE_MARKER="x" OG_IMAGE_URL="http://example.invalid/ogp.png" bash scripts/verify-production.sh 2>&1 || true
+          )"
+          printf '%s\n' "$og_output"
+          printf '%s\n' "$og_output" | grep -q 'OG_IMAGE_URL must use HTTPS' || {
+            echo "Invalid OG_IMAGE_URL must fail before Production fetch"
             exit 1
           }
 
