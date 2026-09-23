@@ -25,7 +25,9 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 
 ## 使い始めるとき
 
-- `docs/00_PROJECT_OVERVIEW.md` のCHANGE-MEを置き換える
+最初に [Project Bootstrap](docs/PROJECT_BOOTSTRAP.md) を確認し、GitHubの `Project Bootstrap` Issue Templateから初期化する。Repository validationはTemplate / Bootstrap / Projectを自動判定するため、CI切替専用Issueは不要。
+
+- `docs/00_PROJECT_OVERVIEW.md` のCHANGE-MEをProject固有設計へ置き換える
 - `docs/01_REQUIREMENTS.md` に機能・非機能要件を定義する
 - `docs/02_SYSTEM_ARCHITECTURE.md` でHosting、外部Service、データ経路、環境分離を設計する
 - `docs/03_APPLICATION_ARCHITECTURE.md` でModule責務、State、Data、IFを設計する
@@ -71,6 +73,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 
 ### Development / Operations
 
+- [Project Bootstrap](docs/PROJECT_BOOTSTRAP.md)
 - [Git Workflow](docs/GIT_WORKFLOW.md)
 - [Asset Workflow](docs/ASSET_WORKFLOW.md)
 - [Cloudflare Setup](docs/CLOUDFLARE_SETUP.md)
