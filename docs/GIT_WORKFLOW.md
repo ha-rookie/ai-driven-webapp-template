@@ -29,6 +29,18 @@ AIは最初にRead-onlyでmain、Issue、関連設計書、関連test / workflow
 
 調査と変更を分け、ついで修正を避け、目的達成に必要な最小差分を優先する。
 
+### Planned Files Guard
+
+Project CIでScope Guardを有効化している場合、Issueの `Planned Files` とPRの実変更fileを自動比較する。正本は `docs/PLANNED_FILES_GUARD.md`。
+
+- PRは `Closes #<Issue>` 等でChange Contract Issueを1件だけ関連付ける
+- exact pathまたは限定されたglobでPlanned Filesを記載する
+- Scope外fileが検出されたらCIをfailする
+- ついで修正なら変更を戻す
+- Goal達成に必要なScope拡張ならHuman確認後にIssueのPlanned Filesを更新する
+- PR本文だけでScope外変更をbypassしない
+- Human Merge approvalは維持する
+
 ## Risk / Impact Execution Profile
 
 既存の `Risk Level: Low / Medium / High` を、単なる記録ではなく実行プロファイルとして使う。別のLite / Standard / Strict分類は増やさない。
