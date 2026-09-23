@@ -121,6 +121,20 @@ Bootstrap時点でCloudflare構成が未確定ならWorkflow Templateを有効�
 
 Bootstrapを理由にProduction Deployを自動実行しない。
 
+## 6.5 Project CI有効化
+
+Application実装へ進む前に、lint / test / build等のProject固有commandが確定したら `docs/RISK_AWARE_CI.md` を確認する。
+
+Risk-aware CIを使う場合：
+
+1. `docs/workflow-templates/risk-aware-ci.yml` を `.github/workflows/project-ci.yml` へコピー
+2. CHANGE-ME validation commandをProject固有commandへ置換
+3. docs / design / runtime / strict の分類がProject構成と合うか確認
+4. PRで `CI Gate` が常に生成されることを確認
+5. RulesetへProject CIの `CI Gate` をRequired Checkとして登録するかHumanが判断
+
+command未確定のままactive workflowへコピーしない。
+
 ## 7. 完了条件
 
 Project Bootstrap完了は、単にRepositoryを作った状態ではない。
