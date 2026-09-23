@@ -40,8 +40,10 @@ jobs:
             docs/design-public/_headers
             docs/DESIGN_PREVIEW.md
             docs/PROJECT_BOOTSTRAP.md
+            docs/RISK_AWARE_CI.md
             docs/SECURITY_BASELINE.md
             docs/PUBLIC_WEB_QUALITY.md
+            docs/workflow-templates/risk-aware-ci.yml
             docs/workflow-templates/deploy-production.yml
             docs/workflow-templates/deploy-design-preview.yml
             docs/adr/README.md
@@ -203,7 +205,19 @@ jobs:
           grep -q "## 2. Repository Validationの3状態" docs/PROJECT_BOOTSTRAP.md
           grep -q "Template / Bootstrap / Project" docs/PROJECT_BOOTSTRAP.md
           grep -q "Project Bootstrap" README.md
+          grep -q "Risk-aware CI" README.md
           grep -q "## 新規Project Bootstrap" AGENTS.md
+          grep -q "### Risk-aware CI" docs/GIT_WORKFLOW.md
+          grep -q "## 2. Profile" docs/RISK_AWARE_CI.md
+          grep -q "unknown path" docs/RISK_AWARE_CI.md
+          grep -q "CI Gate" docs/RISK_AWARE_CI.md
+          grep -q "docs/workflow-templates/risk-aware-ci.yml" docs/PROJECT_BOOTSTRAP.md
+          grep -q "name: Project CI" docs/workflow-templates/risk-aware-ci.yml
+          grep -q "name: Classify changes" docs/workflow-templates/risk-aware-ci.yml
+          grep -q "Unknown path -> strict" docs/workflow-templates/risk-aware-ci.yml
+          grep -q "name: CI Gate" docs/workflow-templates/risk-aware-ci.yml
+          grep -q "CHANGE-ME_RUNTIME_VALIDATION" docs/workflow-templates/risk-aware-ci.yml
+          grep -q "CHANGE-ME_STRICT_VALIDATION" docs/workflow-templates/risk-aware-ci.yml
           grep -q "## Risk / Impact Execution Profile" docs/GIT_WORKFLOW.md
           grep -q "Human Gateまで連続実行" docs/GIT_WORKFLOW.md
           grep -q "1 Issue = 1 coherent goal" docs/GIT_WORKFLOW.md
