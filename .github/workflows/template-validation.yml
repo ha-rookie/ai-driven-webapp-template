@@ -1,4 +1,4 @@
-name: Template validation
+name: Repository validation
 
 on:
   workflow_dispatch:
@@ -6,6 +6,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: repository-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
@@ -35,6 +39,7 @@ jobs:
             docs/design-public/index.html
             docs/design-public/_headers
             docs/DESIGN_PREVIEW.md
+            docs/PROJECT_BOOTSTRAP.md
             docs/SECURITY_BASELINE.md
             docs/PUBLIC_WEB_QUALITY.md
             docs/workflow-templates/deploy-production.yml
@@ -50,23 +55,66 @@ jobs:
             .github/ISSUE_TEMPLATE/feature.yml
             .github/ISSUE_TEMPLATE/bug.yml
             .github/ISSUE_TEMPLATE/quick-change.yml
+            .github/ISSUE_TEMPLATE/project-bootstrap.yml
             .github/PULL_REQUEST_TEMPLATE.md
             .github/workflows/fork-monitor.yml
           )
           for path in "${required[@]}"; do
             test -s "$path" || { echo "Missing or empty: $path"; exit 1; }
           done
-      - name: Confirm template placeholders exist
+      - name: Validate Template / Bootstrap / Project state
         shell: bash
         run: |
           set -eu
-          for path in             docs/00_PROJECT_OVERVIEW.md             docs/01_REQUIREMENTS.md             docs/02_SYSTEM_ARCHITECTURE.md             docs/03_APPLICATION_ARCHITECTURE.md             docs/04_REPOSITORY_STRUCTURE.md             docs/adr/ADR-0000-template.md
-          do
-            grep -q "CHANGE-ME" "$path" || {
-              echo "Template file must retain CHANGE-ME placeholders: $path"
+
+          template_docs=(
+            docs/00_PROJECT_OVERVIEW.md
+            docs/01_REQUIREMENTS.md
+            docs/02_SYSTEM_ARCHITECTURE.md
+            docs/03_APPLICATION_ARCHITECTURE.md
+            docs/04_REPOSITORY_STRUCTURE.md
+            docs/06_REQUIREMENTS_TRACEABILITY.md
+            docs/adr/ADR-0000-template.md
+          )
+
+          project_docs=(
+            docs/00_PROJECT_OVERVIEW.md
+            docs/01_REQUIREMENTS.md
+            docs/02_SYSTEM_ARCHITECTURE.md
+            docs/03_APPLICATION_ARCHITECTURE.md
+            docs/04_REPOSITORY_STRUCTURE.md
+            docs/06_REQUIREMENTS_TRACEABILITY.md
+          )
+
+          if [ "$GITHUB_REPOSITORY" = "ha-rookie/ai-driven-webapp-template" ]; then
+            echo "Validation mode: Template"
+            for path in "${template_docs[@]}"; do
+              grep -q "CHANGE-ME" "$path" || {
+                echo "Template file must retain CHANGE-ME placeholders: $path"
+                exit 1
+              }
+            done
+            exit 0
+          fi
+
+          if grep -q "CHANGE-ME" docs/00_PROJECT_OVERVIEW.md; then
+            echo "Validation mode: Bootstrap"
+            echo "Project Overview still contains CHANGE-ME. Core design placeholders are temporarily allowed until the project initialization PR."
+            exit 0
+          fi
+
+          echo "Validation mode: Project"
+          for path in "${project_docs[@]}"; do
+            if grep -q "CHANGE-ME" "$path"; then
+              echo "Project-specific file still contains CHANGE-ME placeholder: $path"
               exit 1
-            }
+            fi
           done
+
+          grep -q "CHANGE-ME" docs/adr/ADR-0000-template.md || {
+            echo "ADR template must retain CHANGE-ME placeholders"
+            exit 1
+          }
       - name: Confirm design management rules exist
         shell: bash
         run: |
@@ -148,6 +196,14 @@ jobs:
           grep -q "Quick ChangeはLow Risk専用" .github/ISSUE_TEMPLATE/quick-change.yml
           grep -q "label: Impact Flags" .github/ISSUE_TEMPLATE/quick-change.yml
           grep -q "Human Gate" .github/ISSUE_TEMPLATE/quick-change.yml
+          grep -q "name: Project Bootstrap" .github/ISSUE_TEMPLATE/project-bootstrap.yml
+          grep -q "label: Project / Repository" .github/ISSUE_TEMPLATE/project-bootstrap.yml
+          grep -q "label: Bootstrap Boundary" .github/ISSUE_TEMPLATE/project-bootstrap.yml
+          grep -q "Template validation切替だけの別Issueを作らない" .github/ISSUE_TEMPLATE/project-bootstrap.yml
+          grep -q "## 2. Repository Validationの3状態" docs/PROJECT_BOOTSTRAP.md
+          grep -q "Template / Bootstrap / Project" docs/PROJECT_BOOTSTRAP.md
+          grep -q "Project Bootstrap" README.md
+          grep -q "## 新規Project Bootstrap" AGENTS.md
           grep -q "## Risk / Impact Execution Profile" docs/GIT_WORKFLOW.md
           grep -q "Human Gateまで連続実行" docs/GIT_WORKFLOW.md
           grep -q "1 Issue = 1 coherent goal" docs/GIT_WORKFLOW.md

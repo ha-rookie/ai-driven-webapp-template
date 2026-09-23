@@ -38,6 +38,18 @@ Humanから「前にやった」「認識が違う」「それではない」「
 
 同じ仕様を複数設計書へコピーして正本を増やさない。担当外の文書からは設計IDまたはリンクで参照する。
 
+## 新規Project Bootstrap
+
+Templateから作成した新規Repositoryでは、個別Featureへ入る前に `docs/PROJECT_BOOTSTRAP.md` を確認し、`Project Bootstrap` Issueを起点に初期設計をProject固有化する。
+
+- Template / Bootstrap / ProjectのValidation状態はWorkflowが自動判定する
+- Template validationからProject validationへ切り替えるためだけのIssueを作らない
+- Project OverviewにCHANGE-MEが残る間はBootstrap mode
+- Project Overview確定後は主要Project設計書のCHANGE-ME残存をValidation failureとして扱う
+- ADR-0000-templateは雛形なのでCHANGE-MEを維持してよい
+- 要件・Architecture・Security等の意味をAIがplaceholderから推測して埋めない
+- Cloudflare実環境・Secrets・ProductionはBootstrapと分離し、設計確定後にHello World Gateへ進む
+
 ## 作業順序
 
 1. `docs/README.md` と関連設計書、Issueを読む
