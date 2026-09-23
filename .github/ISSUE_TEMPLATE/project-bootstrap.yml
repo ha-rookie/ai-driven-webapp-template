@@ -1,0 +1,126 @@
+name: Project Bootstrap
+description: Templateから新規Projectへ初期設計を移行する
+title: "bootstrap: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: project_identity
+    attributes:
+      label: Project / Repository
+      description: Project表示名とRepository full name
+      placeholder: |
+        Project:
+        Repository: owner/repository
+    validations:
+      required: true
+  - type: textarea
+    id: user_problem
+    attributes:
+      label: User Problem
+      description: 誰のどんな困りごと・やりたいことを扱うか
+    validations:
+      required: true
+  - type: textarea
+    id: target_user
+    attributes:
+      label: Target User
+    validations:
+      required: true
+  - type: textarea
+    id: success
+    attributes:
+      label: Initial Success Condition
+      description: 最初のPoC / MVPで何が確認できれば前進とするか
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: In Scope / Out of Scope
+      placeholder: |
+        In Scope:
+        Out of Scope:
+    validations:
+      required: true
+  - type: textarea
+    id: technical_direction
+    attributes:
+      label: Initial Technical Direction
+      description: 未確定はTBDでよい。AIが推測で埋めない
+      placeholder: |
+        Frontend:
+        Runtime:
+        Hosting:
+        Data / External API:
+        Mobile / Sensor:
+        PWA:
+    validations:
+      required: true
+  - type: dropdown
+    id: visibility
+    attributes:
+      label: Repository Visibility
+      options:
+        - Private
+        - Public
+        - TBD
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints / Human Decisions
+      description: コスト、公開範囲、禁止事項、必ずHumanが決めること
+    validations:
+      required: true
+  - type: textarea
+    id: unknowns
+    attributes:
+      label: TBD / 未確認事項
+      description: 一次情報確認やPoCが必要なもの
+  - type: textarea
+    id: planned_files
+    attributes:
+      label: Planned Files
+      value: |
+        - README.md
+        - docs/00_PROJECT_OVERVIEW.md
+        - docs/01_REQUIREMENTS.md
+        - docs/02_SYSTEM_ARCHITECTURE.md
+        - docs/03_APPLICATION_ARCHITECTURE.md
+        - docs/04_REPOSITORY_STRUCTURE.md
+        - docs/06_REQUIREMENTS_TRACEABILITY.md
+    validations:
+      required: true
+  - type: dropdown
+    id: risk_level
+    attributes:
+      label: Risk Level
+      options:
+        - Medium
+        - High
+    validations:
+      required: true
+  - type: textarea
+    id: stop_conditions
+    attributes:
+      label: Stop Conditions
+      value: |
+        - Planned Files外の変更が必要
+        - Security / Auth / Data retention等の重要判断が未確定
+        - 外部仕様を一次情報で確認できない
+        - Production / Public操作が必要
+        - HumanのDesign decisionが必要
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundary
+    attributes:
+      label: Bootstrap Boundary
+      options:
+        - label: CHANGE-MEを推測で埋めない
+          required: true
+        - label: Template validation切替だけの別Issueを作らない
+          required: true
+        - label: Human承認前にmainへMergeしない
+          required: true
