@@ -55,6 +55,17 @@ Project特性に応じて有効化する。
 
 External Security Headers診断は毎Deployではなく、\`docs/SECURITY_BASELINE.md\` の条件に従う。
 
+### OGP
+
+`OG_IMAGE_URL` にProductionのOGP画像absolute HTTPS URLを指定すると、以下を自動確認する。
+
+- `og:image` が指定URLと一致
+- `twitter:card` が `summary_large_image`
+- `twitter:image` が指定URLと一致
+- OGP画像がHTTP取得可能かつ空でない
+
+OGPを採用しないProjectでは未指定でよい。画像の視覚品質やSNS側キャッシュは別途Human確認する。
+
 ### Major assets
 
 \`REQUIRED_ASSET_URLS\` にHTTPS absolute URLを改行区切りで指定する。
@@ -76,6 +87,7 @@ PRODUCTION_URL="https://example.com/" \\
 STABLE_MARKER="Example App" \\
 INDEX_POLICY="index" \\
 REQUIRE_SECURITY_HEADERS="true" \\
+OG_IMAGE_URL="https://example.com/ogp.png" \\
 REQUIRED_ASSET_URLS=$'https://example.com/favicon.ico\\nhttps://example.com/manifest.webmanifest' \\
 bash scripts/verify-production.sh
 \`\`\`
@@ -93,6 +105,7 @@ GitHub Actions上で実行した場合、scriptは \`$GITHUB_STEP_SUMMARY\` へP
 - index policy
 - Security Headers checkの有無
 - major asset件数
+- OGP検証の有無
 - Workflow run URL
 - timestamp
 
