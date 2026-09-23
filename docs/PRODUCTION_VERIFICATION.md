@@ -55,6 +55,23 @@ Project特性に応じて有効化する。
 
 External Security Headers診断は毎Deployではなく、\`docs/SECURITY_BASELINE.md\` の条件に従う。
 
+### OGP
+
+\`REQUIRE_OGP=true\` の場合、公開後OGPを自動確認する。
+
+必須条件:
+
+- \`OGP_IMAGE_URL\` がabsolute HTTPS URL
+- Production HTMLに \`og:title\`
+- Production HTMLに \`og:description\`
+- Production HTMLに \`og:image\`
+- \`og:image\` meta tagに期待する \`OGP_IMAGE_URL\` が含まれる
+- \`OGP_IMAGE_URL\` が実際に取得できる
+
+標準では \`REQUIRE_OGP=false\` とし、OGPを採用するProjectだけ有効化する。
+
+この確認はmetadataと画像配信のsmokeであり、LINE / X / Discord等のcard renderingや各サービスのcache反映を保証しない。実共有が重要な場合はHuman Reviewを残す。
+
 ### Major assets
 
 \`REQUIRED_ASSET_URLS\` にHTTPS absolute URLを改行区切りで指定する。
@@ -76,6 +93,8 @@ PRODUCTION_URL="https://example.com/" \\
 STABLE_MARKER="Example App" \\
 INDEX_POLICY="index" \\
 REQUIRE_SECURITY_HEADERS="true" \\
+REQUIRE_OGP="true" \\
+OGP_IMAGE_URL="https://example.com/ogp.png" \\
 REQUIRED_ASSET_URLS=$'https://example.com/favicon.ico\\nhttps://example.com/manifest.webmanifest' \\
 bash scripts/verify-production.sh
 \`\`\`
@@ -92,6 +111,7 @@ GitHub Actions上で実行した場合、scriptは \`$GITHUB_STEP_SUMMARY\` へP
 - stable marker
 - index policy
 - Security Headers checkの有無
+- OGP checkの有無 / OGP image URL
 - major asset件数
 - Workflow run URL
 - timestamp
