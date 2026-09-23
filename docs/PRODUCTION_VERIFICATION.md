@@ -53,6 +53,8 @@ Project特性に応じて有効化する。
 - X-Permitted-Cross-Domain-Policies
 - X-Frame-Options または CSP frame-ancestors
 
+共通baselineとして、HSTSは `max-age` 1年以上、`X-Content-Type-Options` は `nosniff`、`X-Frame-Options` を使う場合は `DENY` または `SAMEORIGIN`、`X-Permitted-Cross-Domain-Policies` は `none` まで値を検証する。CSP・Referrer-Policy・Permissions-Policyの具体値はProject要件依存のため、共通scriptでは存在確認とframe protectionまでに留め、Project固有smokeで追加検証する。
+
 External Security Headers診断は毎Deployではなく、\`docs/SECURITY_BASELINE.md\` の条件に従う。
 
 ### OGP
