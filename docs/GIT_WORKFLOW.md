@@ -137,6 +137,20 @@ Humanから「前にやった」「認識が違う」「それではない」「
 
 通常PRを第一候補とする。Risk / Impactに応じて必要なCI、Preview、スマホ実機を実施し、人間承認と承認head SHAを記録してからMergeする。非該当のGateを形式的に要求しない。
 
+### Release Evidence
+
+CIが `docs/RELEASE_EVIDENCE.md` に対応している場合、Human ReviewではActions Job SummaryのRelease Evidenceを確認する。
+
+- Change Contract Issue
+- 承認対象head SHA
+- Scope Guard
+- selected profile
+- validation results
+- changed files
+- workflow run
+
+CI EvidenceはProduction Verifiedの代替ではない。Production未確認のPRでProduction成功を推測・記録しない。
+
 ## GitHub Actions 実行資源
 
 CIは品質ゲートであると同時に、月次利用枠を消費する有限の実行資源として扱う。
