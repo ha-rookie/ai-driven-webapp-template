@@ -121,19 +121,36 @@ if [ "$REQUIRE_SECURITY_HEADERS" = "true" ]; then
     }
   done
 
-  grep -Eqi '^strict-transport-security:[[:space:]]*.*max-age=([3-9][0-9]{7,}|[1-9][0-9]{8,})' "$headers_lower" || {
+  hsts="$(grep -i '^strict-transport-security:' "$headers_lower" | tail -n 1 || true)"
+  hsts_max_age="$(printf '%s' "$hsts" | sed -nE 's/.*max-age=([0-9]+).*/\1/p')"
+  if [ -z "$hsts_max_age" ] || [ "$hsts_max_age" -lt 31536000 ]; then
     echo "::error title=Production Verification::HSTS max-age must be at least 31536000 seconds"
+    exit 1
+  fi
+
+  grep -Eqi '^x-content-type-options:[[:space:]]*nosniff[[:space:]]*$' "$headers_lower" || {
+    echo "::error title=Production Verification::X-Content-Type-Options must be nosniff"
     exit 1
   }
 
-  grep -Eqi '^x-content-type-options:[[:space:]]*nosniff[[:space:]]*    csp="$(grep -i '^content-security-policy:' "$headers_lower" | tail -n 1 || true)"
+  grep -Eqi '^x-permitted-cross-domain-policies:[[:space:]]*none[[:space:]]*$' "$headers_lower" || {
+    echo "::error title=Production Verification::X-Permitted-Cross-Domain-Policies must be none"
+    exit 1
+  }
+
+  if grep -qi '^x-frame-options:' "$headers_lower"; then
+    grep -Eqi '^x-frame-options:[[:space:]]*(deny|sameorigin)[[:space:]]*$' "$headers_lower" || {
+      echo "::error title=Production Verification::X-Frame-Options must be DENY or SAMEORIGIN"
+      exit 1
+    }
+  else
+    csp="$(grep -i '^content-security-policy:' "$headers_lower" | tail -n 1 || true)"
     if ! printf '%s' "$csp" | grep -qi 'frame-ancestors'; then
       echo "::error title=Production Verification::Missing X-Frame-Options and CSP frame-ancestors"
       exit 1
     fi
   fi
 fi
-
 ogp_checked="false"
 if [ -n "$OG_IMAGE_URL" ]; then
   meta_tags="$(grep -Eoi '<meta[^>]+>' "$html_file" || true)"
