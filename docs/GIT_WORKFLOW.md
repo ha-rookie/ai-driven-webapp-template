@@ -129,6 +129,22 @@ Humanから「前にやった」「認識が違う」「それではない」「
 
 CIは品質ゲートであると同時に、月次利用枠を消費する有限の実行資源として扱う。
 
+### Risk-aware CI
+
+Project固有のApplication CIでは、changed filesを `docs / design / runtime / strict` に保守的に分類し、重いJobを条件実行する方式を標準候補とする。詳細は `docs/RISK_AWARE_CI.md` を正本とする。
+
+- unknown pathはstrictへ倒す
+- profile優先順位は strict > runtime > design > docs
+- docs-onlyでinstall / build / browser test等を形式的に実行しない
+- conditional jobそのものではなく、常時生成される `CI Gate` をProject CI側のRequired Check候補とする
+- Repository標準の `Repository validation` を別Workflowとして維持する場合は、それもRequired Checkとして扱う
+- IssueのImpact Flagsとchanged files分類が矛盾した場合、軽い方へ自動補正しない
+- Human Review / Merge / Production等のGateはCI profileで省略しない
+
+Templateは `docs/workflow-templates/risk-aware-ci.yml` を配布し、Project固有command確定後に `.github/workflows/project-ci.yml` として有効化する。
+
+CIは品質ゲートであると同時に、月次利用枠を消費する有限の実行資源として扱う。
+
 ### 実行前
 
 - 同じ変更で `push` と `pull_request` が不要に二重起動しないか確認する
