@@ -75,6 +75,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 
 - [Project Bootstrap](docs/PROJECT_BOOTSTRAP.md)
 - [Git Workflow](docs/GIT_WORKFLOW.md)
+- [Risk-aware CI](docs/RISK_AWARE_CI.md)
 - [Asset Workflow](docs/ASSET_WORKFLOW.md)
 - [Cloudflare Setup](docs/CLOUDFLARE_SETUP.md)
 - [Security Baseline](docs/SECURITY_BASELINE.md)
@@ -88,6 +89,7 @@ Template Repository自身ではCloudflareへ自動Deployしない。
 
 新規アプリで利用する場合に、以下を `.github/workflows/` へコピーしてCHANGE-MEを置き換える。
 
+- `docs/workflow-templates/risk-aware-ci.yml`
 - `docs/workflow-templates/deploy-production.yml`
 - `docs/workflow-templates/deploy-design-preview.yml`
 
