@@ -33,6 +33,16 @@ case "$REQUIRE_SECURITY_HEADERS" in
     ;;
 esac
 
+if [ -n "$OG_IMAGE_URL" ]; then
+  case "$OG_IMAGE_URL" in
+    https://*) ;;
+    *)
+      echo "::error title=Production Verification::OG_IMAGE_URL must use HTTPS: $OG_IMAGE_URL"
+      exit 1
+      ;;
+  esac
+fi
+
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
@@ -122,18 +132,23 @@ fi
 
 ogp_checked="false"
 if [ -n "$OG_IMAGE_URL" ]; then
-  case "$OG_IMAGE_URL" in
-    https://*) ;;
-    *)
-      echo "::error title=Production Verification::OG_IMAGE_URL must use HTTPS: $OG_IMAGE_URL"
-      exit 1
-      ;;
-  esac
+  meta_tags="$(grep -Eoi '<meta[^>]+>' "$html_file" || true)"
 
-  grep -Fq "property=\"og:image\" content=\"$OG_IMAGE_URL\"" "$html_file" || {
+  for property in og:title og:description og:image; do
+    if ! printf '%s\n' "$meta_tags" | grep -Eqi "property[[:space:]]*=[[:space:]]*[\"']${property}[\"']"; then
+      echo "::error title=Production Verification::Missing required OGP meta: $property"
+      exit 1
+    fi
+  done
+
+  og_image_tag="$(
+    printf '%s\n' "$meta_tags"       | grep -Ei "property[[:space:]]*=[[:space:]]*[\"']og:image[\"']"       | head -n 1 || true
+  )"
+  printf '%s' "$og_image_tag" | grep -Fq "$OG_IMAGE_URL" || {
     echo "::error title=Production Verification::og:image does not match OG_IMAGE_URL"
     exit 1
   }
+
   grep -Fq 'name="twitter:card" content="summary_large_image"' "$html_file" || {
     echo "::error title=Production Verification::twitter:card summary_large_image not found"
     exit 1

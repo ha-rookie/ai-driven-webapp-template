@@ -163,7 +163,7 @@ metadata候補:
 - `og:type`
 - `og:url`
 
-Production公開後は、`docs/PRODUCTION_VERIFICATION.md` の `OG_IMAGE_URL` を使い、metaと画像配信の破壊を自動検知できる。これはカードの視覚品質やSNS側キャッシュ確認を代替しない。
+Production公開後は、`docs/PRODUCTION_VERIFICATION.md` の `OG_IMAGE_URL` を使い、`og:title` / `og:description` / `og:image`、Twitter Card metadata、画像配信の破壊を自動検知できる。これはカードの視覚品質やSNS側キャッシュ確認を代替しない。
 
 実共有先でカード表示を確認できる場合、LINE等でProduction URLを共有して実機確認する。
 
