@@ -12,6 +12,7 @@ Risk-aware CIは「Low Riskだから検証しない」という仕組みでは�
 - unknown pathは安全側のstrictへ倒す
 - 最後のCI Gateは常に生成する
 - PR時はIssueのPlanned Filesと実変更fileをScope Guardで照合する
+- CI Gateの既存runner内でRelease EvidenceをJob Summaryへ生成する
 
 ## 2. Profile
 
@@ -182,6 +183,14 @@ IssueではRuntime = Noだがsrc/**が変更されている
 → runtime以上を実行し、Scope mismatchとしてReview対象にする。
 
 Risk-aware CI単独でPlanned Files整合性までは判定しない。Planned Files自動比較は別標準として扱う。
+
+## 7.5 Release Evidence
+
+CI Gateでは `docs/RELEASE_EVIDENCE.md` に従い、PR / Change Contract Issue / base・head SHA / profile / Scope Guard / validation results / changed files / run URLを `$GITHUB_STEP_SUMMARY` へ出力する。
+
+Evidence専用JobやPR commentは追加しない。CI失敗時も確認材料が残るよう、Summary stepは `if: always()` で実行する。
+
+PR CIのEvidenceはCI Evidenceであり、Production状態を推測しない。Productionは `Not evaluated by this CI` と明示する。
 
 ## 8. Human Gate
 

@@ -81,6 +81,12 @@ Impact Flagsに該当する項目だけを必須とする。非該当Gateを形�
 - 代替して実施した確認:
 - 制限解除後の再検証:
 
+## Release Evidence
+
+- Evidence run:
+- [ ] Actions Job SummaryでChange Contract Issue / head SHA / Scope Guard / changed files / CI結果を確認した
+- [ ] CI EvidenceをProduction Verifiedと混同していない
+
 ## Review Gate
 
 - [ ] 最新mainを取り込み済み

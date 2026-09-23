@@ -30,8 +30,11 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      issue-number: ${{ steps.scope.outputs.issue_number }}
     steps:
       - name: Compare Issue Planned Files with PR files
+        id: scope
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -52,6 +55,7 @@ jobs:
           fi
 
           issue_number="${issue_numbers[0]}"
+          echo "issue_number=$issue_number" >> "$GITHUB_OUTPUT"
           echo "Change Contract Issue: #$issue_number"
 
           issue_body="$(gh api "repos/$GITHUB_REPOSITORY/issues/$issue_number" --jq '.body // ""')"
@@ -346,3 +350,78 @@ jobs:
               exit 1
               ;;
           esac
+
+      - name: Write Release Evidence
+        if: always()
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ISSUE_NUMBER: ${{ needs.scope-guard.outputs.issue-number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PROFILE: ${{ needs.classify.outputs.profile }}
+          CHANGED_FILES: ${{ needs.classify.outputs.files }}
+          SCOPE_RESULT: ${{ needs.scope-guard.result }}
+          CLASSIFY_RESULT: ${{ needs.classify.result }}
+          DOCS_RESULT: ${{ needs.docs.result }}
+          DESIGN_RESULT: ${{ needs.design.result }}
+          RUNTIME_RESULT: ${{ needs.runtime.result }}
+          STRICT_RESULT: ${{ needs.strict.result }}
+          CI_GATE_STATUS: ${{ job.status }}
+        run: |
+          set -eu
+
+          generated_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            pr_display="#$PR_NUMBER"
+            pr_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$PR_NUMBER"
+            issue_display="#${ISSUE_NUMBER:-unknown}"
+            base_display="$BASE_SHA"
+          else
+            pr_display="N/A (workflow_dispatch)"
+            pr_url=""
+            issue_display="N/A"
+            base_display="N/A"
+          fi
+
+          {
+            echo "## Release Evidence"
+            echo
+            echo "> CI Evidence only. Production is not evaluated by this CI."
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Repository | `$GITHUB_REPOSITORY` |"
+            if [ -n "$pr_url" ]; then
+              echo "| Pull Request | [$pr_display]($pr_url) |"
+            else
+              echo "| Pull Request | $pr_display |"
+            fi
+            echo "| Change Contract Issue | $issue_display |"
+            echo "| Base SHA | `$base_display` |"
+            echo "| Head SHA | `$HEAD_SHA` |"
+            echo "| Profile | `${PROFILE:-unknown}` |"
+            echo "| Scope Guard | `$SCOPE_RESULT` |"
+            echo "| Classify | `$CLASSIFY_RESULT` |"
+            echo "| Docs validation | `$DOCS_RESULT` |"
+            echo "| Design validation | `$DESIGN_RESULT` |"
+            echo "| Runtime validation | `$RUNTIME_RESULT` |"
+            echo "| Strict validation | `$STRICT_RESULT` |"
+            echo "| CI Gate current status | `$CI_GATE_STATUS` |"
+            echo "| Workflow run | [Open run]($run_url) |"
+            echo "| Generated at (UTC) | `$generated_at` |"
+            echo "| Production | **Not evaluated by this CI** |"
+            echo
+            echo "### Changed files"
+            echo
+            if [ -n "${CHANGED_FILES:-}" ]; then
+              printf '%s\n' "$CHANGED_FILES" | while IFS= read -r file; do
+                [ -n "$file" ] && printf -- '- `%s`\n' "$file"
+              done
+            else
+              echo "- N/A"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

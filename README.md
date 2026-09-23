@@ -76,6 +76,8 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - [Project Bootstrap](docs/PROJECT_BOOTSTRAP.md)
 - [Git Workflow](docs/GIT_WORKFLOW.md)
 - [Risk-aware CI](docs/RISK_AWARE_CI.md)
+- [Planned Files Guard](docs/PLANNED_FILES_GUARD.md)
+- [Release Evidence](docs/RELEASE_EVIDENCE.md)
 - [Asset Workflow](docs/ASSET_WORKFLOW.md)
 - [Cloudflare Setup](docs/CLOUDFLARE_SETUP.md)
 - [Security Baseline](docs/SECURITY_BASELINE.md)
