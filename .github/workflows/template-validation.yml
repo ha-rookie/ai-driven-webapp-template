@@ -273,6 +273,9 @@ jobs:
           grep -q "Human approval does not create a capability that the AI does not have" docs/HUMAN_AI_COLLABORATION.md
           grep -q "GR-008 Evidence-based work resumption / Recognition mismatch" docs/HUMAN_AI_COLLABORATION.md
           grep -q "External Capability / Quota" .github/PULL_REQUEST_TEMPLATE.md
+          grep -q "Google Drive → Google Sheets / bound Apps Script → GitHub work branch" docs/HUMAN_AI_COLLABORATION.md
+          grep -q "検証済み代替経路：Google Drive → GitHub work branch" docs/ASSET_WORKFLOW.md
+          grep -q "Apps Scriptはmainへ直接書き込まない" docs/ASSET_WORKFLOW.md
 
       - name: Confirm consolidated pending standards exist
         shell: bash
