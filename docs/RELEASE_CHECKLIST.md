@@ -182,6 +182,8 @@ URL限定共有の場合:
 
 Deploy成功後、**stable Production URLを実測**する。
 
+共通の機械検証は `docs/PRODUCTION_VERIFICATION.md` と `scripts/verify-production.sh` を使用する。Deploy成功だけでProduction Verifiedとしない。
+
 最低限:
 
 - [ ] HTTP 200
