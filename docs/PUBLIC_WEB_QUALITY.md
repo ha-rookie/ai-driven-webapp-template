@@ -33,6 +33,16 @@ Google等の検索エンジンから発見されることを前提にする。
 
 公開範囲は実装都合で暗黙に決めず、Issue / Project Overviewへ記録する。
 
+## 1.5 Production Verification
+
+検索公開方針は `docs/PRODUCTION_VERIFICATION.md` の共通scriptで最低限の破壊検知を行える。
+
+- 検索公開: `INDEX_POLICY=index` とし、Productionにnoindexが混入していないことを確認
+- URL限定共有: `INDEX_POLICY=noindex` とし、Productionにnoindexが存在することを確認
+- 自動確認しない場合: `INDEX_POLICY=skip` とし、Human decisionをIssue / Project Overviewへ残す
+
+これはtitle / description / canonical / robots.txt / sitemap.xml / structured data / LLMO品質 / Search Consoleを自動判定するものではない。
+
 ## 2. Preview
 
 Previewは原則としてindexさせない。

@@ -51,10 +51,17 @@ jobs:
             --project-name=CHANGE-ME_PROJECT_NAME \
             --branch=main
 
-      - name: Production smoke
+      - name: Production Verification
         shell: bash
+        env:
+          PRODUCTION_URL: CHANGE-ME_PRODUCTION_URL
+          STABLE_MARKER: CHANGE-ME_STABLE_MARKER
+          # Human decision: index / noindex / skip
+          INDEX_POLICY: skip
+          # Enable after Recommended Security Headers baseline is implemented in Production.
+          REQUIRE_SECURITY_HEADERS: "false"
+          # Optional: newline-separated absolute HTTPS URLs for favicon / OGP / manifest etc.
+          REQUIRED_ASSET_URLS: ""
         run: |
-          set -eu
-          curl --fail --silent --show-error --location CHANGE-ME_PRODUCTION_URL > /tmp/production.html
-          grep -q "CHANGE-ME_STABLE_MARKER" /tmp/production.html
-          curl --fail --silent --show-error --head CHANGE-ME_PRODUCTION_URL
+          set -euo pipefail
+          bash scripts/verify-production.sh
