@@ -135,3 +135,13 @@ Directory責務や配置を変える場合:
 CHANGE-ME
 
 Templateから作成後、実際のRepository treeへ置き換える。
+
+
+## 共通運用script
+
+```text
+scripts/
+└─ verify-production.sh
+```
+
+`scripts/verify-production.sh` は複数Projectで再利用するProduction Verificationの共通script。Project固有business flowや実機確認はこのscriptへ詰め込まず、各Projectのtest / release手順へ残す。
