@@ -60,7 +60,9 @@ jobs:
           INDEX_POLICY: skip
           # Enable after Recommended Security Headers baseline is implemented in Production.
           REQUIRE_SECURITY_HEADERS: "false"
-          # Optional: newline-separated absolute HTTPS URLs for favicon / OGP / manifest etc.
+          # Optional: enable when the Project publishes OGP metadata.
+          OG_IMAGE_URL: ""
+          # Optional: newline-separated absolute HTTPS URLs for favicon / manifest / other major assets.
           REQUIRED_ASSET_URLS: ""
         run: |
           set -euo pipefail
