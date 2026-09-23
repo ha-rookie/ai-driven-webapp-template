@@ -59,12 +59,15 @@ External Security Headers診断は毎Deployではなく、\`docs/SECURITY_BASELI
 
 `OG_IMAGE_URL` にProductionのOGP画像absolute HTTPS URLを指定すると、以下を自動確認する。
 
-- `og:image` が指定URLと一致
+- `OG_IMAGE_URL` がHTTPS
+- `og:title` が存在
+- `og:description` が存在
+- `og:image` が存在し、指定URLと一致
 - `twitter:card` が `summary_large_image`
 - `twitter:image` が指定URLと一致
 - OGP画像がHTTP取得可能かつ空でない
 
-OGPを採用しないProjectでは未指定でよい。画像の視覚品質やSNS側キャッシュは別途Human確認する。
+`OG_IMAGE_URL` のscheme不正はProduction fetch前にfailさせる。OGPを採用しないProjectでは未指定でよい。画像の視覚品質やSNS側キャッシュは別途Human確認する。
 
 ### Major assets
 
