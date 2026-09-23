@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-: "\${PRODUCTION_URL:?PRODUCTION_URL is required}"
-: "\${STABLE_MARKER:?STABLE_MARKER is required}"
+: "${PRODUCTION_URL:?PRODUCTION_URL is required}"
+: "${STABLE_MARKER:?STABLE_MARKER is required}"
 
-INDEX_POLICY="\${INDEX_POLICY:-skip}"
-REQUIRE_SECURITY_HEADERS="\${REQUIRE_SECURITY_HEADERS:-false}"
-REQUIRED_ASSET_URLS="\${REQUIRED_ASSET_URLS:-}"
+INDEX_POLICY="${INDEX_POLICY:-skip}"
+REQUIRE_SECURITY_HEADERS="${REQUIRE_SECURITY_HEADERS:-false}"
+REQUIRED_ASSET_URLS="${REQUIRED_ASSET_URLS:-}"
+REQUIRE_OGP="${REQUIRE_OGP:-false}"
+OGP_IMAGE_URL="${OGP_IMAGE_URL:-}"
 
 case "$PRODUCTION_URL" in
   https://*) ;;
@@ -31,6 +33,28 @@ case "$REQUIRE_SECURITY_HEADERS" in
     exit 1
     ;;
 esac
+
+case "$REQUIRE_OGP" in
+  true|false) ;;
+  *)
+    echo "::error title=Production Verification::REQUIRE_OGP must be true or false"
+    exit 1
+    ;;
+esac
+
+if [ "$REQUIRE_OGP" = "true" ]; then
+  test -n "$OGP_IMAGE_URL" || {
+    echo "::error title=Production Verification::OGP_IMAGE_URL is required when REQUIRE_OGP=true"
+    exit 1
+  }
+  case "$OGP_IMAGE_URL" in
+    https://*) ;;
+    *)
+      echo "::error title=Production Verification::OGP_IMAGE_URL must use HTTPS: $OGP_IMAGE_URL"
+      exit 1
+      ;;
+  esac
+fi
 
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
@@ -93,6 +117,33 @@ case "$INDEX_POLICY" in
     ;;
 esac
 
+if [ "$REQUIRE_OGP" = "true" ]; then
+  meta_tags="$(grep -Eoi '<meta[^>]+>' "$html_file" || true)"
+
+  for property in og:title og:description og:image; do
+    if ! printf '%s\n' "$meta_tags" | grep -Eqi "property[[:space:]]*=[[:space:]]*[\"']${property}[\"']"; then
+      echo "::error title=Production Verification::Missing required OGP meta: $property"
+      exit 1
+    fi
+  done
+
+  og_image_tag="$(
+    printf '%s\n' "$meta_tags" \
+      | grep -Ei "property[[:space:]]*=[[:space:]]*[\"']og:image[\"']" \
+      | head -n 1 || true
+  )"
+
+  printf '%s' "$og_image_tag" | grep -Fq "$OGP_IMAGE_URL" || {
+    echo "::error title=Production Verification::og:image does not match expected OGP_IMAGE_URL"
+    exit 1
+  }
+
+  curl --fail --silent --show-error --location --output /dev/null "$OGP_IMAGE_URL" || {
+    echo "::error title=Production Verification::OGP image is not reachable: $OGP_IMAGE_URL"
+    exit 1
+  }
+fi
+
 if [ "$REQUIRE_SECURITY_HEADERS" = "true" ]; then
   required_headers=(
     "content-security-policy"
@@ -103,8 +154,8 @@ if [ "$REQUIRE_SECURITY_HEADERS" = "true" ]; then
     "x-permitted-cross-domain-policies"
   )
 
-  for header in "\${required_headers[@]}"; do
-    grep -qi "^\${header}:" "$headers_lower" || {
+  for header in "${required_headers[@]}"; do
+    grep -qi "^${header}:" "$headers_lower" || {
       echo "::error title=Production Verification::Missing required security header: $header"
       exit 1
     }
@@ -145,9 +196,13 @@ echo "Production Verification passed."
 echo "HTTP: $http_code"
 echo "Index policy: $INDEX_POLICY"
 echo "Security headers required: $REQUIRE_SECURITY_HEADERS"
+echo "OGP required: $REQUIRE_OGP"
+if [ "$REQUIRE_OGP" = "true" ]; then
+  echo "OGP image: $OGP_IMAGE_URL"
+fi
 echo "Required assets checked: $asset_count"
 
-if [ -n "\${GITHUB_STEP_SUMMARY:-}" ]; then
+if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
   generated_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
   {
     echo "## Production Evidence"
@@ -160,6 +215,10 @@ if [ -n "\${GITHUB_STEP_SUMMARY:-}" ]; then
     echo "| Stable marker | \`passed\` |"
     echo "| Index policy | \`$INDEX_POLICY\` |"
     echo "| Security headers required | \`$REQUIRE_SECURITY_HEADERS\` |"
+    echo "| OGP required | \`$REQUIRE_OGP\` |"
+    if [ "$REQUIRE_OGP" = "true" ]; then
+      echo "| OGP image | \`$OGP_IMAGE_URL\` |"
+    fi
     echo "| Required assets checked | \`$asset_count\` |"
     echo "| Workflow run | [Open run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) |"
     echo "| Generated at (UTC) | \`$generated_at\` |"
