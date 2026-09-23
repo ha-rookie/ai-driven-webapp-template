@@ -23,7 +23,7 @@ body:
     id: planned_files
     attributes:
       label: Planned Files
-      description: 変更予定のfile / directory
+      description: 変更予定pathを1行1件で記載。exact path または directory/** を使う。TBD、* / ** 単独、..、absolute pathは禁止
       placeholder: |
         - path/to/file
     validations:
