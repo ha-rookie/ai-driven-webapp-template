@@ -1,0 +1,223 @@
+name: Project CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_profile:
+        description: Manual run profile
+        required: true
+        default: strict
+        type: choice
+        options:
+          - docs
+          - design
+          - runtime
+          - strict
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  classify:
+    name: Classify changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      profile: ${{ steps.classify.outputs.profile }}
+      files: ${{ steps.classify.outputs.files }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Classify changed files
+        id: classify
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          FORCE_PROFILE: ${{ inputs.force_profile }}
+        run: |
+          set -eu
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            profile="${FORCE_PROFILE:-strict}"
+            echo "profile=$profile" >> "$GITHUB_OUTPUT"
+            echo "files=manual-run" >> "$GITHUB_OUTPUT"
+            echo "Manual profile: $profile"
+            exit 0
+          fi
+
+          test -n "$BASE_SHA"
+          test -n "$HEAD_SHA"
+
+          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          test -n "$changed_files" || {
+            echo "No changed files detected; use strict as fail-safe."
+            echo "profile=strict" >> "$GITHUB_OUTPUT"
+            echo "files=none-detected" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+
+          profile="docs"
+
+          while IFS= read -r path; do
+            case "$path" in
+              .github/workflows/*|wrangler.*|wrangler.json|wrangler.jsonc|functions/*|workers/*|migrations/*|db/*|database/*|schema/*)
+                profile="strict"
+                break
+                ;;
+
+              src/*|public/*|tests/*|scripts/*|package.json|package-lock.json|pnpm-lock.yaml|yarn.lock|bun.lockb|vite.config.*|webpack.config.*|tsconfig.json)
+                if [ "$profile" != "strict" ]; then
+                  profile="runtime"
+                fi
+                ;;
+
+              docs/design/*|docs/design-public/*)
+                if [ "$profile" = "docs" ]; then
+                  profile="design"
+                fi
+                ;;
+
+              docs/*|README.md|CHANGELOG.md|AGENTS.md|.github/ISSUE_TEMPLATE/*|.github/PULL_REQUEST_TEMPLATE.md)
+                ;;
+
+              *)
+                echo "Unknown path -> strict: $path"
+                profile="strict"
+                break
+                ;;
+            esac
+          done <<EOF
+          $changed_files
+          EOF
+
+          {
+            echo "profile=$profile"
+            echo "files<<EOF"
+            echo "$changed_files"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Selected profile: $profile"
+          echo "$changed_files"
+
+  docs:
+    name: Docs validation
+    needs: classify
+    if: needs.classify.outputs.profile == 'docs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate docs
+        shell: bash
+        run: |
+          set -eu
+          # CHANGE-ME: lightweight documentation / governance validation.
+          echo "CHANGE-ME_DOCS_VALIDATION"
+
+  design:
+    name: Design validation
+    needs: classify
+    if: needs.classify.outputs.profile == 'design'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate design
+        shell: bash
+        run: |
+          set -eu
+          # CHANGE-ME: HTML/CSS/design contract checks. Do not replace Human visual review.
+          echo "CHANGE-ME_DESIGN_VALIDATION"
+
+  runtime:
+    name: Runtime validation
+    needs: classify
+    if: needs.classify.outputs.profile == 'runtime' || needs.classify.outputs.profile == 'strict'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate runtime
+        shell: bash
+        run: |
+          set -eu
+          # CHANGE-ME: install / lint / test / build required by the project.
+          echo "CHANGE-ME_RUNTIME_VALIDATION"
+
+  strict:
+    name: Strict validation
+    needs: classify
+    if: needs.classify.outputs.profile == 'strict'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate infrastructure and high-impact changes
+        shell: bash
+        run: |
+          set -eu
+          # CHANGE-ME: workflow/config/server-side/security-specific checks.
+          echo "CHANGE-ME_STRICT_VALIDATION"
+
+  ci-gate:
+    name: CI Gate
+    if: always()
+    needs:
+      - classify
+      - docs
+      - design
+      - runtime
+      - strict
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Evaluate required jobs
+        shell: bash
+        env:
+          CLASSIFY_RESULT: ${{ needs.classify.result }}
+          DOCS_RESULT: ${{ needs.docs.result }}
+          DESIGN_RESULT: ${{ needs.design.result }}
+          RUNTIME_RESULT: ${{ needs.runtime.result }}
+          STRICT_RESULT: ${{ needs.strict.result }}
+          PROFILE: ${{ needs.classify.outputs.profile }}
+        run: |
+          set -eu
+
+          echo "profile=$PROFILE"
+          echo "classify=$CLASSIFY_RESULT"
+          echo "docs=$DOCS_RESULT"
+          echo "design=$DESIGN_RESULT"
+          echo "runtime=$RUNTIME_RESULT"
+          echo "strict=$STRICT_RESULT"
+
+          [ "$CLASSIFY_RESULT" = "success" ] || exit 1
+
+          case "$PROFILE" in
+            docs)
+              [ "$DOCS_RESULT" = "success" ] || exit 1
+              ;;
+            design)
+              [ "$DESIGN_RESULT" = "success" ] || exit 1
+              ;;
+            runtime)
+              [ "$RUNTIME_RESULT" = "success" ] || exit 1
+              ;;
+            strict)
+              [ "$RUNTIME_RESULT" = "success" ] || exit 1
+              [ "$STRICT_RESULT" = "success" ] || exit 1
+              ;;
+            *)
+              echo "Unknown profile: $PROFILE"
+              exit 1
+              ;;
+          esac
