@@ -394,10 +394,20 @@ jobs:
           grep -q 'Missing required security header' scripts/verify-production.sh
           grep -q 'Required asset is not reachable' scripts/verify-production.sh
           grep -q '## Production Evidence' scripts/verify-production.sh
-          if PRODUCTION_URL="http://example.invalid" STABLE_MARKER="x" bash scripts/verify-production.sh; then
-            echo "HTTP URL must fail Production Verification"
+
+          if grep -Fq '\${' scripts/verify-production.sh; then
+            echo "Escaped shell variable expansion must not remain in verify-production.sh"
             exit 1
           fi
+
+          output="$(
+            PRODUCTION_URL="http://example.invalid" STABLE_MARKER="x" bash scripts/verify-production.sh 2>&1 || true
+          )"
+          printf '%s\n' "$output"
+          printf '%s\n' "$output" | grep -q 'PRODUCTION_URL must use HTTPS' || {
+            echo "Optional defaults must expand before the HTTPS fail-fast check"
+            exit 1
+          }
 
       - name: Confirm Security baseline exists
         shell: bash
