@@ -137,12 +137,14 @@ jobs:
             docs/PROJECT_BOOTSTRAP.md
             docs/PLANNED_FILES_GUARD.md
             docs/RELEASE_EVIDENCE.md
+            docs/PRODUCTION_VERIFICATION.md
             docs/RISK_AWARE_CI.md
             docs/SECURITY_BASELINE.md
             docs/PUBLIC_WEB_QUALITY.md
             docs/workflow-templates/risk-aware-ci.yml
             docs/workflow-templates/deploy-production.yml
             docs/workflow-templates/deploy-design-preview.yml
+            scripts/verify-production.sh
             docs/adr/README.md
             docs/adr/ADR-0000-template.md
             docs/GIT_WORKFLOW.md
@@ -317,6 +319,12 @@ jobs:
           grep -q "### Release Evidence" docs/GIT_WORKFLOW.md
           grep -q "## Release Evidence" .github/PULL_REQUEST_TEMPLATE.md
           grep -q "Release Evidence" README.md
+          grep -q "Production Verification" README.md
+          grep -q "## 2. 必須確認" docs/PRODUCTION_VERIFICATION.md
+          grep -q "INDEX_POLICY=index" docs/PRODUCTION_VERIFICATION.md
+          grep -q "REQUIRE_SECURITY_HEADERS=true" docs/PRODUCTION_VERIFICATION.md
+          grep -q "Production Evidence" docs/PRODUCTION_VERIFICATION.md
+          grep -q "scripts/verify-production.sh" docs/04_REPOSITORY_STRUCTURE.md
           grep -q "previous_filename" docs/PLANNED_FILES_GUARD.md
           grep -q "pull_request_target" docs/PLANNED_FILES_GUARD.md
           grep -q "## 2. Profile" docs/RISK_AWARE_CI.md
@@ -371,6 +379,25 @@ jobs:
           grep -q "Hello World Gate" docs/CLOUDFLARE_SETUP.md
           grep -q "Production Smoke" docs/CLOUDFLARE_SETUP.md
           grep -q "CHANGE-ME_PROJECT_NAME" docs/workflow-templates/deploy-production.yml
+          grep -q "bash scripts/verify-production.sh" docs/workflow-templates/deploy-production.yml
+          grep -q "INDEX_POLICY: skip" docs/workflow-templates/deploy-production.yml
+          grep -q 'REQUIRE_SECURITY_HEADERS: "false"' docs/workflow-templates/deploy-production.yml
+
+      - name: Validate Production Verification script
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/verify-production.sh
+          grep -q 'PRODUCTION_URL must use HTTPS' scripts/verify-production.sh
+          grep -q 'Stable marker not found' scripts/verify-production.sh
+          grep -q 'INDEX_POLICY must be index, noindex, or skip' scripts/verify-production.sh
+          grep -q 'Missing required security header' scripts/verify-production.sh
+          grep -q 'Required asset is not reachable' scripts/verify-production.sh
+          grep -q '## Production Evidence' scripts/verify-production.sh
+          if PRODUCTION_URL="http://example.invalid" STABLE_MARKER="x" bash scripts/verify-production.sh; then
+            echo "HTTP URL must fail Production Verification"
+            exit 1
+          fi
 
       - name: Confirm Security baseline exists
         shell: bash
