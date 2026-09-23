@@ -163,7 +163,15 @@ metadata候補:
 - `og:type`
 - `og:url`
 
-実共有先でカード表示を確認できる場合、LINE等でProduction URLを共有して実機確認する。
+Production公開後は、OGP採用Projectで `docs/PRODUCTION_VERIFICATION.md` のOptional OGP checkを有効化できる。
+
+`REQUIRE_OGP=true` と期待する `OGP_IMAGE_URL` を指定し、最低限次を機械確認する。
+
+- `og:title` / `og:description` / `og:image` がProduction HTMLに存在
+- `og:image` が期待するURLを指す
+- OGP画像URLがProductionから取得可能
+
+これはSNS側のcard renderingやcache更新を保証しない。実共有先でカード表示を確認できる場合、LINE等でProduction URLを共有してHuman確認する。
 
 ## 7. robots.txt / sitemap.xml
 
