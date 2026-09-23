@@ -163,7 +163,22 @@ CI / Preview / Production
 - HumanがUpload完了を伝えた後は、再Uploadを依頼する前にGitHub上を確認する
 - 承認済み原本をUpload都合で再生成・色変更・トリミングしない
 - GitHub上の最終ファイルについて、必要に応じてBlob SHA、hash、サイズ、寸法、形式、Previewを確認する
-- Human Uploadが技術的に不可能な場合だけ、別輸送経路をHumanと相談して決める
+- Human Uploadが技術的に不可能な場合、またはHumanが明示的に採用済みの検証済み輸送経路を使う場合だけ、別輸送経路を使用する
+
+### 検証済み代替経路：Google Drive → GitHub work branch
+
+承認済み原本について、Google Drive → Google Sheets → spreadsheet-bound Apps Script → GitHub work branch の一方向経路を使用できる。
+
+- Humanが承認済み画像をChatGPTへ渡し、ChatGPTがGoogle Drive Working層へ保存する
+- SheetにはDrive URL、Repository、GitHub path、Commit Message、状態、Branch、Commit SHA、GitHub URLを記録する
+- HumanがSheetの実行ボタンを押し、bound Apps Scriptがdefault branchからwork branchを作成してAssetをuploadする
+- Apps Scriptはmainへ直接書き込まない
+- PATはScript Propertiesに保存し、Sheet / source / Issue / PR / chatへ値を出さない
+- PATのRepository accessは必要なRepositoryだけ、権限はContents read/writeを基本とする
+- GAS upload後はAIがGitHub実体を確認し、通常のIssue / PR / CI / Merge gateへ戻す
+- Merge後は不要work branchを整理する。AI Connectorに削除CapabilityがなければHuman operationとする
+- Production採用前にfilename extensionと実体MIME/formatの一致を確認する
+- GitHub → Driveの逆同期は行わない
 
 ## 実装Issueへの引き継ぎ
 
