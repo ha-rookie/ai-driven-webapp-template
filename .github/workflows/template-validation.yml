@@ -324,6 +324,9 @@ jobs:
           grep -q "INDEX_POLICY=index" docs/PRODUCTION_VERIFICATION.md
           grep -q "REQUIRE_SECURITY_HEADERS=true" docs/PRODUCTION_VERIFICATION.md
           grep -q "Production Evidence" docs/PRODUCTION_VERIFICATION.md
+          grep -q "REQUIRE_OGP=true" docs/PRODUCTION_VERIFICATION.md
+          grep -q "OGP_IMAGE_URL" docs/PRODUCTION_VERIFICATION.md
+          grep -q "Optional OGP check" docs/PUBLIC_WEB_QUALITY.md
           grep -q "scripts/verify-production.sh" docs/04_REPOSITORY_STRUCTURE.md
           grep -q "previous_filename" docs/PLANNED_FILES_GUARD.md
           grep -q "pull_request_target" docs/PLANNED_FILES_GUARD.md
@@ -382,6 +385,8 @@ jobs:
           grep -q "bash scripts/verify-production.sh" docs/workflow-templates/deploy-production.yml
           grep -q "INDEX_POLICY: skip" docs/workflow-templates/deploy-production.yml
           grep -q 'REQUIRE_SECURITY_HEADERS: "false"' docs/workflow-templates/deploy-production.yml
+          grep -q 'REQUIRE_OGP: "false"' docs/workflow-templates/deploy-production.yml
+          grep -q 'OGP_IMAGE_URL: ""' docs/workflow-templates/deploy-production.yml
 
       - name: Validate Production Verification script
         shell: bash
@@ -393,7 +398,21 @@ jobs:
           grep -q 'INDEX_POLICY must be index, noindex, or skip' scripts/verify-production.sh
           grep -q 'Missing required security header' scripts/verify-production.sh
           grep -q 'Required asset is not reachable' scripts/verify-production.sh
+          grep -q 'Missing required OGP meta' scripts/verify-production.sh
+          grep -q 'og:image does not match expected OGP_IMAGE_URL' scripts/verify-production.sh
+          grep -q 'OGP image is not reachable' scripts/verify-production.sh
           grep -q '## Production Evidence' scripts/verify-production.sh
+
+          if grep -Fq '\${' scripts/verify-production.sh; then
+            echo "Escaped shell variable expansion must not remain in verify-production.sh"
+            exit 1
+          fi
+
+          if PRODUCTION_URL="https://example.invalid" STABLE_MARKER="x" REQUIRE_OGP=true OGP_IMAGE_URL="http://example.invalid/ogp.png" bash scripts/verify-production.sh; then
+            echo "Non-HTTPS OGP_IMAGE_URL must fail before network access"
+            exit 1
+          fi
+
           if PRODUCTION_URL="http://example.invalid" STABLE_MARKER="x" bash scripts/verify-production.sh; then
             echo "HTTP URL must fail Production Verification"
             exit 1
