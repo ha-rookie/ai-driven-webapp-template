@@ -7,6 +7,7 @@ set -euo pipefail
 INDEX_POLICY="\${INDEX_POLICY:-skip}"
 REQUIRE_SECURITY_HEADERS="\${REQUIRE_SECURITY_HEADERS:-false}"
 REQUIRED_ASSET_URLS="\${REQUIRED_ASSET_URLS:-}"
+OG_IMAGE_URL="\${OG_IMAGE_URL:-}"
 
 case "$PRODUCTION_URL" in
   https://*) ;;
@@ -119,6 +120,39 @@ if [ "$REQUIRE_SECURITY_HEADERS" = "true" ]; then
   fi
 fi
 
+ogp_checked="false"
+if [ -n "$OG_IMAGE_URL" ]; then
+  case "$OG_IMAGE_URL" in
+    https://*) ;;
+    *)
+      echo "::error title=Production Verification::OG_IMAGE_URL must use HTTPS: $OG_IMAGE_URL"
+      exit 1
+      ;;
+  esac
+
+  grep -Fq "property=\"og:image\" content=\"$OG_IMAGE_URL\"" "$html_file" || {
+    echo "::error title=Production Verification::og:image does not match OG_IMAGE_URL"
+    exit 1
+  }
+  grep -Fq 'name="twitter:card" content="summary_large_image"' "$html_file" || {
+    echo "::error title=Production Verification::twitter:card summary_large_image not found"
+    exit 1
+  }
+  grep -Fq "name=\"twitter:image\" content=\"$OG_IMAGE_URL\"" "$html_file" || {
+    echo "::error title=Production Verification::twitter:image does not match OG_IMAGE_URL"
+    exit 1
+  }
+  curl --fail --silent --show-error --location --output "$tmp_dir/og-image" "$OG_IMAGE_URL" || {
+    echo "::error title=Production Verification::OGP image is not reachable: $OG_IMAGE_URL"
+    exit 1
+  }
+  test -s "$tmp_dir/og-image" || {
+    echo "::error title=Production Verification::OGP image is empty: $OG_IMAGE_URL"
+    exit 1
+  }
+  ogp_checked="true"
+fi
+
 asset_count=0
 if [ -n "$REQUIRED_ASSET_URLS" ]; then
   while IFS= read -r asset_url; do
@@ -146,6 +180,7 @@ echo "HTTP: $http_code"
 echo "Index policy: $INDEX_POLICY"
 echo "Security headers required: $REQUIRE_SECURITY_HEADERS"
 echo "Required assets checked: $asset_count"
+echo "OGP checked: $ogp_checked"
 
 if [ -n "\${GITHUB_STEP_SUMMARY:-}" ]; then
   generated_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
@@ -161,6 +196,7 @@ if [ -n "\${GITHUB_STEP_SUMMARY:-}" ]; then
     echo "| Index policy | \`$INDEX_POLICY\` |"
     echo "| Security headers required | \`$REQUIRE_SECURITY_HEADERS\` |"
     echo "| Required assets checked | \`$asset_count\` |"
+    echo "| OGP checked | \`$ogp_checked\` |"
     echo "| Workflow run | [Open run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) |"
     echo "| Generated at (UTC) | \`$generated_at\` |"
     echo
