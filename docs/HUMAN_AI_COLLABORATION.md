@@ -39,6 +39,8 @@ Default flow:
 
 Do not repeatedly retry AI-side binary upload merely because a connector/API exposes a possible transport route.
 
+An explicitly adopted and already validated transport workflow may be used instead of direct Human GitHub Upload. The current validated alternative is Google Drive → Google Sheets / bound Apps Script → GitHub work branch. This alternative does not weaken repository gates: Apps Script must stop at the work branch, and Issue / PR / CI / Merge / cleanup continue through the normal GitHub workflow. Credentials must remain outside Sheet/source/chat, repository access must be least-privilege, and the final binary format/MIME must match the intended filename extension.
+
 **STOP:** If AI is about to choose direct binary upload as the default path, stop and use Human Upload.
 
 ## GR-003 Image generation requires explicit approval
