@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-: "\${PRODUCTION_URL:?PRODUCTION_URL is required}"
-: "\${STABLE_MARKER:?STABLE_MARKER is required}"
+: "${PRODUCTION_URL:?PRODUCTION_URL is required}"
+: "${STABLE_MARKER:?STABLE_MARKER is required}"
 
-INDEX_POLICY="\${INDEX_POLICY:-skip}"
-REQUIRE_SECURITY_HEADERS="\${REQUIRE_SECURITY_HEADERS:-false}"
-REQUIRED_ASSET_URLS="\${REQUIRED_ASSET_URLS:-}"
-OG_IMAGE_URL="\${OG_IMAGE_URL:-}"
+INDEX_POLICY="${INDEX_POLICY:-skip}"
+REQUIRE_SECURITY_HEADERS="${REQUIRE_SECURITY_HEADERS:-false}"
+REQUIRED_ASSET_URLS="${REQUIRED_ASSET_URLS:-}"
+OG_IMAGE_URL="${OG_IMAGE_URL:-}"
 
 case "$PRODUCTION_URL" in
   https://*) ;;
@@ -104,8 +104,8 @@ if [ "$REQUIRE_SECURITY_HEADERS" = "true" ]; then
     "x-permitted-cross-domain-policies"
   )
 
-  for header in "\${required_headers[@]}"; do
-    grep -qi "^\${header}:" "$headers_lower" || {
+  for header in "${required_headers[@]}"; do
+    grep -qi "^${header}:" "$headers_lower" || {
       echo "::error title=Production Verification::Missing required security header: $header"
       exit 1
     }
@@ -182,7 +182,7 @@ echo "Security headers required: $REQUIRE_SECURITY_HEADERS"
 echo "Required assets checked: $asset_count"
 echo "OGP checked: $ogp_checked"
 
-if [ -n "\${GITHUB_STEP_SUMMARY:-}" ]; then
+if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
   generated_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
   {
     echo "## Production Evidence"
