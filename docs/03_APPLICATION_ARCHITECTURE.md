@@ -170,6 +170,21 @@ server-side state / data mutation、共有Data Store、複数clientからの更�
 
 実際の技術スタックに合わせて調整する。
 
+### High-risk Boundary Testing
+
+Security、Authorization、Data Integrity、Concurrency等の重要な境界を持つProjectでは、正常系だけでなく拒否・競合・失敗後状態も検証対象にする。静的配信のみ、または該当境界を持たない軽量Projectへ一律に要求しない。
+
+最低限の検討観点:
+
+- **Positive case**: 許可された操作が期待どおり成功する
+- **Reject case**: 未認証、権限不足、invalid operation、resource / scope boundary違反等が拒否される
+- **Concurrency / stale case**: 同時操作や古い状態からの操作を許容するか、検出・拒否・再試行等の方針どおりに扱える
+- **Failure-after-state**: 失敗・拒否後にdataやstateが意図せず部分変更されていない
+
+UI上で操作できないことや、正常系E2Eが成功することだけをSecurity / Integrityのtest evidenceとしない。
+
+具体的なHTTP status、認証provider、test harness、DB fixture、mock方式等はProjectのTechnology / Architectureに合わせて決定し、このTemplateでは固定しない。
+
 ## 15. 未決事項
 
 - TBD-APP-001: CHANGE-ME
