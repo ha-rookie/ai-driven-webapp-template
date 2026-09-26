@@ -167,6 +167,29 @@ Actionsを減らす優先順位:
 
 「CIを実行しない」こと自体を目的にしない。
 
+## 6.5 External Resource Budget
+
+GitHub Actionsのrunner時間と、Workflow / Test / Benchmarkから利用する外部Serviceの消費は別の有限資源として扱う。
+
+外部API、Database、Storage、AI API、Search API等を使う場合は、必要に応じて次を確認する。
+
+- request / read / write等のquota
+- rate limit
+- storage / transfer量
+- billing impact
+- account-wide / organization-wide等のshared quota
+- Production resourceや他Projectへの影響
+
+大量fixture、performance test、load test等は、可能ならlocalまたはisolated environmentで成立性とtest designを先に確認する。remote environmentを使う必要がある場合は、quota / cost / shared resourceへの影響を確認してから実行する。
+
+高costまたはquota-sensitiveなremote testを、毎PRや定期CIへ無条件に組み込むことを標準にしない。必要に応じてmanual trigger等、Humanが意図して開始できる方式を選ぶ。
+
+Performance resultとtest実行costは分けて記録する。速い/遅いという結果だけでなく、その測定にどの外部資源をどの程度使ったかを確認できるようにする。
+
+static / local-onlyで完結し外部Serviceを利用しないProjectへ、このSectionのremote resource確認を一律に要求しない。
+
+このTemplateでは外部Serviceを有限資源として扱う判断基準までを定義し、各Service固有のquota値、command、benchmark workflow、fixture implementationはProjectまたはTechnology-specific Template側で定義する。
+
 ## 7. Impact Flagsとの関係
 
 GitHub IssueのImpact Flagsとchanged files分類は役割が違う。
