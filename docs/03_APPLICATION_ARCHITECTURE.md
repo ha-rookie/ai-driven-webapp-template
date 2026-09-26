@@ -97,6 +97,42 @@ API、Pages Functions、Workers、静的JSON、外部リンクなどを含む。
 
 「例外を握りつぶして正常値を返す」を標準にしない。
 
+## 10.5 Runtime / Data Integrity
+
+server-side state / data mutation、共有Data Store、複数clientからの更新等を持つProjectでは、必要に応じて以下を設計する。静的配信のみ、または単一端末内で完結する軽量Projectへ一律に要求しない。
+
+### Trust Boundary
+
+- Client / UI validationだけをData Integrityの保証境界にしない
+- Server / APIを持つ場合、必要なresource relation、scope、ownershipをどこで再検証するか決める
+- UI上で操作不能であることを、Security / Integrity上の禁止根拠にしない
+
+### State Transition
+
+- mutableなEntityに状態がある場合、許可する状態遷移と禁止する逆遷移を明示する
+- finalized / approved / closed等の確定状態で、何をread-onlyとするか決める
+- UI制御だけでなく、Systemとして遷移制約を保証する境界を定義する
+
+### Atomicity
+
+- 1 User Actionで複数resource / recordを変更する場合、一部成功を許容するか定義する
+- 一部成功を許容しない場合、failure後に期待する状態を明示する
+- Success responseを返す条件と、途中失敗時の回復方針を設計する
+
+### Concurrency
+
+- 同一resourceへ複数client / requestが同時操作する可能性を確認する
+- lost update、duplicate create、stale operation等を許容するか、検出・拒否・再試行等で扱うか決める
+- 具体的なlock方式、version方式、HTTP status等はProjectのTechnology / Architectureに合わせて決定する
+
+### Invariant Enforcement
+
+- 重要なInvariantごとに、UI / Application / API / Data Store等のどこで保証するか明示する
+- concurrent requestでも破れてはいけないInvariantは、client-side validationだけに依存しない
+- Application validationとData Store constraintの両方がある場合、それぞれの責務を分ける
+
+このSectionは設計時の判断観点を定義する。optimistic locking、transaction、DB constraint、具体的なerror code等の実装方式をこのTemplateで固定しない。
+
 ## 11. PWA / Offline
 
 - PWA採用: Yes / No / TBD
