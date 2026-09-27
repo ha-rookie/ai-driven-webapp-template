@@ -9,6 +9,8 @@ Release完了は、承認済みmainがProductionへ配信され、実際のProdu
 ```text
 CI success
 ↓
+Development Convergence
+↓
 Human approval
 ↓
 Merge
@@ -21,8 +23,12 @@ Production verification
 ↓
 設計書同期
 ↓
+Release Convergence
+↓
 Issue Close / Lessons Learned
 ```
+
+Convergenceの定義と判定方法は `docs/CONVERGENCE_GATE.md` を正本とする。
 
 ## 0.5 Risk / Impact 適用範囲
 
@@ -35,7 +41,7 @@ Issue Close / Lessons Learned
 - Design / Operation Meaning = Yes: main確定後にNotion最終設計同期を確認する
 - Design / Operation Meaning = No: Notionを形式的に更新せず、Issue / PRへ更新不要を記録する
 
-Human Merge approval、Evidence Before Claim、必要なProduction VerificationはRisk軽量化の対象外とする。
+Human Merge approval、Evidence Before Claim、必要なProduction Verification、Development / Release ConvergenceはRisk軽量化の対象外とする。ただしProduction Releaseがない変更ではRelease Convergenceを `Not Applicable` とできる。
 
 ## 1. 設計・Issue
 
@@ -91,6 +97,21 @@ GitHub TemplateのSettings / Rulesetは派生Repositoryへ引き継がれない�
 - [ ] 主要回帰なし
 - [ ] 同一原因の不要なrerunをしていない
 - [ ] review対象head SHAを特定
+
+## 2.5 Development Convergence
+
+Human Merge approvalへ進む前に `docs/CONVERGENCE_GATE.md` に従って確認する。
+
+- [ ] IssueのGoal / In Scope / Out of ScopeとRequirement / Designが矛盾していない
+- [ ] Planned Filesと実変更fileが一致している
+- [ ] 必要な設計変更が正本へ反映されている
+- [ ] Requirement / Designに対応する実装がある
+- [ ] 受け入れ条件に対応するValidation / Evidenceがある
+- [ ] 未実行のCI / Preview / 実機確認等を成功扱いしていない
+- [ ] 既知の矛盾・未解決Stop Conditionが残っていない
+- [ ] **Development Convergence = Converged** をPRへ記録
+
+Development ConvergenceはProductionの正しさを証明しない。Production Releaseがある場合、Release Convergenceはこの時点では `Pending` とする。
 
 ## 3. Preview
 
@@ -267,6 +288,20 @@ Production確認後:
 - [ ] 設計変更がない場合はIssue / PRへ「Notion更新不要」を記録
 - [ ] Open Issueだけで実装状態を判断せず、対応Branch / PR / mainを確認
 
+## 12.75 Release Convergence
+
+Production Releaseがある場合、Issue Close前に `docs/CONVERGENCE_GATE.md` に従って確認する。
+
+- [ ] 対象main / merge commitがProductionへ配信されている
+- [ ] Production Verificationが該当範囲で成功している
+- [ ] 必要な実機・主要ユーザーフロー・外部IF確認が完了している
+- [ ] Production実態とRequirement / Design / Operationが矛盾していない
+- [ ] 必要な設計・Notion同期が完了している
+- [ ] 後日観測が必要な項目は別Issue / Taskとして分離されている
+- [ ] **Release Convergence = Converged** を記録
+
+Production Releaseがない変更では `Release Convergence = Not Applicable` と記録する。
+
 ## 13. Issue Close Evidence
 
 Issue / PRへ最低限残す:
@@ -277,6 +312,7 @@ Issue / PRへ最低限残す:
 - Production smoke結果
 - 実機確認内容
 - Human approval
+- Development / Release Convergence結果
 - 既知の未完了事項
 - rollback先
 
@@ -299,11 +335,15 @@ Known Issue → 手順 → Template → CI の順に、再発する判断コス�
 以下を満たしてRelease完了とする。
 
 - [ ] CI成功
+- [ ] Development Convergence = Converged
 - [ ] Human approval
 - [ ] Merge
 - [ ] Production Deploy
 - [ ] Production Verification
 - [ ] 必要な実機確認
 - [ ] 設計書同期
+- [ ] Release Convergence = Converged
 - [ ] Issue Close Evidence
 - [ ] 後日観測タスクの分離
+
+Production Releaseがない変更では、Production関連項目とRelease Convergenceを `Not Applicable` とし、IssueのValidationとDevelopment Convergenceで完了判定する。
