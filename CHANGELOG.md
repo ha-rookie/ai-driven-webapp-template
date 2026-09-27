@@ -2,10 +2,45 @@
 
 ## Unreleased
 
+今後の追加改善をここへ記録する。
+
+## v0.3 - 2026-09-27
+
+v0.2以降の実開発とTemplate比較から、AI/Human協働の開発ガバナンス、CI、Release Verification、作業復帰性、Public Repository運用を大きく強化した。
+
 ### Added
 
+- Public Repository GateとしてFork監視とRuleset運用標準を追加
+- GR-008としてEvidence-based work resumption / recognition mismatch時の実体確認を追加
+- Project BootstrapとRepository validationのTemplate / Bootstrap / Project 3状態を追加
+- Risk-aware CIのdocs / design / runtime / strict profileとfail-safe分類を追加
+- Planned Files Guardを追加し、Issue Change ContractとPR実変更fileをCIで自動照合
+- Release EvidenceをGitHub Actions Job Summaryへ自動集約
+- 共通Production Verification scriptを追加し、HTTPS / stable marker / index policy / Security Headers / major assetsを検証可能にした
+- OGP Production Verificationを追加し、og:title / og:description / og:image / twitter card / OGP画像配信を検証可能にした
+- Google Drive → Google Sheets / Apps Script → GitHub work branchのbinary Asset代替輸送経路を標準化
+- Runtime / Data Integrity設計観点としてTrust Boundary / State Transition / Atomicity / Concurrency / Invariant Enforcementを追加
+- High-risk Boundary TestingとしてPositive / Reject / Concurrency・stale / Failure-after-stateの観点を追加
+- External Resource BudgetとしてActions利用量と外部Service quota / rate limit / billing / shared quotaを分離して扱う指針を追加
+- Development Convergence / Release Convergenceを分離するConvergence Gateを追加
+- Feature / Bugfix / Design Change / Release / Production VerificationのTool-neutral Playbookを追加
+- testing / security / frontend-ui / cloudflare-infrastructure / documentationのScoped Instructionsを追加
+- GitHub Evidenceからread-onlyで現在地を導出するEvidence-derived Workflow Statusを追加
 - MIT Licenseを導入し、`Copyright (c) 2026 ha-rookie` を明記
-- Repository validationでrootの`LICENSE`を必須ファイルとして検証
+
+### Changed
+
+- Risk LevelとImpact Flagsに応じて必要なGateだけを適用し、Change Contract合意後は次のHuman GateまでAIが連続実行する標準へ整理
+- Issue / Branch / PR / SHA / CI / mainを優先する作業復帰順序へ整理し、手更新の進捗状態を新しいSource of Truthにしない方針を明確化
+- Ruleset作成はAdministration権限を外部TokenやWorkflowへ渡さず、Human operationとして扱う標準へ変更
+- AI製品固有のSkill / Command / Ruleと、Tool-neutralなPlaybook / Scoped Instructionの責務を分離
+- 軽量Web Delivery Templateと、将来のBusiness Application Templateの責務境界を明確化
+- Repository validationで`LICENSE`を必須ファイルとして検証
+
+### Fixed
+
+- Production Verification scriptに残っていたescaped shell variable expansionを修正
+- OGP検証をattribute順序に依存しにくい形へ補強し、非HTTPSのOGP image URLをProduction fetch前にfail-fastするよう改善
 
 ## v0.2 - 2026-09-20
 
