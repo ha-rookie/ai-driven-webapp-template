@@ -18,10 +18,11 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 10. CIは品質ゲートであると同時に有限の実行資源として扱う
 11. PWA・Analytics・検索index公開・LLMO等は一律必須にせずHuman decisionを残す
 12. Merge / Deploy成功だけでRelease完了とせず、Production実測・実機確認・設計書同期まで行う
+13. 実装・test・Deploy成功と仕様収束を分け、Merge前にDevelopment Convergence、Production後にRelease Convergenceを確認する
 
 ## Golden Path
 
-アイデア → 企画 → 要件 → Architecture → UI設計 → Issue → Branch → 実装 → CI → Preview → 人間レビュー → Merge → Production Deploy → Production Verification → 設計書同期 → 公開後観測 → 振り返り / 知見還流
+アイデア → 企画 → 要件 → Architecture → UI設計 → Issue → Branch → 実装 → CI → Preview → Development Convergence → 人間レビュー → Merge → Production Deploy → Production Verification → 設計書同期 → Release Convergence → 公開後観測 → 振り返り / 知見還流
 
 ## 使い始めるとき
 
@@ -67,6 +68,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - [Repository Structure](docs/04_REPOSITORY_STRUCTURE.md)
 - [Design Management](docs/05_DESIGN_MANAGEMENT.md)
 - [Requirements Traceability](docs/06_REQUIREMENTS_TRACEABILITY.md)
+- [Convergence Gate](docs/CONVERGENCE_GATE.md)
 - [Visual Design](docs/design/README.md)
 - [Design Preview](docs/DESIGN_PREVIEW.md)
 - [Architecture Decision Records](docs/adr/README.md)
