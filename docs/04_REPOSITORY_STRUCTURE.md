@@ -29,6 +29,7 @@
 │  ├─ SECURITY_BASELINE.md
 │  ├─ design/
 │  ├─ design-public/
+│  ├─ instructions/
 │  ├─ playbooks/
 │  ├─ workflow-templates/
 │  └─ adr/
@@ -55,6 +56,7 @@
 | `docs/` | 設計の正本・共通開発手順 | Source | 原則No |
 | `docs/design/` | 視覚設計・Design Preview素材 | Source | Design Previewのみ |
 | `docs/design-public/` | Design用Pages Projectのproduction apex placeholder | Source | Design Project apexのみ |
+| `docs/instructions/` | 対象領域にだけ追加適用するTool-neutralな制約・確認観点 | Source | No |
 | `docs/playbooks/` | Tool-neutralな反復作業工程。設計・Security・Release条件の意味は担当文書を参照する | Source | No |
 | `docs/workflow-templates/` | 新規Appで有効化するWorkflow Template | Source | No |
 | `docs/adr/` | 設計判断履歴 | Source | No |
@@ -90,6 +92,7 @@
 - Asset: 内容が分かる安定名。承認後の意味のないrenameを避ける
 - ADR: `ADR-0001-short-title.md`
 - Playbook: 作業目的が分かるlowercase + kebab-case（例: `feature-development.md`）
+- Scoped Instruction: 対象領域が分かるlowercase + kebab-case（例: `frontend-ui.md`）
 
 ## 6. Dependency Direction and Placement
 
@@ -104,11 +107,14 @@
 - Runtime endpoint → functions/ or workers/
 - 設計検証用HTML → docs/design/
 - Design Projectのproduction placeholder → docs/design-public/
+- 対象領域にだけ追加するAI/Human制約 → docs/instructions/
 - 反復するAI/Human作業工程 → docs/playbooks/
 - 無効状態で配布するWorkflow Template → docs/workflow-templates/
 - 本番Asset → public/assets/
 
 Playbookは担当設計書・運用文書を上流として参照し、Application固有仕様やTool固有syntaxを下流から持ち込まない。
+
+Scoped InstructionはGlobal Guardrail / Issue / Design / Playbookを上流として参照し、対象領域の追加制約だけを持つ。認証・認可・DB・Transaction等のBusiness Application標準を既存Templateへ逆流させない。
 
 ## 7. Forbidden Content
 
