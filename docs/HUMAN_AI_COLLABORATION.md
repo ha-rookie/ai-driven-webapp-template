@@ -120,6 +120,8 @@ A limitation in one repository or service must not be generalized to another rep
 
 When resuming work after a new chat, interruption, context loss, or a Human/AI recognition mismatch, do not decide the current state from conversation memory, a single search result, or an Issue state alone.
 
+An Evidence-derived Workflow Status defined in `docs/WORKFLOW_STATUS.md` may be generated as a navigation hint to reduce lookup cost. It is always non-authoritative. Do not treat the generated status itself as proof of current state; follow its Issue / Branch / PR / SHA references and verify the direct GitHub Evidence. If the status is missing, stale, ambiguous, or conflicts with direct Evidence, ignore or regenerate it and continue with the reconciliation steps below.
+
 Evidence reconciliation:
 
 1. prefer a known direct reference such as path, SHA, Issue, Branch, or PR over a broad search result
@@ -144,7 +146,7 @@ Distinguish at least:
 - merged implementation
 - Notion synchronization lag
 
-**STOP:** If AI is about to claim “does not exist,” “not implemented,” “not started,” or an equivalent state from memory, search results, or Issue state alone while stronger direct evidence can be checked, stop and perform evidence reconciliation first.
+**STOP:** If AI is about to claim “does not exist,” “not implemented,” “not started,” or an equivalent state from memory, search results, Issue state, or derived Workflow Status alone while stronger direct evidence can be checked, stop and perform evidence reconciliation first.
 
 ## Recurrence handling
 
