@@ -4,6 +4,27 @@
 
 事象、影響、工程、再現条件、原因、確認順、暫定回避、恒久対策、復旧、Issue・PR・CI run、証跡、標準への反映先。
 
+## Runtime Evidenceを先に取る
+
+実機・Browser Context・Cookie・localStorage・外部App遷移・権限等が絡む不具合では、Platform名や症状だけで原因を決めない。静的コードだけでRuntime状態を観測できない場合は、修正より先に診断ログ、一時診断UI、既存API response、Network/Console、Screenshot等でEvidenceを取得する。
+
+### 切り分け順
+
+1. **Authentication**: 誰として認証されているか、session/API responseが成立しているか
+2. **Authorization**: role、membership、resource scopeが期待どおりか
+3. **Runtime Context**: browser / standalone / WebView / device / permission等の実行Contextは何か
+4. **Persistence / Source of Truth**: server DB、API、localStorage、Cookie、cache等のどれを各層が参照しているか
+5. **Data**: 同一ID・同一resourceに対して期待するrecordが存在するか
+6. **Presentation**: UIがどのresponse / repository / stateから表示を作っているか
+
+### 判断ルール
+
+- 既に得られたEvidenceと矛盾する仮説を延命しない
+- 例: 認証済みUser情報をserver APIから取得できているなら「Cookieが存在しない」を主要仮説のまま扱わない
+- 同じ画面で複数Source of Truthを参照し得る場合、各層の参照先を個別に確認する
+- 原因未確定の段階で、認証方式変更、Storage全面変更、Platform非対応化等の大きなArchitecture変更へ進まない
+- Human実機確認が必要な場合、Humanへデバッグ手順を丸投げせず、AI側で観測手段を用意し、Humanは実機の結果を返す形を優先する
+
 ## Draft PRを解除できない
 
 Draft解除APIを疑う。CIとmergeableが正常なら、同一head SHAから通常PRを作り、レビュー証跡を引き継ぐ。
