@@ -56,6 +56,24 @@ Infrastructure / External I/O
 - 永続化が必要な理由を明記する
 - localStorage/Cookieへ個人識別情報を入れる場合はSecurity設計を更新する
 - 初期値、壊れた保存値、schema version変更時の挙動を定義する
+- 複数Persistence Backendを持つ場合、各Backendの役割、Production Source of Truth、選択条件、未設定時Default、未知値の扱いを明示する
+- legacy / migration用Backendを残す場合、どの明示条件でのみ選択されるか、移行完了後に暗黙fallbackを許可するかを定義する
+- Authentication / AuthorizationとBusiness Dataが別のSourceを参照し得る場合、同一User / resourceに対して矛盾したSource of Truthを選ばないInvariantを定義する
+
+### Persistence Selection Invariant
+
+複数Backendを切り替えるProjectでは、Repository / Adapter単体だけでなく、**どの実装を選択するかを決めるComposition Root**も設計・test対象とする。
+
+例:
+
+```text
+explicit legacy marker -> legacy backend
+current marker         -> current backend
+marker missing         -> defined default
+unknown marker         -> defined default or explicit error
+```
+
+`missing = legacy` のような暗黙fallbackは、移行後の新規Browser Context、standalone Web App、private mode、再インストール等で古いBackendを意図せず復活させる可能性がある。採用する場合は理由とRelease後の終了条件を明記する。
 
 ## 7. Runtime Sequence
 
@@ -180,6 +198,7 @@ Security、Authorization、Data Integrity、Concurrency等の重要な境界を�
 - **Reject case**: 未認証、権限不足、invalid operation、resource / scope boundary違反等が拒否される
 - **Concurrency / stale case**: 同時操作や古い状態からの操作を許容するか、検出・拒否・再試行等の方針どおりに扱える
 - **Failure-after-state**: 失敗・拒否後にdataやstateが意図せず部分変更されていない
+- **Composition selection case**: 複数Adapter / Repository / ProviderをRuntime選択する場合、current / legacy / missing / unknown等の主要条件で意図した実装が選ばれる
 
 UI上で操作できないことや、正常系E2Eが成功することだけをSecurity / Integrityのtest evidenceとしない。
 

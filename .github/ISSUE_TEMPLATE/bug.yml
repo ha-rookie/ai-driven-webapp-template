@@ -88,7 +88,7 @@ body:
     id: evidence
     attributes:
       label: 証跡
-      description: Screenshot、ログ、CI run、URL、Branch、commit SHA
+      description: Screenshot、ログ、CI run、URL、Branch、commit SHA。Runtime不具合では認証状態、role/membership、browser/standalone等のContext、参照中のStorage/Source of Truthも可能な範囲で記録する
   - type: dropdown
     id: category
     attributes:
@@ -102,6 +102,7 @@ body:
         - Cloudflare設定
         - Binding / Secret
         - Asset
+        - Client State / Storage / Persistence
         - 外部サービス
         - GitHub Actions / Quota
     validations:
