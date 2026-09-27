@@ -27,6 +27,7 @@
 │  ├─ PROJECT_BOOTSTRAP.md
 │  ├─ PUBLIC_WEB_QUALITY.md
 │  ├─ SECURITY_BASELINE.md
+│  ├─ WORKFLOW_STATUS.md
 │  ├─ design/
 │  ├─ design-public/
 │  ├─ instructions/
@@ -39,7 +40,7 @@
 │  └─ data/
 ├─ functions/           # Cloudflare Pages Functionsを使う場合
 ├─ workers/             # Workersを分離する場合
-├─ scripts/             # build/data update/maintenance
+├─ scripts/             # build/data update/maintenance/read-only status derivation
 ├─ tests/
 ├─ package.json         # Node系を使う場合
 ├─ wrangler.jsonc       # Cloudflare configを使う場合
@@ -60,13 +61,14 @@
 | `docs/playbooks/` | Tool-neutralな反復作業工程。設計・Security・Release条件の意味は担当文書を参照する | Source | No |
 | `docs/workflow-templates/` | 新規Appで有効化するWorkflow Template | Source | No |
 | `docs/adr/` | 設計判断履歴 | Source | No |
+| `docs/WORKFLOW_STATUS.md` | GitHub Evidenceから導出する非正本Workflow Statusのモデル・再開ルール | Source | No |
 | `src/` | Application source | Source | Build後Yes |
 | `public/` | 静的配信対象 | Source/Generatedを明記 | Yes |
 | `public/assets/` | 承認済みAsset | Source | Yes |
 | `public/data/` | 公開静的データ | Source/Generatedを明記 | Yes |
 | `functions/` | Pages Functions | Source | Yes |
 | `workers/` | Workers source | Source | Yes |
-| `scripts/` | 更新・生成・保守 | Source | No |
+| `scripts/` | 更新・生成・保守・read-only verification/derivation | Source | No |
 | `tests/` | Test code | Source | No |
 
 ## 4. Source vs Generated
@@ -81,8 +83,9 @@
 
 - 同じファイルを人間編集と自動生成の両方で更新しない
 - Generated fileの生成元と生成手順を明記する
-- 大容量データは分割単位と更新頻度を設計する
+- 大容量データは分割単位と更新頻度を設計で固定
 - 秘密情報を生成物へ混入させない
+- Workflow Status JSONは手更新の状態正本としてRepositoryへcommitせず、必要時にread-onlyで再生成する
 
 ## 5. Naming
 
@@ -109,12 +112,15 @@
 - Design Projectのproduction placeholder → docs/design-public/
 - 対象領域にだけ追加するAI/Human制約 → docs/instructions/
 - 反復するAI/Human作業工程 → docs/playbooks/
+- GitHub Evidenceから現在地をread-only導出 → scripts/derive-workflow-status.sh
 - 無効状態で配布するWorkflow Template → docs/workflow-templates/
 - 本番Asset → public/assets/
 
 Playbookは担当設計書・運用文書を上流として参照し、Application固有仕様やTool固有syntaxを下流から持ち込まない。
 
 Scoped InstructionはGlobal Guardrail / Issue / Design / Playbookを上流として参照し、対象領域の追加制約だけを持つ。認証・認可・DB・Transaction等のBusiness Application標準を既存Templateへ逆流させない。
+
+Workflow StatusはIssue / Branch / PR / SHA / CI / main等を上流Evidenceとして参照するだけであり、Status出力からGitHub Evidenceへ状態を書き戻さない。
 
 ## 7. Forbidden Content
 
@@ -153,7 +159,10 @@ Templateから作成後、実際のRepository treeへ置き換える。
 
 ```text
 scripts/
+├─ derive-workflow-status.sh
 └─ verify-production.sh
 ```
+
+`scripts/derive-workflow-status.sh` はIssue番号を起点にGitHub Evidenceをread-onlyで参照し、`authoritative: false` のWorkflow Status JSONをstdoutへ生成する。生成物を進捗正本としてcommitしない。
 
 `scripts/verify-production.sh` は複数Projectで再利用するProduction Verificationの共通script。Project固有business flowや実機確認はこのscriptへ詰め込まず、各Projectのtest / release手順へ残す。
