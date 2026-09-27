@@ -12,13 +12,16 @@ Humanとの共同作業では、最初に `docs/HUMAN_AI_COLLABORATION.md` を�
 
 新しいチャットや中断後、またはHumanとの認識不一致が生じた場合は `docs/HUMAN_AI_COLLABORATION.md` の **GR-008** を適用し、過去チャットの記憶や単一の検索結果だけから現在地・不存在・未実装を決めない。既知のpath / SHA / Issue / Branch / PRがある場合は、検索結果より直接Evidenceを優先する。
 
-- Notionの最終設計・現在地を確認する
-- Open Issueは変更仕様として読む
+既知のIssue番号があり、GitHub CLI / `jq` を利用できる環境では `scripts/derive-workflow-status.sh <Issue番号>` をNavigation Hintとして使ってよい。出力は `authoritative: false` のread-only Viewであり、Issue / Branch / PR / head SHA / CI等の直接Evidenceを必ず確認する。Statusがない・生成できない・stale・conflictの場合もGR-008の直接確認で復帰する。
+
+- Open Issue / Change Contractを確認する
 - 対応Branch / PRを確認し、実装途中の事実を読む
+- head SHA / CI / merge stateを確認する
 - mainとの差分とMerge状態を確認する
+- 設計・運用上必要な場合だけNotionの最終設計・現在地を確認する
 - 必要な場合だけGoogle Driveの作業データを確認する
 - Boxは普遍的な原典・生データの確認が必要な場合だけ参照する
-- Open Issueだけを根拠に「未着手」「未実装」と判断しない
+- Open IssueやDerived Workflow Statusだけを根拠に「未着手」「未実装」と判断しない
 
 Humanから「前にやった」「認識が違う」「それではない」「もう実装したはず」等の指摘があった場合は推測を停止し、Issue → Branch / PR → main → 必要な作業データをRead-onlyで確認して差分を特定する。
 
@@ -34,6 +37,7 @@ Humanから「前にやった」「認識が違う」「それではない」「
 - 設計変更ルール: `docs/05_DESIGN_MANAGEMENT.md`
 - Requirement対応: `docs/06_REQUIREMENTS_TRACEABILITY.md`
 - 完了・収束判定: `docs/CONVERGENCE_GATE.md`
+- 作業復帰・現在地表示: `docs/WORKFLOW_STATUS.md`
 - Visual Design: `docs/design/`
 - 重要な設計判断: `docs/adr/`
 
@@ -130,6 +134,7 @@ AIによる変更は、調査・契約・変更・検証の境界を分ける。
 - **Approval Boundary**: Human承認が必要な工程は、明示承認前に越えない。Human GateはDesign判断、実機確認、Binary Upload、重要なMerge、Production/Publicの重要操作、破壊的操作、Risk上昇、Scope拡張などに限定し、単なる工程境界と区別する
 - **Evidence Before Claim**: 実行していないCI / Preview / Deploy / smokeを成功・確認済みとして扱わない
 - **Convergence Before Completion Claim**: 実装済み・test成功・Deploy成功だけで完了を宣言せず、該当するDevelopment / Release Convergenceを確認する
+- **Derived Status Boundary**: Workflow Statusはread-only Navigation Hintとして扱い、`authoritative: false` を維持する。Statusだけで現在地・Merge可否・Release完了を確定せず、直接Evidenceと不一致なら再生成または破棄する
 - **Risk Level**: Low / Medium / Highを作業前に判定し、Riskに応じて必要なGateと証跡量を変える。Highはrollback・停止条件・Human確認点を明記する
 - **Impact Flags**: Runtime / UI / Mobile・Sensor / Asset / Security・Secret・Infra / Public Repository / Design・Operation Meaning をYes/No判定し、Preview・実機・Production・Notion同期等を条件適用する
 - **Human Gateまで連続実行**: Change Contractが合意済みなら、AIはRead-only確認 → Branch → 実装 → 適用対象のlint/test/build → PR → CI → 条件付きPreview → Development Convergenceまで、次のHuman GateまたはStop Conditionに当たるまで連続して進める。「続けて」を各機械工程の再承認として要求しない
