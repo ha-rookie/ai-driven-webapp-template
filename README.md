@@ -19,6 +19,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 11. PWA・Analytics・検索index公開・LLMO等は一律必須にせずHuman decisionを残す
 12. Merge / Deploy成功だけでRelease完了とせず、Production実測・実機確認・設計書同期まで行う
 13. 実装・test・Deploy成功と仕様収束を分け、Merge前にDevelopment Convergence、Production後にRelease Convergenceを確認する
+14. 反復する作業工程はTool-neutral Playbookを正本とし、AI製品固有のSkill / Command / Ruleへ手順を重複させない
 
 ## Golden Path
 
@@ -40,6 +41,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - Production配信が必要なら `docs/workflow-templates/deploy-production.yml` をアプリ側へコピーしてCHANGE-MEを置き換える
 - Security baseline、公開範囲、index/noindex、About/Privacy、GSC、PWA、Analyticsの採否を決める
 - 必要なIssueをテンプレートから作る
+- 対象作業の [Tool-neutral Playbooks](docs/playbooks/README.md) を確認する
 - Release Checklistをプロジェクトに合わせて更新する
 
 ## 設計書の管理
@@ -50,6 +52,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - 提案中設計: PR Branch
 - 視覚レビュー: `docs/design/` + 必要に応じDesign Preview
 - 設計判断履歴: `docs/adr/`
+- 反復作業工程: `docs/playbooks/`
 - 構築キャプチャー・外部資料: Google Drive
 - 複数アプリで再利用する開発判断: Notion
 - Chat上の確定事項: 必ず該当設計書へ反映
@@ -75,6 +78,12 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 
 ### Development / Operations
 
+- [Tool-neutral Playbooks](docs/playbooks/README.md)
+- [Feature Development Playbook](docs/playbooks/feature-development.md)
+- [Bugfix Playbook](docs/playbooks/bugfix.md)
+- [Design Change Playbook](docs/playbooks/design-change.md)
+- [Release Playbook](docs/playbooks/release.md)
+- [Production Verification Playbook](docs/playbooks/production-verification.md)
 - [Project Bootstrap](docs/PROJECT_BOOTSTRAP.md)
 - [Git Workflow](docs/GIT_WORKFLOW.md)
 - [Risk-aware CI](docs/RISK_AWARE_CI.md)
