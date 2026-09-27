@@ -22,6 +22,7 @@
 | `04_REPOSITORY_STRUCTURE.md` | ファイルをどこに置き、何を正とするか | Directory、生成物、配置規則の変更 |
 | `05_DESIGN_MANAGEMENT.md` | 設計書をどう更新・承認・版管理するか | 設計プロセス自体の変更 |
 | `06_REQUIREMENTS_TRACEABILITY.md` | 要件がどの設計・実装・テストに対応するか | 要件・設計・実装の追加変更 |
+| `CONVERGENCE_GATE.md` | 実装・test・Evidence・Productionが仕様と収束しているか | 完了判定・Release判定の変更 |
 | `design/` | UI・画面・視覚的な動きをどう見せるか | 画面・操作・視覚設計の変更 |
 | `DESIGN_PREVIEW.md` | 視覚設計をどう安全に配信・レビューするか | Design Preview運用変更 |
 | `adr/` | なぜ重要な技術判断をしたか | 代替案がある重要な設計判断 |
@@ -61,6 +62,7 @@ IDは内容変更時も可能な限り維持し、別概念になった場合だ
 - `public/` の責務 → Repository Structure
 - 画面上のボタン配置 → design/
 - そのボタンが必要な理由 → Requirements
+- Requirement / Design / Implementation / Test / Productionの整合判定 → Convergence Gate
 
 他文書からはリンクまたは設計IDで参照する。
 
@@ -72,7 +74,9 @@ IDは内容変更時も可能な限り維持し、別概念になった場合だ
 4. Issueに対象設計ID・非対象・受け入れ条件を残す
 5. 実装・テストを行う
 6. PRで設計差分と実装差分を同時にレビューする
-7. CI成功後、人間承認してMergeする
-8. `main` を承認済み最新設計とする
+7. `CONVERGENCE_GATE.md` に従いDevelopment Convergenceを確認する
+8. CI成功後、人間承認してMergeする
+9. `main` を承認済み最新設計とする
+10. Production Releaseがある場合はProduction VerificationとRelease Convergenceを確認する
 
-詳細は `05_DESIGN_MANAGEMENT.md` を参照する。
+詳細は `05_DESIGN_MANAGEMENT.md` と `CONVERGENCE_GATE.md` を参照する。
