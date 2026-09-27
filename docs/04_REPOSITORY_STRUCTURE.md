@@ -29,6 +29,7 @@
 │  ├─ SECURITY_BASELINE.md
 │  ├─ design/
 │  ├─ design-public/
+│  ├─ playbooks/
 │  ├─ workflow-templates/
 │  └─ adr/
 ├─ src/                 # framework/app sourceを採用する場合
@@ -51,9 +52,10 @@
 | Path | Responsibility | Source/Generated | Production Artifact |
 | --- | --- | --- | --- |
 | `.github/` | CI、Issue、PR運用 | Source | No |
-| `docs/` | 設計の正本 | Source | 原則No |
+| `docs/` | 設計の正本・共通開発手順 | Source | 原則No |
 | `docs/design/` | 視覚設計・Design Preview素材 | Source | Design Previewのみ |
 | `docs/design-public/` | Design用Pages Projectのproduction apex placeholder | Source | Design Project apexのみ |
+| `docs/playbooks/` | Tool-neutralな反復作業工程。設計・Security・Release条件の意味は担当文書を参照する | Source | No |
 | `docs/workflow-templates/` | 新規Appで有効化するWorkflow Template | Source | No |
 | `docs/adr/` | 設計判断履歴 | Source | No |
 | `src/` | Application source | Source | Build後Yes |
@@ -87,6 +89,7 @@
 - Data: schema・year・area等の分割キーを設計で固定
 - Asset: 内容が分かる安定名。承認後の意味のないrenameを避ける
 - ADR: `ADR-0001-short-title.md`
+- Playbook: 作業目的が分かるlowercase + kebab-case（例: `feature-development.md`）
 
 ## 6. Dependency Direction and Placement
 
@@ -101,8 +104,11 @@
 - Runtime endpoint → functions/ or workers/
 - 設計検証用HTML → docs/design/
 - Design Projectのproduction placeholder → docs/design-public/
+- 反復するAI/Human作業工程 → docs/playbooks/
 - 無効状態で配布するWorkflow Template → docs/workflow-templates/
 - 本番Asset → public/assets/
+
+Playbookは担当設計書・運用文書を上流として参照し、Application固有仕様やTool固有syntaxを下流から持ち込まない。
 
 ## 7. Forbidden Content
 

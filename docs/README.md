@@ -1,6 +1,6 @@
 # Design Documentation Index
 
-このディレクトリは、プロジェクトの設計上の正本を管理する。
+このディレクトリは、プロジェクトの設計上の正本と、設計に従って作業するための共通手順を管理する。
 
 ## 正本
 
@@ -9,6 +9,7 @@
 - Google Driveは構築キャプチャー、操作証跡、外部資料の保管先であり、設計本文の正本にしない
 - Cloudflare等へ配信するDesign Previewはレビュー用の表示面であり、正本はRepository内のファイル
 - Chat上の説明だけで仕様を確定しない。確定事項は該当設計書へ反映する
+- `playbooks/` は作業工程の正本であり、Requirement / Architecture / Security / Release条件の意味を複製しない
 
 ## 設計書体系
 
@@ -33,6 +34,21 @@
 | `ASSET_WORKFLOW.md` | Assetをどう生成・承認・引き継ぐか | Asset運用変更 |
 | `RELEASE_CHECKLIST.md` | 何を確認して公開するか | Release条件変更 |
 | `TROUBLESHOOTING.md` | 既知問題をどう回避・復旧するか | 再発可能な障害・制約の発見 |
+
+## Execution Playbooks
+
+`playbooks/` は特定AI製品に依存しない実行手順を管理する。
+
+| Playbook | 答える質問 |
+| --- | --- |
+| `playbooks/README.md` | Playbookをどう選び、他の正本とどう分担するか |
+| `playbooks/feature-development.md` | 新機能・改善をどの順序で進めるか |
+| `playbooks/bugfix.md` | 不具合をどう切り分け、修正・回帰確認するか |
+| `playbooks/design-change.md` | 設計変更を実装より先にどう確定するか |
+| `playbooks/release.md` | Merge後、Release完了まで何を確認するか |
+| `playbooks/production-verification.md` | Productionをどう実測するか |
+
+Playbookは既存文書の内容をコピーせず参照する。Tool固有Skill / Command / Ruleを将来追加する場合もAdapterとしてPlaybookを参照する。
 
 ## 設計ID
 
@@ -63,6 +79,8 @@ IDは内容変更時も可能な限り維持し、別概念になった場合だ
 - 画面上のボタン配置 → design/
 - そのボタンが必要な理由 → Requirements
 - Requirement / Design / Implementation / Test / Productionの整合判定 → Convergence Gate
+- Feature開発をどの順序で実行するか → `playbooks/feature-development.md`
+- Release条件そのもの → Release Checklist（Playbookへコピーしない）
 
 他文書からはリンクまたは設計IDで参照する。
 
@@ -79,4 +97,4 @@ IDは内容変更時も可能な限り維持し、別概念になった場合だ
 9. `main` を承認済み最新設計とする
 10. Production Releaseがある場合はProduction VerificationとRelease Convergenceを確認する
 
-詳細は `05_DESIGN_MANAGEMENT.md` と `CONVERGENCE_GATE.md` を参照する。
+詳細は `05_DESIGN_MANAGEMENT.md`、`CONVERGENCE_GATE.md`、対象作業の `playbooks/` を参照する。

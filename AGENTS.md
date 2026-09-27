@@ -39,6 +39,20 @@ Humanから「前にやった」「認識が違う」「それではない」「
 
 同じ仕様を複数設計書へコピーして正本を増やさない。担当外の文書からは設計IDまたはリンクで参照する。
 
+## 作業Playbook
+
+反復する作業工程は `docs/playbooks/README.md` を入口に、対象に応じたTool-neutral Playbookを使用する。
+
+- 新機能・改善: `docs/playbooks/feature-development.md`
+- 不具合修正: `docs/playbooks/bugfix.md`
+- 設計変更: `docs/playbooks/design-change.md`
+- Release: `docs/playbooks/release.md`
+- Production実測: `docs/playbooks/production-verification.md`
+
+Playbookは工程の正本であり、Requirement、Architecture、Security基準、Git運用、Release条件等の意味を複製しない。これらは既存の担当文書を参照する。Playbookと上位Guardrail、Issue Change Contract、設計正本が矛盾する場合は上位を優先する。
+
+将来Copilot Skills、Claude commands、Cursor rules等のTool固有Adapterを追加する場合も、Playbookを参照する入口として扱い、Human Gate / Stop Conditionを独自に弱めない。
+
 ## 新規Project Bootstrap
 
 Templateから作成した新規Repositoryでは、個別Featureへ入る前に `docs/PROJECT_BOOTSTRAP.md` を確認し、`Project Bootstrap` Issueを起点に初期設計をProject固有化する。
@@ -53,7 +67,7 @@ Templateから作成した新規Repositoryでは、個別Featureへ入る前に 
 
 ## 作業順序
 
-1. `docs/README.md` と関連設計書、Issueを読む
+1. `docs/README.md`、対応Playbook、関連設計書、Issueを読む
 2. 対象REQ/NFR/ARCH/APP/UI/DATA/IF/ADR、変更範囲、非対象を確認する
 3. 仕様変更なら正本設計書を先に更新する
 4. Architecture上の重要判断ならADRを更新・追加する
