@@ -4,6 +4,44 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 
 コードの雛形だけでなく、設計、Issue、Branch、Pull Request、CI、Cloudflare、Asset、Security、SEO、Search Console、リリース、公開後確認、知見還流までを一つのGolden Pathとして管理します。
 
+## このTemplateが提供するもの
+
+| 領域 | 主な内容 |
+| --- | --- |
+| Design | Requirements / System Architecture / Application Architecture / ADR / Traceability |
+| Delivery | Issue → Branch → PR → CI → Preview → Human Merge Gate |
+| AI/Human Governance | Human/AI Guardrails / Tool-neutral Playbooks / Scoped Instructions / Convergence Gate |
+| CI / Evidence | Risk-aware CI / Planned Files Guard / Release Evidence / Evidence-derived Workflow Status |
+| Production | Cloudflare workflow templates / Production Verification / OGP / Security Headers / Release Checklist |
+| Public Repository | Fork monitoring / Ruleset guidance / Contribution / Security reporting / MIT License |
+
+### 対象
+
+- 軽量〜中小規模のWebアプリ
+- AIを開発に使いながらHuman ReviewとEvidenceを残したいProject
+- GitHub中心で設計・Issue・PR・CI・Releaseを一貫管理したいProject
+- Cloudflare Pages / Workers等を利用する公開Web Delivery
+
+### 非対象
+
+このRepositoryは、認証・認可、Database migration、Transaction、排他、idempotency、監査ログ等を標準装備するBusiness Application Templateではありません。これらを必要とする業務システム向けTemplateは別系統として扱います。
+
+## Quick Start
+
+1. GitHubのTemplate Repository機能から新しいRepositoryを作成する
+2. [Project Bootstrap](docs/PROJECT_BOOTSTRAP.md) を確認する
+3. `Project Bootstrap` Issue Templateで初期化Issueを作成する
+4. Core Designの `CHANGE-ME` をProject固有設計へ置き換える
+5. 必要なWorkflow Templateを有効化する
+6. Issue → Branch → PR → CI → Human Merge GateのGolden Pathで開発を始める
+
+外部からこのRepository自体へ変更を提案する場合は [CONTRIBUTING.md](CONTRIBUTING.md) を、脆弱性報告は [SECURITY.md](SECURITY.md) を先に確認してください。
+
+- [Contribution Guide](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+- [MIT License](LICENSE)
+
 ## 基本原則
 
 1. 設計変更 → 設計書 → Issue → 実装 → テスト → Pull Request
@@ -64,6 +102,8 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - Chat上の確定事項: 必ず該当設計書へ反映
 
 詳細は [Design Management](docs/05_DESIGN_MANAGEMENT.md) を参照する。
+
+外部Contributorは、非公開のNotion / Google Driveへアクセスする必要はありません。このPublic RepositoryにあるIssue、設計書、PR EvidenceをContributionの基準とします。
 
 ## 文書
 
@@ -134,24 +174,25 @@ Template Repository自身ではCloudflareへ自動Deployしない。
 
 認証・認可、Database migration、Transaction、排他、idempotency、監査ログ等を標準装備するBusiness Application Templateは別系統として設計し、Scoped Instruction追加を理由に両Templateを同一化しない。
 
-## v0.2の位置づけ
+## v0.3の位置づけ
 
-v0.1は朝マズメ潮ナビを中心に、GitHub設計正本・Issue/PR運用・HTML Design Preview・Cloudflare公開の骨格を抽出した初版だった。
-
-v0.2では、その後の**朝マズメ潮ナビ、あと一杯ナビ、よう拝（遥拝）アプリ、くるくるソムリエ**等の実開発で繰り返し有効だった知見をTemplateへ還流した。
+v0.3では、v0.2以降の実開発とTemplate比較から、AI/Human協働の開発ガバナンス、CI、Release Verification、作業復帰性、Public Repository運用を大きく強化した。
 
 主な追加・強化:
 
-- GitHub Actionsの利用量・重複実行・rerun判断
-- OGP / favicon / PWA iconのAssetライフサイクル
-- Git Blob + Base64による画像輸送の判断基準
-- GitHub Actions + Wrangler + Cloudflare Pagesのbootstrap / Production経路
-- Production / Preview / Design Previewの責務分離
-- Recommended Security HeadersとProduction実測
-- SEO / Search Console / About / Privacy / Public Trust
-- 検索公開 / URL限定共有のHuman decision
-- Production Verificationと設計書同期
-- 公開後の知見をNotion → GitHub Templateへ還流するループ
+- Evidence-based work resumption / GR-008
+- Project BootstrapとTemplate / Bootstrap / Projectの3状態validation
+- Risk-aware CI / Planned Files Guard / Release Evidence
+- Production Verification / OGP Verification
+- Runtime / Data Integrity設計観点とHigh-risk Boundary Testing
+- External Resource Budget
+- Development / Release Convergence Gate
+- Tool-neutral Playbooks / Scoped Instructions
+- Evidence-derived Workflow Status
+- Public Repository Gate / Fork monitoring / Human-managed Ruleset
+- MIT License
+
+詳細な変更履歴は [CHANGELOG.md](CHANGELOG.md) を参照する。
 
 個別アプリ固有のロジックや、LitLink・ProtoPedia固有の運用はTemplateへ直接固定せず、再利用できる原則だけを標準化する。
 
