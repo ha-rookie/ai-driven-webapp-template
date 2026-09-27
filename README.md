@@ -154,3 +154,9 @@ v0.2では、その後の**朝マズメ潮ナビ、あと一杯ナビ、よう�
 - 公開後の知見をNotion → GitHub Templateへ還流するループ
 
 個別アプリ固有のロジックや、LitLink・ProtoPedia固有の運用はTemplateへ直接固定せず、再利用できる原則だけを標準化する。
+
+## License
+
+このRepositoryは [MIT License](LICENSE) で提供する。
+
+Copyright (c) 2026 ha-rookie
