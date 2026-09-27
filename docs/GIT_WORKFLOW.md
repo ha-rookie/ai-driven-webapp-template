@@ -105,16 +105,33 @@ Scopeが別機能へ広がる、Riskが変わる、別のHuman decisionが必要
 
 新しいChatGPTチャット、長時間中断、コンテキスト喪失後は会話記憶から復帰しない。原則として次を確認する。
 
-1. Notionの対象プロジェクト最終設計・現在地
-2. Open Issue / Change Contract
-3. Issue番号を含む対応BranchとPR
+1. Open Issue / Change Contract
+2. Issue番号を含む対応BranchとPR
+3. head SHA / CI / merge state
 4. mainとの差分とMerge状態
-5. データ処理・分析では必要なGoogle Drive作業データ
-6. 原典そのものの確認が必要な場合のみBox
+5. 設計・運用上必要な場合のみNotionの対象プロジェクト最終設計・現在地
+6. データ処理・分析では必要なGoogle Drive作業データ
+7. 原典そのものの確認が必要な場合のみBox
 
 Branch名にはIssue番号を含め、Issue → Branch → PR → Merge commitを追跡可能にする。
 
 Humanから「前にやった」「認識が違う」「それではない」「もう実装したはず」等の指摘があった場合、AIはIssue本文や会話記憶だけで推測を続けない。Issue → Branch / PR → main → 必要な作業データをRead-onlyで確認し、管理情報と実装事実の差分を特定してから再開する。
+
+### Evidence-derived Workflow Status
+
+既知のIssue番号がある場合、`scripts/derive-workflow-status.sh <Issue番号>` を現在地把握のNavigation Hintとして利用できる。詳細は `docs/WORKFLOW_STATUS.md` を正本とする。
+
+- scriptはGitHubをread-onlyで参照し、JSONをstdoutへ出す
+- 出力は常に `authoritative: false`
+- StatusはIssue / Branch / PR / head SHA / CI / mainの代替Evidenceではない
+- PR本文から取得したDevelopment / Release Convergenceは「reported state」であり、参照Evidenceの直接確認を省略しない
+- Branch / PR候補が複数なら推測せず `blocked` / `conflicts` とする
+- Preview / Production等を自動導出できない場合は `not-derived` / `unverified` のまま残す
+- StatusをRepositoryへ手更新・commitして進捗正本にしない
+- StatusがなくてもGR-008の直接Evidence確認で復帰できる
+- stale / conflict時はStatusを修正して辻褄を合わせず、GitHub Evidenceから再生成する
+
+Workflow Statusは作業復帰コストを下げるためのView / Cacheであり、新しい承認Gateや手作業を増やさない。
 
 ## 情報層
 
