@@ -121,6 +121,8 @@ jobs:
             README.md
             CHANGELOG.md
             LICENSE
+            CONTRIBUTING.md
+            SECURITY.md
             docs/README.md
             docs/00_PROJECT_OVERVIEW.md
             docs/01_REQUIREMENTS.md
