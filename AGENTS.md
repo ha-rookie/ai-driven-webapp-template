@@ -33,6 +33,7 @@ Humanから「前にやった」「認識が違う」「それではない」「
 - File/Folder配置: `docs/04_REPOSITORY_STRUCTURE.md`
 - 設計変更ルール: `docs/05_DESIGN_MANAGEMENT.md`
 - Requirement対応: `docs/06_REQUIREMENTS_TRACEABILITY.md`
+- 完了・収束判定: `docs/CONVERGENCE_GATE.md`
 - Visual Design: `docs/design/`
 - 重要な設計判断: `docs/adr/`
 
@@ -59,10 +60,13 @@ Templateから作成した新規Repositoryでは、個別Featureへ入る前に 
 5. Requirement変更ならTraceabilityも更新する
 6. 1 Issue専用Branchで実装する。Branch名にIssue番号を含め、Issue → Branch → PR → Mergeを追跡可能にする
 7. lint・test・buildを実行する
-8. Previewで確認可能な状態にする
-9. 人間承認前にmainへマージしない
-10. Merge後にProductionと主要回帰を確認する
-11. 設計・仕様・運用が変わった場合はNotion最終設計をmainへ同期する。設計変更なしならIssue / PRへ更新不要を記録する
+8. Previewが必要な変更はPreviewで確認可能な状態にする
+9. `docs/CONVERGENCE_GATE.md` に従いDevelopment Convergenceを確認する
+10. Development Convergenceが成立した対象head SHAについてHuman Review / Merge approvalを得る
+11. 人間承認前にmainへマージしない
+12. Merge後にProductionと主要回帰を確認する
+13. Production Releaseがある場合はRelease Convergenceを確認する
+14. 設計・仕様・運用が変わった場合はNotion最終設計をmainへ同期する。設計変更なしならIssue / PRへ更新不要を記録する
 
 ## 必須ルール
 
@@ -76,6 +80,8 @@ Templateから作成した新規Repositoryでは、個別Featureへ入る前に 
 - Closed・Unmergedを自動的に失敗扱いしない
 - 破壊的操作、本番公開、重要なMerge、認証は人間判断を残す
 - コードが動いていても、必要な設計更新が欠けていれば完了扱いにしない
+- lint / test / build成功だけをDevelopment Convergenceとして扱わない
+- Deploy成功だけをRelease Convergenceとして扱わない
 
 ## AI変更制御
 
@@ -91,9 +97,10 @@ AIによる変更は、調査・契約・変更・検証の境界を分ける。
 - **Instruction Boundary**: 「続けて」は現在合意済み工程の継続であり、Scope拡張・破壊的操作・Merge・Production releaseの承認ではない
 - **Approval Boundary**: Human承認が必要な工程は、明示承認前に越えない。Human GateはDesign判断、実機確認、Binary Upload、重要なMerge、Production/Publicの重要操作、破壊的操作、Risk上昇、Scope拡張などに限定し、単なる工程境界と区別する
 - **Evidence Before Claim**: 実行していないCI / Preview / Deploy / smokeを成功・確認済みとして扱わない
+- **Convergence Before Completion Claim**: 実装済み・test成功・Deploy成功だけで完了を宣言せず、該当するDevelopment / Release Convergenceを確認する
 - **Risk Level**: Low / Medium / Highを作業前に判定し、Riskに応じて必要なGateと証跡量を変える。Highはrollback・停止条件・Human確認点を明記する
 - **Impact Flags**: Runtime / UI / Mobile・Sensor / Asset / Security・Secret・Infra / Public Repository / Design・Operation Meaning をYes/No判定し、Preview・実機・Production・Notion同期等を条件適用する
-- **Human Gateまで連続実行**: Change Contractが合意済みなら、AIはRead-only確認 → Branch → 実装 → 適用対象のlint/test/build → PR → CI → 条件付きPreviewまで、次のHuman GateまたはStop Conditionに当たるまで連続して進める。「続けて」を各機械工程の再承認として要求しない
+- **Human Gateまで連続実行**: Change Contractが合意済みなら、AIはRead-only確認 → Branch → 実装 → 適用対象のlint/test/build → PR → CI → 条件付きPreview → Development Convergenceまで、次のHuman GateまたはStop Conditionに当たるまで連続して進める。「続けて」を各機械工程の再承認として要求しない
 - **Stop報告**: 停止理由、影響範囲、実施済み、未実施、次に必要な確認を分けて記載する
 
 ルールの優先順位は、Security・明示されたHuman承認境界・このRepositoryの必須規約・IssueのChange Contract・通常手順の順とし、利便性のために上位ルールを弱めない。
@@ -110,7 +117,7 @@ Architecture、画面構造、データschema、認証、課金、外部IF等の
 
 ## Pull Request
 
-PR本文にはIssue、変更内容、非対象、変更した設計書/設計ID、テスト、Security、SEO、Preview、人間確認、回復方法を記載する。
+PR本文にはIssue、変更内容、非対象、変更した設計書/設計ID、テスト、Security、SEO、Preview、人間確認、回復方法に加え、Development Convergence結果、参照Evidence、未解決事項、Release Convergenceの現在状態を記載する。
 
 Draft解除コネクタの互換性が確認できるまでは通常PRを使用し、レビューゲートでマージを止める。Replacement PRを作る場合は元PR、同一head SHA、承認内容、CI run、Preview runを引き継ぐ。
 
