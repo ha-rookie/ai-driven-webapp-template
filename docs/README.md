@@ -10,6 +10,7 @@
 - Cloudflare等へ配信するDesign Previewはレビュー用の表示面であり、正本はRepository内のファイル
 - Chat上の説明だけで仕様を確定しない。確定事項は該当設計書へ反映する
 - `playbooks/` は作業工程の正本であり、Requirement / Architecture / Security / Release条件の意味を複製しない
+- `instructions/` は対象領域にだけ追加適用する制約・確認観点であり、Global Guardrailや担当設計書を置き換えない
 
 ## 設計書体系
 
@@ -50,6 +51,23 @@
 
 Playbookは既存文書の内容をコピーせず参照する。Tool固有Skill / Command / Ruleを将来追加する場合もAdapterとしてPlaybookを参照する。
 
+## Scoped Instructions
+
+`instructions/` は作業対象に応じて必要な制約だけを追加で読むためのTool-neutralなInstructionを管理する。
+
+| Instruction | 適用する場面 |
+| --- | --- |
+| `instructions/README.md` | Instructionの選択、優先順位、Business Application Templateとの境界 |
+| `instructions/testing.md` | test / validation / CI / regressionを変更する |
+| `instructions/security.md` | Security / Secret / Public境界を変更する |
+| `instructions/frontend-ui.md` | UI / Asset / frontend / Mobile確認を変更する |
+| `instructions/cloudflare-infrastructure.md` | Cloudflare / deploy / binding / infrastructureを変更する |
+| `instructions/documentation.md` | docs / README / process文書を変更する |
+
+Global Guardrail → Issue / Design → Playbook → relevant Scoped Instructionの順で適用し、非該当Instructionを全作業で常時読ませない。
+
+Database、認証・認可、Transaction、排他、idempotency、audit log等のBusiness Application標準はこの既存TemplateのInstructionへ追加せず、別Template側の責務として維持する。
+
 ## 設計ID
 
 必要な設計項目には安定したIDを付与する。
@@ -81,6 +99,7 @@ IDは内容変更時も可能な限り維持し、別概念になった場合だ
 - Requirement / Design / Implementation / Test / Productionの整合判定 → Convergence Gate
 - Feature開発をどの順序で実行するか → `playbooks/feature-development.md`
 - Release条件そのもの → Release Checklist（Playbookへコピーしない）
+- Security作業で追加確認する観点 → `instructions/security.md`（Security基準そのものはSecurity Baseline）
 
 他文書からはリンクまたは設計IDで参照する。
 
@@ -97,4 +116,4 @@ IDは内容変更時も可能な限り維持し、別概念になった場合だ
 9. `main` を承認済み最新設計とする
 10. Production Releaseがある場合はProduction VerificationとRelease Convergenceを確認する
 
-詳細は `05_DESIGN_MANAGEMENT.md`、`CONVERGENCE_GATE.md`、対象作業の `playbooks/` を参照する。
+詳細は `05_DESIGN_MANAGEMENT.md`、`CONVERGENCE_GATE.md`、対象作業の `playbooks/` と関連する `instructions/` を参照する。
