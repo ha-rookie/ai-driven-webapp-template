@@ -65,6 +65,20 @@ Impact Flagsに該当する項目だけを必須とする。非該当Gateを形�
 - [ ] Planned Files外の変更がある場合、理由とHuman承認を記録した
 - [ ] ついで修正を混ぜていない
 
+## Convergence Evidence
+
+`docs/CONVERGENCE_GATE.md` に従い、実装・test・Deployの成功と仕様収束を分けて記録する。
+
+- Development Convergence: Converged / Not Converged / Blocked
+- Development Evidence:
+- Unresolved / Stop reason:
+- Release Convergence: Pending / Converged / Not Converged / Blocked / Not Applicable
+- Release Evidence:
+- [ ] Requirement / Design / Implementation / Test / Issue acceptanceの既知の矛盾がない
+- [ ] 未実行checkを成功扱いしていない
+- [ ] Development Convergenceが成立したhead SHAをHuman Review対象としている
+- [ ] Production Releaseがある場合、Deploy成功だけをRelease Convergedとしていない
+
 ## Collaboration Guardrails
 
 - [ ] `docs/HUMAN_AI_COLLABORATION.md` の該当STOP Gateを確認した
@@ -91,6 +105,7 @@ Impact Flagsに該当する項目だけを必須とする。非該当Gateを形�
 
 - [ ] 最新mainを取り込み済み
 - [ ] CI成功
+- [ ] Development Convergence = Converged
 - [ ] Preview URL記載
 - [ ] 人間承認済み
 - [ ] 承認head SHA記載
@@ -116,6 +131,7 @@ Merge後にProductionがある場合のみ記載する。
 
 - Production deploy: 成功 / 失敗 / 該当なし
 - Production smoke:
+- Release Convergence: Converged / Not Converged / Blocked / Not Applicable
 - [ ] Analytics smoke成功（該当時）
 - [ ] Security headers smoke成功（該当時）
 - [ ] Production上の主要回帰確認
