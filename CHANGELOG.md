@@ -2,7 +2,15 @@
 
 ## Unreleased
 
-今後の追加改善をここへ記録する。
+### Added
+
+- `CONTRIBUTING.md` を追加し、外部Contributor向けにChange Contract / Planned Files / Scope Guard / Human Merge Gateを明文化
+- `SECURITY.md` を追加し、Repository自身の脆弱性報告とPublic Issueへ機密・exploit detailsを書かない方針を明文化
+
+### Changed
+
+- README冒頭に対象 / 非対象 / Quick Start / Contribution / Security / License導線を追加
+- Repository validationで `CONTRIBUTING.md` と `SECURITY.md` を必須ファイルとして検証
 
 ## v0.3 - 2026-09-27
 
