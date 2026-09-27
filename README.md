@@ -21,6 +21,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 13. 実装・test・Deploy成功と仕様収束を分け、Merge前にDevelopment Convergence、Production後にRelease Convergenceを確認する
 14. 反復する作業工程はTool-neutral Playbookを正本とし、AI製品固有のSkill / Command / Ruleへ手順を重複させない
 15. 対象領域固有の制約はTool-neutral Scoped Instructionとして分離し、非該当ルールを全作業のContextへ常時読み込ませない
+16. 作業現在地はGitHub Evidenceから導出し、手更新のWorkflow Statusを新しい正本にしない
 
 ## Golden Path
 
@@ -44,6 +45,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - 必要なIssueをテンプレートから作る
 - 対象作業の [Tool-neutral Playbooks](docs/playbooks/README.md) を確認する
 - Planned Files / Impact Flags / 作業内容に応じて [Scoped Instructions](docs/instructions/README.md) から必要な領域だけ追加で読む
+- 中断後の復帰では必要に応じて [Evidence-derived Workflow Status](docs/WORKFLOW_STATUS.md) をNavigation Hintとして使い、直接GitHub Evidenceを確認する
 - Release Checklistをプロジェクトに合わせて更新する
 
 ## 設計書の管理
@@ -56,6 +58,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - 設計判断履歴: `docs/adr/`
 - 反復作業工程: `docs/playbooks/`
 - 対象領域の追加制約: `docs/instructions/`
+- 作業現在地のNavigation View: `docs/WORKFLOW_STATUS.md` + `scripts/derive-workflow-status.sh`（非正本）
 - 構築キャプチャー・外部資料: Google Drive
 - 複数アプリで再利用する開発判断: Notion
 - Chat上の確定事項: 必ず該当設計書へ反映
@@ -93,6 +96,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - [Frontend / UI Instruction](docs/instructions/frontend-ui.md)
 - [Cloudflare / Infrastructure Instruction](docs/instructions/cloudflare-infrastructure.md)
 - [Documentation Instruction](docs/instructions/documentation.md)
+- [Evidence-derived Workflow Status](docs/WORKFLOW_STATUS.md)
 - [Project Bootstrap](docs/PROJECT_BOOTSTRAP.md)
 - [Git Workflow](docs/GIT_WORKFLOW.md)
 - [Risk-aware CI](docs/RISK_AWARE_CI.md)
@@ -105,6 +109,14 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - [Public Web Quality](docs/PUBLIC_WEB_QUALITY.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [Release Checklist](docs/RELEASE_CHECKLIST.md)
+
+Workflow Statusのread-only生成:
+
+```bash
+scripts/derive-workflow-status.sh <Issue番号>
+```
+
+生成JSONは `authoritative: false` であり、Repositoryへ手更新の状態正本としてcommitしない。
 
 ### Workflow Templates
 
