@@ -53,6 +53,24 @@ Playbookは工程の正本であり、Requirement、Architecture、Security基�
 
 将来Copilot Skills、Claude commands、Cursor rules等のTool固有Adapterを追加する場合も、Playbookを参照する入口として扱い、Human Gate / Stop Conditionを独自に弱めない。
 
+## Scoped Instructions
+
+対象領域固有の追加制約は `docs/instructions/README.md` を入口に、Planned Files、Impact Flags、作業内容から関連するTool-neutral Scoped Instructionだけを読む。
+
+- test / validation / CI: `docs/instructions/testing.md`
+- Security / Secret / Public境界: `docs/instructions/security.md`
+- frontend / UI / Asset: `docs/instructions/frontend-ui.md`
+- Cloudflare / infrastructure: `docs/instructions/cloudflare-infrastructure.md`
+- documentation-only /設計文書: `docs/instructions/documentation.md`
+
+Scoped InstructionはGlobal Guardrailや設計正本を置き換えず、対象領域で追加確認すべき制約だけを持つ。複数領域に跨る場合は必要なInstructionを併用し、非該当Instructionを全作業で形式的に読み込まない。
+
+Pathだけで適用可否を決めず、IssueのImpact Flagsと作業意図も確認する。不明な場合は軽い方へ推測せず、関連Instructionを追加で読む。
+
+Database、認証・認可、Transaction、排他、idempotency、audit log等のBusiness Application標準を既存TemplateのScoped Instructionへ追加しない。これらは別系統のBusiness Application Template側の責務とする。
+
+Tool固有instructions / rulesを将来追加する場合もAdapterとして扱い、`docs/instructions/` の意味を参照し、Global Guardrail / Human Gateを弱めない。
+
 ## 新規Project Bootstrap
 
 Templateから作成した新規Repositoryでは、個別Featureへ入る前に `docs/PROJECT_BOOTSTRAP.md` を確認し、`Project Bootstrap` Issueを起点に初期設計をProject固有化する。
@@ -67,7 +85,7 @@ Templateから作成した新規Repositoryでは、個別Featureへ入る前に 
 
 ## 作業順序
 
-1. `docs/README.md`、対応Playbook、関連設計書、Issueを読む
+1. `docs/README.md`、対応Playbook、関連設計書、Issue、該当するScoped Instructionを読む
 2. 対象REQ/NFR/ARCH/APP/UI/DATA/IF/ADR、変更範囲、非対象を確認する
 3. 仕様変更なら正本設計書を先に更新する
 4. Architecture上の重要判断ならADRを更新・追加する
@@ -102,7 +120,7 @@ Templateから作成した新規Repositoryでは、個別Featureへ入る前に 
 AIによる変更は、調査・契約・変更・検証の境界を分ける。
 
 - **Scope Lock**: 変更前にGoal、In Scope / Out of Scope、Planned Files、Validation、Stop Conditionsを確認し、合意した範囲を固定する
-- **Read-only First**: 変更前にmain、Issue、関連設計書、関連test / workflow、外部制約を読み、現状を確認する
+- **Read-only First**: 変更前にmain、Issue、関連設計書、関連test / workflow、該当するScoped Instruction、外部制約を読み、現状を確認する
 - **Pre-flight**: 変更対象・依存関係・Risk Level・実行可能な検証を先に整理する
 - **Discovery / Modification separation**: 調査中に見つけた別問題を、そのまま同じ変更へ混ぜない
 - **Unexpected File Change Stop**: Planned Files外の変更が必要になったら停止し、理由と影響をHumanへ報告する

@@ -20,6 +20,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 12. Merge / Deploy成功だけでRelease完了とせず、Production実測・実機確認・設計書同期まで行う
 13. 実装・test・Deploy成功と仕様収束を分け、Merge前にDevelopment Convergence、Production後にRelease Convergenceを確認する
 14. 反復する作業工程はTool-neutral Playbookを正本とし、AI製品固有のSkill / Command / Ruleへ手順を重複させない
+15. 対象領域固有の制約はTool-neutral Scoped Instructionとして分離し、非該当ルールを全作業のContextへ常時読み込ませない
 
 ## Golden Path
 
@@ -42,6 +43,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - Security baseline、公開範囲、index/noindex、About/Privacy、GSC、PWA、Analyticsの採否を決める
 - 必要なIssueをテンプレートから作る
 - 対象作業の [Tool-neutral Playbooks](docs/playbooks/README.md) を確認する
+- Planned Files / Impact Flags / 作業内容に応じて [Scoped Instructions](docs/instructions/README.md) から必要な領域だけ追加で読む
 - Release Checklistをプロジェクトに合わせて更新する
 
 ## 設計書の管理
@@ -53,6 +55,7 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - 視覚レビュー: `docs/design/` + 必要に応じDesign Preview
 - 設計判断履歴: `docs/adr/`
 - 反復作業工程: `docs/playbooks/`
+- 対象領域の追加制約: `docs/instructions/`
 - 構築キャプチャー・外部資料: Google Drive
 - 複数アプリで再利用する開発判断: Notion
 - Chat上の確定事項: 必ず該当設計書へ反映
@@ -84,6 +87,12 @@ AIと人間でWebアプリを継続開発するための標準テンプレート
 - [Design Change Playbook](docs/playbooks/design-change.md)
 - [Release Playbook](docs/playbooks/release.md)
 - [Production Verification Playbook](docs/playbooks/production-verification.md)
+- [Scoped Instructions](docs/instructions/README.md)
+- [Testing Instruction](docs/instructions/testing.md)
+- [Security Instruction](docs/instructions/security.md)
+- [Frontend / UI Instruction](docs/instructions/frontend-ui.md)
+- [Cloudflare / Infrastructure Instruction](docs/instructions/cloudflare-infrastructure.md)
+- [Documentation Instruction](docs/instructions/documentation.md)
 - [Project Bootstrap](docs/PROJECT_BOOTSTRAP.md)
 - [Git Workflow](docs/GIT_WORKFLOW.md)
 - [Risk-aware CI](docs/RISK_AWARE_CI.md)
@@ -106,6 +115,12 @@ Template Repository自身ではCloudflareへ自動Deployしない。
 - `docs/workflow-templates/risk-aware-ci.yml`
 - `docs/workflow-templates/deploy-production.yml`
 - `docs/workflow-templates/deploy-design-preview.yml`
+
+## Template境界
+
+このRepositoryは、軽量なWeb DeliveryとAI/Human開発Governanceを主対象とする。
+
+認証・認可、Database migration、Transaction、排他、idempotency、監査ログ等を標準装備するBusiness Application Templateは別系統として設計し、Scoped Instruction追加を理由に両Templateを同一化しない。
 
 ## v0.2の位置づけ
 
