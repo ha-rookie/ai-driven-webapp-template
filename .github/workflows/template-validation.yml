@@ -120,6 +120,7 @@ jobs:
             AGENTS.md
             README.md
             CHANGELOG.md
+            LICENSE
             docs/README.md
             docs/00_PROJECT_OVERVIEW.md
             docs/01_REQUIREMENTS.md

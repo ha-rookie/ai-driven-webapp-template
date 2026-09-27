@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-今後の追加改善をここへ記録する。
+### Added
+
+- MIT Licenseを導入し、`Copyright (c) 2026 ha-rookie` を明記
+- Repository validationでrootの`LICENSE`を必須ファイルとして検証
 
 ## v0.2 - 2026-09-20
 
