@@ -4,6 +4,8 @@
 
 Merge済みの変更をProductionへ反映し、Deploy成功ではなくRelease完了までEvidenceで確認する。
 
+正式Release前にUser Testを行うProjectでは、Release Candidate Gateを使って「User Testへ渡してよい状態」と「正式Releaseしてよい状態」を分離する。
+
 ## Preconditions
 
 - 対象PRがHuman approval後にMerge済み
@@ -11,10 +13,13 @@ Merge済みの変更をProductionへ反映し、Deploy成功ではなくRelease�
 - Release対象commit / merge commitを特定できる
 - Runtime impactがある場合、ProjectのProduction経路・Rollback方法が定義されている
 
+User Testを行う場合は追加で、candidateを確認するenvironment / URLと、User Test開始を止めるseverity基準を定義する。
+
 ## Evidence to Read
 
 - `docs/HUMAN_AI_COLLABORATION.md`
 - `docs/RELEASE_CHECKLIST.md`
+- `docs/RELEASE_EVIDENCE.md`
 - `docs/PRODUCTION_VERIFICATION.md`
 - `docs/CONVERGENCE_GATE.md`
 - 対応Issue / PR / merge commit
@@ -30,15 +35,92 @@ Merge済みの変更をProductionへ反映し、Deploy成功ではなくRelease�
 5. Deploy結果とstable Production URLを記録する
 6. `production-verification.md` に従いProductionを実測する
 7. UI / Mobile / Sensor / External API等、Impactに応じたHuman / Project-specific確認を実施する
-8. Production実態とmainの設計・運用を照合する
-9. Design / Operation Meaningが変わった場合は必要なNotion最終設計同期を行う
-10. 後日観測が必要な項目はRelease条件と分離し、別Issue / Taskへ切り出す
-11. `docs/CONVERGENCE_GATE.md` に従いRelease Convergenceを確認する
-12. Issue / PRへRelease Evidenceを記録し、完了条件を満たしたらCloseする
+8. User Testを行う場合は `Release Candidate Gate / User Test Ready` を確認し、通過したcandidateをbaselineとして固定する
+9. User Testで得たfeedbackを最低限 defect / improvement に分類し、重大defectが見つかった場合はUser Test Readyを取り消してGateへ戻す
+10. 正式Release判断へ進むcandidateについて、Production実態とmainの設計・運用を照合する
+11. Design / Operation Meaningが変わった場合は必要なNotion最終設計同期を行う
+12. 後日観測が必要な項目はRelease条件と分離し、別Issue / Taskへ切り出す
+13. `docs/CONVERGENCE_GATE.md` に従いRelease Convergenceを確認する
+14. Issue / PRへRelease Evidenceを記録し、完了条件を満たしたらCloseする
+
+## Release Candidate Gate / User Test Ready
+
+User Testは正式Releaseの代替ではなく、候補版を実利用に近い条件で評価するための独立Gateとして扱う。
+
+### Gate Inputs
+
+ProjectのRisk / Impactに応じて、少なくとも次を確認する。
+
+- Development Convergence = `Converged`
+- User Test対象commit / merge commitを一意に特定できる
+- candidateを実際に使うenvironment / URLを特定できる
+- 必要なCI / build / automated validationが成功している
+- User Test対象environmentで代表的な主要flowを確認済み
+- UI / Smartphone等、対象利用形態に必要な実機確認が完了している
+- Authentication / Authorizationを持つ場合、その主要境界を確認済み
+- shared data / mutationを持つ場合、data integrity / stale / concurrency等の主要Riskを確認済み
+- PerformanceがUser Test成立条件になる場合、必要な代表測定を確認済み
+- known blockerが0件
+
+ProductionをUser Test対象にするProjectでは、Production VerificationをGate Inputに含める。Preview / Test等をUser Test対象にするProjectでは、そのenvironmentについて同等のcandidate Evidenceを残し、Production Verifiedと誤記しない。
+
+### Severity
+
+User Test開始可否を判断するため、known issueを少なくとも次のように分類する。
+
+| Severity | Meaning | User Test Gate |
+| --- | --- | --- |
+| Blocker | 起動不能、主要flow継続不能、Security / Auth / Data Integrity上の重大Risk、data loss等 | 1件でもあれば開始しない |
+| Major | 主要機能に大きな支障があるが、Scope限定または明確な回避策がある | Humanが影響と回避策を確認して判断 |
+| Minor | 限定的な不具合で主要flowを妨げない | Known issueとして記録して開始可能 |
+| Cosmetic | 見た目、文言、軽微なUX等で機能成立を妨げない | 原則開始可能 |
+
+Severity名そのものはProjectに合わせて変更できるが、**User Test開始を止めるBlocker条件と known blocker = 0** は明示する。
+
+### User Test Baseline
+
+`User Test Ready` と判定した時点で、Testerが触った版を後から追跡できるようcandidate baselineを固定する。
+
+利用例:
+
+- immutable tag
+- prerelease / release candidate record
+- commit SHAを伴う配布記録
+- Project固有のversion baseline
+
+特定のversion名やSemantic VersioningはTemplateで固定しない。
+
+Baselineには最低限、candidate commit / SHA、対象environment / URL、Gate結果、既知Issueを紐付ける。
+
+User Test開始後にcandidateへ修正を加えた場合、既存baselineを静かに差し替えない。修正版を再検証し、必要なGateを通したうえで新しいbaselineとして識別できるようにする。
+
+### Feedback Entry Point
+
+Tester feedbackは受領時点で少なくとも次へ分ける。
+
+- `defect`: 期待仕様、既存Requirement、設計、動作保証からの逸脱
+- `improvement`: 現仕様は成立しているが、UX、使い勝手、機能、運用等の改善提案
+
+判断できないfeedbackは無理にdefectへ寄せず、確認事項として保持してから分類する。
+
+### Gate Rollback
+
+User Test中にBlocker相当、またはUser Test継続が不適切な重大defectが見つかった場合は、`User Test Ready` を継続扱いしない。
+
+1. 影響範囲に応じてUser Testを停止または対象flowを停止する
+2. defectとしてIssue化し、原因と修正Scopeを明確にする
+3. 修正後にDevelopment Convergenceと影響範囲のValidationを再確認する
+4. 必要なProduction / environment / Human Evidenceを再取得する
+5. Release Candidate Gateを再判定する
+6. 通過した修正版を新しいbaselineとして固定する
+
+過去baselineは「そのTesterが何を見たか」のEvidenceとして保持し、現在candidateと混同しない。
 
 ## Human Gates
 
 - Production Deploy / Public化等、RepositoryルールでHuman approvalが必要な操作
+- User Test Readyの最終判断
+- Major issueをKnown issueとして残したままUser Testを開始する判断
 - 実機確認
 - Security / Data / High Risk releaseの最終判断
 - Rollbackまたは破壊的復旧操作
@@ -46,14 +128,18 @@ Merge済みの変更をProductionへ反映し、Deploy成功ではなくRelease�
 ## Stop Conditions
 
 - Release対象commitを一意に特定できない
+- User Test対象candidate / baselineを一意に特定できない
 - Production binding / secret / targetが不明
-- Deploy結果しかなくProduction Evidenceがない
+- Deploy結果しかなく必要なenvironment Evidenceがない
 - Productionでmainと異なる挙動を確認
 - Security / Data / major regressionを検出
+- known blockerが残っている
 - 必須Human確認が未完了
 - 外部Quota / permissionで必須Verificationができない
 
 ## Validation
+
+正式Releaseでは:
 
 - Deploy対象commitとProductionが一致
 - Production Verification成功
@@ -62,13 +148,27 @@ Merge済みの変更をProductionへ反映し、Deploy成功ではなくRelease�
 - 未確認項目を成功扱いしていない
 - Release Convergence = `Converged`
 
+User Test開始では:
+
+- Development Convergence = `Converged`
+- User Test対象candidateを一意に特定
+- 必要なenvironment / Human / Risk Evidenceが揃っている
+- known blocker = 0
+- `User Test Ready` のHuman判断を記録
+- baselineをtag / prerelease / commit等で追跡可能
+
+`User Test Ready` は正式Release完了やRelease Convergenceを意味しない。
+
 ## Output / Evidence
 
-- Production URL
+- Production URLまたはUser Test対象environment / URL
 - deploy run / deployment record
 - target commit / merge commit
-- Production smoke / machine verification
+- Production smoke / machine verification（該当時）
 - Human / project-specific verification
+- Release Candidate Gate / User Test Ready結果（該当時）
+- severity summary / known blocker count（該当時）
+- User Test baseline ref（該当時）
 - design sync結果
 - Release Convergence
 - rollback target
