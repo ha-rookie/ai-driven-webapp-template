@@ -103,6 +103,68 @@ Tester feedbackは受領時点で少なくとも次へ分ける。
 
 判断できないfeedbackは無理にdefectへ寄せず、確認事項として保持してから分類する。
 
+### Feedback Record
+
+User Test feedbackは、発言そのものではなく再判定できるEvidenceとして最低限次を記録する。
+
+- candidate baseline / commit SHA
+- 実施したtask / flow
+- task success / failure
+- 迷った箇所、止まった箇所、質問
+- observed behavior
+- defect候補の場合はexpected behaviorまたは参照Requirement / Design
+- `defect` / `improvement` / `question` / `unclassified` の一次分類
+- severity
+- 再現条件、screen、log、操作手順等の利用可能なEvidence
+- `Project-specific` / `Cross-project candidate` のscope分類
+- Runtime bug / UX / documentation / process / template gap の分類
+- 次の対応先となるProject Issue / Template Issue / no actionの判断
+
+Testerの氏名、連絡先等の個人情報をTemplate backflowのためにRepositoryへ保持する必要はない。必要な場合もProject側の適切な管理場所で扱い、Templateへは匿名化した技術的Evidenceだけを還流する。
+
+### Feedback Triage
+
+Feedbackは次の順序で整理する。
+
+1. **Outcome** — taskが成功したか、失敗したか、迷いながら成功したか
+2. **Type** — defect / improvement / question / unclassified
+3. **Severity** — Blocker / Major / Minor / Cosmetic等、Projectのseverity基準
+4. **Scope** — Project-specificか、他Projectにも成立し得るCross-project candidateか
+5. **Layer** — Runtime bug / UX / documentation / process / template gap
+6. **Action** — Project Issue、Template Issue候補、追加Evidence待ち、no action
+
+`Cross-project candidate` はTemplate採用済みを意味しない。Templateへ戻す前の候補分類に留める。
+
+### Project Fix と Template Backflow
+
+Projectを直すIssueと、Templateの共通ルールを直すIssueは分離する。
+
+Project Issueでは、実際にTesterが触った画面・flow・data・Runtimeの修正を扱う。Template Issueでは、Project固有名称やUIを持ち込まず、複数Projectで再利用できる設計原則、workflow、guardrail、checklist、test観点等へ一般化する。
+
+Templateへ還流する候補は、少なくとも次のいずれかをEvidenceで説明できる場合に検討する。
+
+- 同種の問題が複数のProject / flow / testerで再現した
+- 原因がProject固有実装ではなく共通workflow / design gapにある
+- 再発防止の判断基準やcheckを他Projectでも適用できる
+- 一度標準化すると将来の判断コストや事故Riskを横断的に下げられる
+
+単発の好み、質問、再現性の弱い指摘、Project固有制約だけではTemplate標準へ昇格しない。Evidenceが弱い場合はProject側で観測を続け、必要なら追加User Testや別Projectでの再現を待つ。
+
+Templateへ戻す場合は、新しいTemplate IssueとしてSource / Lesson LearnedとProject側Evidenceへの参照を残す。Project IssueとTemplate Issueを1つのScopeへ混ぜない。
+
+### User Test Lessons Learned
+
+User Test完了時は、feedback件数そのものではなく、今後再利用できる判断を整理する。
+
+- Project固有のdefect / improvementはProject Issueとして追跡する
+- 共通化候補はEvidenceを確認してTemplate Issueへ分離する
+- documentation不足は該当正本へ戻す
+- process / collaboration gapはworkflow / guardrailの正本へ戻す
+- template gapは具体実装ではなく共通原則として還流する
+- 一度きりの弱いEvidenceはLessons Learned候補として保持し、即標準化しない
+
+Notion等の横断知識基盤を使う場合は、Template Issue / mainへ反映済みの確定知識と、まだ仮説段階のfeedbackを分けて記録する。Notion自体を必須正本にはしない。
+
 ### Gate Rollback
 
 User Test中にBlocker相当、またはUser Test継続が不適切な重大defectが見つかった場合は、`User Test Ready` を継続扱いしない。
