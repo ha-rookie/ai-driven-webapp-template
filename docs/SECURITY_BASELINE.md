@@ -63,68 +63,20 @@ Strict-Transport-Security: max-age=31536000
 
 機能要件とHeader設定が矛盾しないことを実機で確認する。
 
-## Authentication / External Identity / Session Boundary
+## Authentication / Session Security Baseline
 
-Authenticationを持つProjectでは、特定ProviderやLibraryの実装方式ではなく、最低限の責務境界を設計する。
+Authentication / External Identity / Application User / Sessionの責務分離は `docs/03_APPLICATION_ARCHITECTURE.md` を設計上の正本とする。
 
-### Responsibility Separation
+Security上は最低限、以下を満たす。
 
-少なくとも次を同一概念として扱わない。
+- External Providerの認証成功だけでApplication Userを有効扱いしない
+- `session valid != application user valid` を前提にし、User解決失敗時はauthenticated扱いを継続しない
+- stale / orphaned sessionはfail-safeに解消する
+- UIとAPIで認証状態の二重正本を作らない
+- Provider固有identifier / claimをApplication Userの正本へ無条件に固定しない
+- 正常系だけでなくmissing user / stale session / invalid mapping等の拒否系を検証する
 
-- **External Identity**: OIDC / OAuth / SAML等の外部Providerが確認したidentity
-- **Application User**: Application内部で権限・状態・業務処理の主体となるUser
-- **Session**: 一定期間、認証済み状態を再利用するためのApplication上の状態
-- **Persistence**: Application User / External Identity link / Session等を保持するSource of Truth
-
-External Providerで認証できたことだけを理由に、Application Userが有効であるとみなさない。
-
-### Resolution Invariant
-
-認証処理では必要に応じて、次を別判定として扱う。
-
-```text
-external authentication success
-  -> external identity resolution
-  -> application user resolution
-  -> application user validity / state check
-  -> session establishment or continuation
-```
-
-`session valid != application user valid` を前提にする。
-
-署名・有効期限等のSession検証に成功しても、Application Userが存在しない、無効、別Persistenceを参照している、必要な関連状態が解決できない等の場合は、authenticated扱いを継続しない。
-
-### Stale / Orphaned Session
-
-次のような状態を設計時に検討する。
-
-- Sessionは有効だがApplication Userが存在しない
-- External Identity linkが削除・変更されている
-- Environment / Persistence切替によりSessionとUser Source of Truthがずれている
-- User無効化後も古いSessionだけが残っている
-
-この場合、fail-safeを基本とし、未認証相当へ戻す、Sessionを無効化する、再認証を要求する等の期待動作を定義する。
-
-UIだけが未認証表示になる一方でAPI側では認証済みとして扱う等、認証状態の二重正本を作らない。
-
-### Multiple External Identities
-
-将来複数Providerを利用する可能性がある場合、Provider固有claimをApplication User IDの正本へ直接固定しない。
-
-Application UserとExternal Identityの対応関係を分け、同一Userへ複数External Identityを紐付けるか、link / unlink時にどの確認を要求するかをProject要件に応じて定義する。
-
-### High-risk Boundary Test
-
-Authentication / Sessionを持つProjectでは、正常Loginだけでなく必要に応じて以下を検証する。
-
-- valid external identity + valid application user
-- valid session + missing application user
-- expired / revoked / stale session
-- invalid external identity mapping
-- Provider変更・Persistence変更後の既存Session
-- reject後に認証済み状態が残らないこと
-
-具体的なProvider SDK、Cookie名、JWT方式、Session Store、HTTP status等はProject側で決定し、このTemplateでは固定しない。
+Provider SDK、Cookie名、JWT / opaque session、Session Store、HTTP status等の具体実装はProject側で決定し、このTemplateでは固定しない。
 
 ## Optional / Informational Header
 
