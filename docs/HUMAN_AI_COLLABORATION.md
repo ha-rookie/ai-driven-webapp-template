@@ -148,6 +148,43 @@ Distinguish at least:
 
 **STOP:** If AI is about to claim “does not exist,” “not implemented,” “not started,” or an equivalent state from memory, search results, Issue state, or derived Workflow Status alone while stronger direct evidence can be checked, stop and perform evidence reconciliation first.
 
+## GR-009 Evidence-based User Test feedback / Template backflow
+
+User Test feedback is input Evidence, not an automatic Template requirement.
+
+When feedback is received, AI must first follow the feedback triage defined in `docs/playbooks/release.md` and distinguish at least:
+
+- defect / improvement / question / unclassified
+- severity
+- Project-specific / Cross-project candidate
+- Runtime bug / UX / documentation / process / template gap
+- current Evidence strength and reproducibility
+
+AI must not silently convert one tester's preference, one ambiguous comment, or one Project-specific behavior into a cross-project Template rule.
+
+Project correction and Template backflow are separate scopes:
+
+1. fix the concrete Project issue in that Project's Change Contract
+2. preserve the User Test baseline / reproduction Evidence needed to explain the finding
+3. decide separately whether the lesson is reusable across Projects
+4. if reusable, create or propose a separate Template Issue whose Goal is the generalized rule / workflow / guardrail / checklist / test perspective
+5. link the Template Issue back to source Evidence without copying tester personal information
+
+Weak Evidence should remain a hypothesis or Project-level observation until additional reproduction, another flow, another Project, or another concrete incident supports generalization.
+
+Template backflow may be considered when evidence shows at least one of the following:
+
+- the same class of problem recurs across Projects / flows / testers
+- the root cause is a shared workflow or design gap rather than an application-specific implementation detail
+- a reusable rule or check would prevent recurrence elsewhere
+- standardization would materially reduce future judgment cost or cross-project risk
+
+**STOP:** If AI is about to standardize a single weak or preference-based feedback item without reusable Evidence, stop and keep it Project-specific or mark it as a cross-project candidate pending more Evidence.
+
+**STOP:** If AI is about to combine the concrete Project fix and generalized Template change into one Issue / Branch / PR scope, stop and split them into separate Change Contracts.
+
+**STOP:** If Template backflow would require carrying tester identity or other unnecessary personal information into the Template Repository, remove or anonymize that information before proceeding.
+
 ## Recurrence handling
 
 When the Human reports a repeated violation:
