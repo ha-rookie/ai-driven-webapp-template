@@ -197,7 +197,83 @@ Authentication / Sessionを持つProjectでは、正常系Loginだけでなく�
 
 具体的なCookie名、JWT / opaque session、HTTP status、middleware、Session Store、認証Provider等はProjectのTechnology / Architectureに合わせて決定する。
 
-## 10.5 Runtime / Data Integrity
+## 10.5 Authorization / Resource Scope Boundary
+
+Authorizationを持つProjectでは、Authentication成立だけで操作可能とみなさず、**Actor / Role or Permission / Resource Scope / Operation** を分けて認可判断を設計する。
+
+単一利用者で保護対象がない軽量Projectへ一律に要求しない。複数User、複数組織、複数Project、管理機能、所有者別Data等を扱う場合に適用を検討する。
+
+### Authorization Decision Model
+
+最低限、次の4要素を確認できる形にする。
+
+| Concern | Meaning |
+| --- | --- |
+| Actor | 誰が操作しようとしているか |
+| Role / Permission | そのActorにどの種類の操作が許可されるか |
+| Resource Scope | どの組織・Project・Group・所有範囲等へ操作できるか |
+| Operation | read / create / update / delete / approve / administer等、何をしようとしているか |
+
+Roleだけで認可を完結させず、Resource Scopeを持つProjectでは「そのRoleがどの範囲に対して有効か」を別に確認する。
+
+### Authentication and Authorization Separation
+
+次を別判定として扱う。
+
+```text
+Authentication
+  -> Actor Resolution
+  -> Role / Permission Evaluation
+  -> Resource Scope Evaluation
+  -> Operation Decision
+```
+
+- authenticatedであることをauthorization successとみなさない
+- 管理系Roleであっても、Project要件にないcross-scope操作を暗黙許可しない
+- Resource ownership / membership等が必要な場合、対象resourceとの関係を判定する
+- deny / allowのDefaultと例外条件を明示する
+
+### UI Boundary vs Enforcement Boundary
+
+UIでButton / Menu / Routeを非表示にすることは、認可保証の代替にしない。
+
+Server / API / protected actionを持つ場合、直接RequestやUI迂回でも同じAuthorization Ruleが適用される境界を定義する。
+
+UI側の表示制御はUXの責務、操作可否の最終判定はSystem側のSecurity Boundaryとして分ける。
+
+### Own-scope / Cross-scope Operations
+
+Resource Scopeを持つ場合、少なくとも以下を区別する。
+
+- own resource / own scopeへの操作
+- membershipを持つscopeへの操作
+- scope外resourceへの操作
+- cross-scope管理操作
+- role / membership変更等のprivileged operation
+
+cross-scopeやprivileged operationを許可する場合は、誰に・どの条件で・どの範囲まで許可するかを明示する。
+
+### Administrative Operation Evidence
+
+権限変更、membership変更、scope横断操作等の高Risk操作を持つ場合、必要に応じてactor、対象scope / resource、operation、結果を後から追跡できるEvidence / Audit境界を設計する。
+
+具体的なAudit StoreやLog製品はProject側で決定し、このTemplateでは固定しない。
+
+### Authorization Boundary Testing
+
+Authorizationを持つProjectでは、正常系だけでなく必要に応じて以下を検証する。
+
+- allowed actor + allowed operation + allowed scope
+- authenticatedだがinsufficient role / permission
+- valid roleだがresource scope外
+- own-scopeは成功しcross-scopeは拒否されること
+- direct API / protected actionでUI表示制御を迂回しても拒否されること
+- role / membership変更による意図しないprivilege escalationがないこと
+- reject後にresource / stateが部分変更されていないこと
+
+System Admin / Group Admin / Member等のRole名、RBAC / ABAC / ReBAC library、HTTP status、middleware等の具体実装はProject側で決定し、このTemplateでは固定しない。
+
+## 10.6 Runtime / Data Integrity
 
 server-side state / data mutation、共有Data Store、複数clientからの更新等を持つProjectでは、必要に応じて以下を設計する。静的配信のみ、または単一端末内で完結する軽量Projectへ一律に要求しない。
 

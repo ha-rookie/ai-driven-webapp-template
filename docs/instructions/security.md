@@ -8,6 +8,7 @@
 - Secrets / Variables / Bindingsの扱いを変更する
 - Public Repository、Production、外部API接続等でSecurity影響がある
 - Authentication / External Identity / Application User / Sessionの境界を設計・変更する
+- Authorization / Role / Permission / Resource Scopeの境界を設計・変更する
 - Issueの `Security / Secret / Infra` Impact FlagがYes
 
 ## Scope Hints
@@ -21,6 +22,7 @@
 - Public / Private変更
 - external API credential handling
 - authentication / session / external identity design
+- authorization / role / permission / resource scope design
 
 ## Sources to Read
 
@@ -47,6 +49,11 @@
 - Sessionが有効でもApplication User / required persistence stateを解決できない場合は、fail-safeに未認証相当へ戻すかSessionを無効化する方針を定義する
 - External Identity / Application User / Session / Persistenceの責務を分け、特定Provider固有claimをApplication Userの正本へ直結させない
 - 複数ProviderやProvider変更を想定する場合、External IdentityとApplication Userの対応関係を明示する
+- Authentication成立とAuthorization成立を別判定にする
+- Authorizationを設計する場合、Actor / Role or Permission / Resource Scope / Operationを必要範囲で分けて確認する
+- Roleだけでなくownership / membership / scopeが必要なProjectでは、そのResource relationを認可判断へ含める
+- UI非表示やFrontend Route Guardを認可保証の正本にせず、Server / API / protected action側にも認可境界を置く
+- cross-scope / privileged operationを許可する場合、対象範囲と許可条件を明示する
 
 ## Do Not
 
@@ -55,6 +62,8 @@
 - PreviewからProduction秘密値やProductionデータへ無断接続しない
 - 認証・認可方式の共通実装標準をこのInstructionへ追加しない
 - Provider SDK、Cookie名、JWT library、middleware等の具体実装を旧Templateの必須標準にしない
+- System Admin / Group Admin / Member等の固定Role名や特定RBAC / ABAC / ReBAC製品を旧Templateへ固定しない
+- UIで操作できないことだけをAuthorizationのSecurity Evidenceにしない
 - Business Application Template向けのRBAC / SAML / transaction / audit log等を既存Templateの必須機能へ広げない
 
 ## Validation / Evidence
@@ -64,6 +73,8 @@
 - secret exposureなし
 - Security / Public範囲に対応する設計・Issue Evidence
 - Authentication / Session変更時は、正常系に加えてinvalid / stale / orphaned stateの期待結果
+- Authorization変更時は、positive / insufficient role or permission / scope violation / direct API bypass等の期待結果
+- privileged operationを持つ場合は、必要な追跡Evidence / Audit境界
 - 必要なheader / Production smoke / external check
 - 未検証項目と理由
 - Human approvalが必要な変更では承認対象head SHA
