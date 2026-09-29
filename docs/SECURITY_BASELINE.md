@@ -78,6 +78,22 @@ Security上は最低限、以下を満たす。
 
 Provider SDK、Cookie名、JWT / opaque session、Session Store、HTTP status等の具体実装はProject側で決定し、このTemplateでは固定しない。
 
+## Authorization Security Baseline
+
+Authorization / Resource Scopeの設計は `docs/03_APPLICATION_ARCHITECTURE.md` を正本とする。
+
+Security上は最低限、以下を満たす。
+
+- Authentication成功だけで操作を許可しない
+- Role / Permissionだけでなく、必要なProjectではResource Scope / ownership / membershipを確認する
+- UIの非表示やRoute GuardをAuthorizationの最終保証にしない
+- Server / API / protected action側でも同じ認可境界を適用する
+- scope外resourceや許可されていないcross-scope操作をfail closedで拒否する
+- role / membership変更等のprivileged operationは、必要に応じてactor・対象・結果を追跡できるようにする
+- 正常系だけでなくinsufficient role / scope violation / direct API bypass等の拒否系を検証する
+
+System Admin / Group Admin / Member等の固定Role名、RBAC / ABAC / ReBAC製品、middleware、HTTP status等の具体実装はProject側で決定し、このTemplateでは固定しない。
+
 ## Optional / Informational Header
 
 外部診断の点数を上げる目的だけで追加しない。
