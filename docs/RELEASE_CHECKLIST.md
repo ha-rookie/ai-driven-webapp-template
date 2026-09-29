@@ -130,6 +130,30 @@ Preview省略をHuman decisionした場合:
 - [ ] 省略理由をIssue / PRへ記録
 - [ ] Productionで代替確認する項目を明記
 
+## 3.5 Environment / Test Data Safety
+
+Remote resource、Test data、Performance fixtureを利用する変更では、`docs/RISK_AWARE_CI.md` の Environment Isolation / Safe Test Execution原則に従って確認する。
+
+該当する場合:
+
+- [ ] Production / Preview / Test / Performance等、利用するenvironmentのroleが明確
+- [ ] 対象resourceがenvironment roleと一致している
+- [ ] resource nameだけでなく、利用可能なstable identifierやaccount / project context等で誤接続を防止できる
+- [ ] unknown / missing bindingが暗黙にProductionへfallbackしない
+- [ ] Preview / Test / PerformanceからProduction dataへ意図しないwriteを行わない
+- [ ] large fixture / load test dataをProductionへ投入しない
+- [ ] seed / reseed / cleanup / destructive testが通常CIの無条件実行から分離されている
+- [ ] seed / reseedはidempotentまたはguardedで、duplicate投入や意図しない再投入を防止できる
+- [ ] cleanup / reset等のdestructive operationは、対象environment / resourceが不明な場合に停止する
+- [ ] large fixtureを毎回clean / reseedする必要性を確認し、再利用可能なら不要な再生成を避ける
+- [ ] Performance fixtureの保持 / 再生成 / 破棄方針が決まっている
+- [ ] benchmark実行とfixture preparation / cleanupのlifecycleが分離されている
+- [ ] remote benchmark / load testを実行する場合、明示実行とし、External Resource Budgetも確認した
+
+static / local-onlyでRemote resourceやTest data lifecycleを持たないProjectでは、このSectionを `Not Applicable` とできる。
+
+具体的なCloud / Database command、resource ID、seed script、cleanup実装はProject側の正本で管理する。
+
 ## 4. UI・Asset
 
 UI / Asset変更がある場合:
