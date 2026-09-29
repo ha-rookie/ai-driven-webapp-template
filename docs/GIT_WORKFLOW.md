@@ -321,3 +321,59 @@ main CI、Production Deploy、本番表示、主要回帰を確認する。
 設計・仕様・運用が変わった場合は、mainの確定実装に合わせてNotionの最終設計書を同期する。設計変更を伴わない修正はNotionを無理に更新せず、Issue / PRへ「Notion更新不要」と記録する。
 
 Issue Closeは、必要なValidation・Human Review・Merge・Production Verified・Notion同期（または更新不要確認）が完了してから行う。
+
+## User Test feedback → Issue / Template backflow
+
+User Test feedbackの分類手順は `docs/playbooks/release.md` を正本とする。Git Workflowでは、triage後に **どのRepositoryのどのChange Contractへ戻すか** を扱う。
+
+### Project Issue
+
+具体的な画面、機能、Runtime、data、文言、Project固有運用を直すfeedbackは、原則として当該ProjectのIssueへ戻す。
+
+- User Test baseline / candidate SHAを参照できるようにする
+- defect / improvementとseverityを記録する
+- 再現Evidenceまたは判断根拠を残す
+- 修正ScopeをProject内に閉じる
+- Template変更を同じIssueへ混ぜない
+
+### Template Issue
+
+Cross-project candidateをTemplateへ還流する場合は、Project Issueとは別のTemplate Issueを作る。
+
+Template Issueでは、元Projectの固有名称・画面・data構造をそのまま要求にせず、再利用可能な次のいずれかへ一般化する。
+
+- design principle
+- workflow / playbook
+- collaboration guardrail
+- checklist / validation
+- test perspective
+- reusable documentation rule
+
+最低限、Source / Lesson Learnedとして元のProject EvidenceまたはIssueを参照し、なぜProject固有ではなく横断課題と判断したかを記録する。
+
+### 昇格条件
+
+単発feedbackをそのままTemplate Issueへ昇格しない。次のいずれかを説明できる場合にTemplate化を検討する。
+
+- 複数Project / flow / testerで同じ問題classが再現
+- 共通workflow / design / collaborationのgapがroot cause
+- 他Projectにも適用できる再発防止rule / checkがある
+- 標準化によって横断的なRiskまたは判断コストを下げられる
+
+Evidenceが弱い場合は `Cross-project candidate` のままProject側で観測を続ける。HumanがTemplate scopeとして妥当か確認する前に、AIが共通標準として実装を開始しない。
+
+### Backflow sequence
+
+```text
+User Test feedback
+  -> feedback triage
+  -> Project Issue / observation
+  -> reusable Evidence check
+  -> separate Template Issue
+  -> Template Change Contract
+  -> Branch / PR / CI / Human Merge
+```
+
+Project修正を先に行ったことは、Template標準化のEvidenceにはなり得るが、自動的にTemplate変更を承認したことにはならない。
+
+Template Issueを作る場合も通常の `1 Issue = 1 coherent goal`、Planned Files、Risk / Impact、Validation、Human Merge approvalを維持する。
