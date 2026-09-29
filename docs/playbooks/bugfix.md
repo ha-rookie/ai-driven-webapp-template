@@ -16,6 +16,7 @@
 - `AGENTS.md`
 - 対応Issue
 - 関連Requirement / Design / ADR
+- `docs/03_APPLICATION_ARCHITECTURE.md`
 - 現在の実装と関連test
 - `docs/TROUBLESHOOTING.md`
 - `docs/GIT_WORKFLOW.md`
@@ -38,6 +39,23 @@
 12. `Converged` となったhead SHAをHuman Review対象として固定する
 13. Human Merge approvalで停止する
 14. Merge後にProduction Releaseがある場合は `release.md` へ進む
+
+## Concurrency / Stale Mutation Bug
+
+競合・stale update / delete / finalize等が疑われる場合は、単一Clientの正常系だけで再現・修正確認しない。
+
+1. 問題となるClient / Userが最初に観測したresource stateとfreshness evidenceを特定する
+2. その観測後に別Client / Request等で状態を変更し、競合条件を作る
+3. 最初に観測した状態を保持したまま元のMutationを実行する
+4. Mutation直前の再readでfreshness evidenceを差し替えていないか確認する
+5. expected conflict / rejectと、failure後のPersistence状態を確認する
+6. 複数resource writeではpartial successがないか確認する
+7. child mutationがparent aggregateへ影響する場合、parent側のfreshness / aggregate stateも確認する
+8. conflict後にUI / Applicationが最新状態へ安全に復旧できるか確認する
+
+原因が「Concurrency controlがない」なのか、「token相当はあるがUserが観測した時点からMutationまで保持されていない」なのかを分ける。
+
+具体的なversion column、ETag、HTTP status、transaction API、DB product等はProjectのArchitecture / Technologyへ委ね、このPlaybookでは固定しない。
 
 ## Human Gates
 
@@ -65,6 +83,8 @@
 - 仕様変更の有無を明示
 - 未実行checkを成功扱いしていない
 - Development Convergence = `Converged`
+
+Concurrency / stale mutationを扱った場合は、観測時state、競合操作、古い状態でのMutation結果、failure後state、Recovery結果まで説明できることを確認する。
 
 ## Output / Evidence
 

@@ -301,6 +301,62 @@ server-side state / data mutation、共有Data Store、複数clientからの更�
 - lost update、duplicate create、stale operation等を許容するか、検出・拒否・再試行等で扱うか決める
 - 具体的なlock方式、version方式、HTTP status等はProjectのTechnology / Architectureに合わせて決定する
 
+#### Mutation Boundary / Observed State
+
+Concurrencyを検出するProjectでは、単に最新状態をMutation直前に読むのではなく、**Userが操作判断をした時点で観測した状態と、その後のMutationを結び付ける境界**を設計する。
+
+典型的な流れは次のとおり。
+
+```text
+Read / View
+  -> observed concurrency token or equivalent evidence
+  -> Human decision / editing / confirmation
+  -> Mutation request with the originally observed evidence
+  -> Conditional mutation
+  -> Success or Conflict
+```
+
+- Read / View時に得たfreshness evidenceを、Human操作からMutationまで保持する
+- Mutation直前に同じresourceを再readしてfreshness evidenceを差し替え、stale状態を見えなくしない
+- updateだけでなくdelete / finalize / approve / close等、古い状態を前提に行うMutation全般を対象にする
+- 「最新値を取得できたこと」と「Userが見た状態がまだ有効であること」を同一視しない
+
+具体的なcolumn名、ETag、timestamp、lock方式、HTTP precondition等はProject側で決定し、このTemplateでは固定しない。
+
+#### Aggregate / Parent-Child Consistency
+
+child resourceのMutationがparent aggregateの有効性・集計・確定可否・freshnessへ影響する場合、parent側の競合判定根拠も同じAtomic operation内で更新すべきか検討する。
+
+- childだけ更新され、parentが古い状態のまま「変更なし」と見える構造を作らない
+- parent / childをまたぐInvariantがある場合、どのMutationを1つのAtomic boundaryとして扱うか明示する
+- parent側のfreshness evidenceを進める場合は、child writeと分離してpartial successにならないようにする
+
+「必ずparent versionを持つ」等のData Modelは固定せず、aggregateとして何を同時に有効状態へ進める必要があるかを判断する。
+
+#### Conflict Recovery
+
+Conflictを検出した場合のUI / Application状態を定義する。
+
+- stale mutationを成功扱いしない
+- conflict後に古いlocal stateを自動上書き保存しない
+- 最新状態の再取得、再入力、差分確認、操作中止等、Projectに適した回復導線を定義する
+- conflict後にresource / aggregateが部分変更されていないことを確認する
+
+#### Mutation Boundary Audit
+
+重要なMutationごとに、必要に応じて次を確認する。
+
+| Viewpoint | Question |
+| --- | --- |
+| Observed state | User / Clientはどの状態を見て操作を決めたか |
+| Freshness evidence | その観測状態をMutationまでどう保持するか |
+| Mutation | update / delete / finalize等、何を変更するか |
+| Atomic group | 同時に成功・失敗すべきresourceは何か |
+| Conflict behavior | stale時に何を拒否し、どの状態へ戻すか |
+| Aggregate impact | child変更がparentの有効性へ影響するか |
+
+このrefinementは #84 で定義したRuntime IntegrityのConcurrency / Atomicity原則を具体化するものであり、別のConcurrency実装標準を作るものではない。
+
 ### Invariant Enforcement
 
 - 重要なInvariantごとに、UI / Application / API / Data Store等のどこで保証するか明示する
