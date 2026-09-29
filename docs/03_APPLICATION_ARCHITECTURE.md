@@ -115,6 +115,88 @@ API、Pages Functions、Workers、静的JSON、外部リンクなどを含む。
 
 「例外を握りつぶして正常値を返す」を標準にしない。
 
+## 10.4 Authentication / Identity / Session Boundary
+
+Authenticationを持つProjectでは、ProviderのLogin成功だけでApplication上の認証状態が成立したとみなさず、External Identity / Application User / Session / Persistenceの境界を設計する。
+
+静的配信のみ、匿名利用のみ、Authenticationを持たないProjectへ一律に要求しない。
+
+### Responsibility Separation
+
+少なくとも次の責務を分ける。
+
+| Concern | Responsibility |
+| --- | --- |
+| External Identity | 外部Providerが確認したidentityを表す |
+| Application User | Application内部のactor / user stateを表す |
+| Session | 認証済み状態を一定期間再利用するための状態を表す |
+| Persistence | User / External Identity link / Session等のSource of Truthを保持する |
+
+External Provider固有のsubject / claim / identifierを、そのままApplication Userの永続IDや業務上の正本へ固定するかは明示的に判断する。
+
+### Authentication Resolution Sequence
+
+必要に応じて次を別判定として扱う。
+
+```text
+External Authentication
+  -> External Identity Resolution
+  -> Application User Resolution
+  -> User Validity / Required State Check
+  -> Session Establishment / Continuation
+  -> Authorized Application Action
+```
+
+以下を同一判定にしない。
+
+- external authentication success
+- application user resolution success
+- session validity
+- authorization success
+
+`session valid != application user valid` を設計上の前提にする。
+
+### Stale / Orphaned Session
+
+次のような不整合時の期待動作を定義する。
+
+- Sessionは署名・期限等の検証に成功するがApplication Userが存在しない
+- Userがdisabled / deleted / unavailableになっている
+- External Identity linkが削除・変更されている
+- Environment / Persistence切替後にSessionだけが旧Source of Truthを参照している
+- SessionとBusiness Dataで異なるUser / resource sourceを参照している
+
+この場合はfail-safeを基本とし、authenticated扱いを継続しない。未認証相当へ戻す、Sessionを無効化する、再認証を要求する等、Projectに適した回復方針を定義する。
+
+UI表示だけを未認証にし、API / Application内部では認証済みのまま残すような二重状態を作らない。
+
+### Multiple External Identities
+
+複数ProviderやProvider変更の可能性がある場合、Application UserとExternal Identityの対応関係を分離する。
+
+必要に応じて以下を定義する。
+
+- 1 Application Userに複数External Identityを紐付けるか
+- link / unlink時に必要な本人確認
+- Provider廃止・変更時のmigration方針
+- 同一identityのduplicate linkをどう扱うか
+- identity link変更後の既存Sessionを継続するか
+
+特定ProviderのSDK / callback / claim名等はProject側で決定し、このTemplateでは固定しない。
+
+### Authentication Boundary Testing
+
+Authentication / Sessionを持つProjectでは、正常系Loginだけでなく必要に応じて以下を検証する。
+
+- valid external identity + valid application user
+- valid session + missing / invalid application user
+- expired / revoked / stale session
+- invalid / missing external identity mapping
+- Provider / Persistence変更後の既存Session
+- reject / recovery後に認証済み状態が残らないこと
+
+具体的なCookie名、JWT / opaque session、HTTP status、middleware、Session Store、認証Provider等はProjectのTechnology / Architectureに合わせて決定する。
+
 ## 10.5 Runtime / Data Integrity
 
 server-side state / data mutation、共有Data Store、複数clientからの更新等を持つProjectでは、必要に応じて以下を設計する。静的配信のみ、または単一端末内で完結する軽量Projectへ一律に要求しない。

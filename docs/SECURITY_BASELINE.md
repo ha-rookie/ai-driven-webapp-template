@@ -63,6 +63,21 @@ Strict-Transport-Security: max-age=31536000
 
 機能要件とHeader設定が矛盾しないことを実機で確認する。
 
+## Authentication / Session Security Baseline
+
+Authentication / External Identity / Application User / Sessionの責務分離は `docs/03_APPLICATION_ARCHITECTURE.md` を設計上の正本とする。
+
+Security上は最低限、以下を満たす。
+
+- External Providerの認証成功だけでApplication Userを有効扱いしない
+- `session valid != application user valid` を前提にし、User解決失敗時はauthenticated扱いを継続しない
+- stale / orphaned sessionはfail-safeに解消する
+- UIとAPIで認証状態の二重正本を作らない
+- Provider固有identifier / claimをApplication Userの正本へ無条件に固定しない
+- 正常系だけでなくmissing user / stale session / invalid mapping等の拒否系を検証する
+
+Provider SDK、Cookie名、JWT / opaque session、Session Store、HTTP status等の具体実装はProject側で決定し、このTemplateでは固定しない。
+
 ## Optional / Informational Header
 
 外部診断の点数を上げる目的だけで追加しない。
