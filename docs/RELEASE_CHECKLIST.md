@@ -30,6 +30,8 @@ Issue Close / Lessons Learned
 
 Convergenceの定義と判定方法は `docs/CONVERGENCE_GATE.md` を正本とする。
 
+正式Release前にUser Testを行うProjectでは、Release Candidate Gate / User Test Readyを追加で使う。User Test Readyは正式Release完了を意味しない。
+
 ## 0.5 Risk / Impact 適用範囲
 
 このChecklistは**Production Releaseへ影響する変更のFull Checklist**として扱う。すべてのPRへ全項目を機械的に要求しない。
@@ -111,7 +113,7 @@ Human Merge approvalへ進む前に `docs/CONVERGENCE_GATE.md` に従って確�
 - [ ] 既知の矛盾・未解決Stop Conditionが残っていない
 - [ ] **Development Convergence = Converged** をPRへ記録
 
-Development ConvergenceはProductionの正しさを証明しない。Production Releaseがある場合、Release Convergenceはこの時点では `Pending` とする。
+Development ConvergenceはProductionの正しさを証明したことにはならない。Production Releaseがある場合、Release Convergenceはこの時点では `Pending` とする。
 
 ## 3. Preview
 
@@ -252,6 +254,43 @@ Deploy成功後、**stable Production URLを実測**する。
 - [ ] ローカル保存
 - [ ] Offline / cache
 
+## 8.5 Release Candidate Gate / User Test Ready（User Test実施時のみ）
+
+正式Release前に外部Tester / 社内Testerへ候補版を渡す場合、`docs/playbooks/release.md` のRelease Candidate Gateに従う。
+
+`User Test Ready` はDevelopment Convergence、Production Verified、正式Releaseのいずれとも同義ではない。既存Evidenceを使って「このcandidateをTesterへ渡してよいか」を判断するGateとする。
+
+開始前:
+
+- [ ] Development Convergence = `Converged`
+- [ ] User Test対象commit / merge commitを一意に特定
+- [ ] User Test対象environment / URLを特定
+- [ ] 必要なCI / build / automated validationが成功
+- [ ] 対象environmentで主要flowを確認
+- [ ] Smartphone / Browser等、対象利用形態に必要な実機確認を完了
+- [ ] Authentication / Authorizationを持つ場合、主要境界を確認
+- [ ] shared data / mutationを持つ場合、Data Integrity / stale / concurrency等の主要Riskを確認
+- [ ] Performanceが成立条件の場合、必要な代表測定を確認
+- [ ] known issueをseverity分類
+- [ ] **known blocker = 0**
+- [ ] Majorを残す場合、影響範囲・回避策・User Test継続可否をHumanが判断
+- [ ] **User Test Ready = Ready** を記録
+
+User Test開始時:
+
+- [ ] candidate SHAをtag / prerelease / commit record等のbaselineへ固定
+- [ ] baselineに対象environment / URL、Gate結果、known issuesを紐付け
+- [ ] version名やtag名はProject固有とし、特定形式を必須化しない
+
+User Test中:
+
+- [ ] feedbackを最低限 `defect` / `improvement` に分類
+- [ ] Blocker相当または継続不適切な重大defect発見時はUser Test Readyを取り消す
+- [ ] 修正後はDevelopment Convergenceと影響範囲のEvidenceを再確認し、RC Gateを再判定
+- [ ] 修正版は既存baselineを上書きせず、新しいcandidateとして追跡可能にする
+
+User Testを行わないProjectでは、このSectionは `Not Applicable` とする。
+
 ## 9. PWA（採用時のみ）
 
 - [ ] manifest取得
@@ -337,6 +376,7 @@ Issue / PRへ最低限残す:
 - 実機確認内容
 - Human approval
 - Development / Release Convergence結果
+- User Testを行った場合はcandidate baseline / User Test Ready結果
 - 既知の未完了事項
 - rollback先
 
@@ -369,5 +409,7 @@ Known Issue → 手順 → Template → CI の順に、再発する判断コス�
 - [ ] Release Convergence = Converged
 - [ ] Issue Close Evidence
 - [ ] 後日観測タスクの分離
+
+User Testを実施した場合でも、`User Test Ready` やUser Test完了だけで正式Release完了とはしない。
 
 Production Releaseがない変更では、Production関連項目とRelease Convergenceを `Not Applicable` とし、IssueのValidationとDevelopment Convergenceで完了判定する。
