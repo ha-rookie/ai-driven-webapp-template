@@ -190,6 +190,84 @@ static / local-onlyで完結し外部Serviceを利用しないProjectへ、こ�
 
 このTemplateでは外部Serviceを有限資源として扱う判断基準までを定義し、各Service固有のquota値、command、benchmark workflow、fixture implementationはProjectまたはTechnology-specific Template側で定義する。
 
+## 6.6 Environment Isolation / Safe Test Execution
+
+External ServiceやRemote resourceを利用するProjectでは、Resource Budgetとは別に、**どのenvironmentのどのresourceへ接続して試験するか**を安全境界として設計する。
+
+このSectionは #86 / `6.5 External Resource Budget` のquota / cost原則を置き換えない。6.5は「どれだけ外部資源を消費するか」、6.6は「どこへ接続し、どのdata lifecycleで試験するか」を扱う。
+
+### Environment Role Separation
+
+Project規模に応じて、Production / Preview / Test / Performance等のroleを分ける。
+
+すべてのProjectへ4環境を必須化しないが、複数roleを持つ場合は最低限次を明示する。
+
+- 各environmentの目的
+- 書き込み可能なresource
+- Production dataへ接続可能か
+- test fixtureを保持してよいか
+- destructive operationを許可するか
+- benchmark / load testを実行してよいか
+
+Productionは実利用の正本として扱い、Performance / load test用のlarge fixtureや破壊的testの標準実行先にしない。
+
+### Resource Binding Safety
+
+Environmentごとのresource bindingは、表示名や慣習だけに依存して判断しない。
+
+Remote resourceへ接続する場合は、Projectに適した範囲で次を確認する。
+
+- environment roleとresource roleが一致している
+- resource nameに加え、stable identifierやaccount / project context等で対象を識別できる
+- ProductionとTest系resourceを取り違えた場合に検出または停止できる
+- unknown / missing bindingを暗黙にProductionへfallbackしない
+
+具体的なUUID、secret名、binding syntax、Cloud / Database製品はProject側で定義し、このTemplateでは固定しない。
+
+### Seed / Reseed / Cleanup Safety
+
+Seed / reseed / cleanup / destructive testは、通常のPR CIへ無条件に混ぜない。
+
+- Humanまたは明示的な実行条件から開始できるようにする
+- seed / reseedは可能ならidempotent、またはduplicate投入を防ぐguardを持たせる
+- 同一fixtureの意図しない再投入を検出または拒否する
+- cleanup / reset等のdestructive operationは、対象environment / resourceが不明な場合に実行しない
+- Production resourceへの破壊的操作を通常のtest pathから到達可能にしない
+
+「毎回cleanしてからseedする」を安全側のDefaultとしない。大量fixtureでは不要なwrite、quota消費、再投入事故を増やすため、再利用可能なら既存fixtureを保持する判断も持つ。
+
+### Fixture Lifecycle
+
+Performance / long-lived fixtureは、benchmark実行そのものとlifecycleを分ける。
+
+保持 / 再利用 / 再生成 / 破棄の判断では、必要に応じて次を見る。
+
+- 再利用頻度
+- dataの鮮度要件
+- fixture生成cost
+- external quota / billing impact（6.5参照）
+- 誤接続・誤利用Risk
+- cleanupによる破壊Risk
+
+Benchmarkのたびにfixtureを作成・削除することを前提にせず、測定対象とfixture preparationを別工程として扱えるようにする。
+
+### Safe Execution Order
+
+大量fixture / benchmark / load testでは、原則として次の順序を検討する。
+
+```text
+local / isolated validation
+  -> Test / Preview / Performance environment
+  -> explicit remote execution when needed
+  -> Production verificationは実利用相当の最小確認
+```
+
+Remote benchmark / load testがquota-sensitiveまたは破壊Riskを持つ場合は、通常CIの常時実行ではなく明示実行を基本とする。実行量・cost判断は `6.5 External Resource Budget` を正本とする。
+
+static / local-onlyで完結しRemote resourceを利用しないProjectへ、このSectionのenvironment分離を一律に要求しない。
+
+このTemplateではenvironment isolation、binding確認、fixture lifecycle、destructive operation guardの判断原則までを扱い、seed script、Database reset command、Cloud固有設定、resource ID実装はProjectまたはTechnology-specific Template側で定義する。
+
 ## 7. Impact Flagsとの関係
 
 GitHub IssueのImpact Flagsとchanged files分類は役割が違う。
