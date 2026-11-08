@@ -273,6 +273,19 @@ jobs:
           # CHANGE-ME: install / lint / test / build required by the project.
           echo "CHANGE-ME_RUNTIME_VALIDATION"
 
+  worker-kdf-policy:
+    name: Worker PBKDF2 runtime policy
+    needs: classify
+    if: needs.classify.outputs.profile == 'runtime' || needs.classify.outputs.profile == 'strict'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Reject known unsupported Cloudflare Worker KDF iterations
+        run: |
+          python3 scripts/check-cloudflare-kdf.py --self-test
+          python3 scripts/check-cloudflare-kdf.py .
+
   strict:
     name: Strict validation
     needs: classify
@@ -298,6 +311,7 @@ jobs:
       - design
       - runtime
       - strict
+      - worker-kdf-policy
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
@@ -311,6 +325,7 @@ jobs:
           DESIGN_RESULT: ${{ needs.design.result }}
           RUNTIME_RESULT: ${{ needs.runtime.result }}
           STRICT_RESULT: ${{ needs.strict.result }}
+          WORKER_KDF_RESULT: ${{ needs.worker-kdf-policy.result }}
           PROFILE: ${{ needs.classify.outputs.profile }}
         run: |
           set -eu
@@ -322,6 +337,7 @@ jobs:
           echo "design=$DESIGN_RESULT"
           echo "runtime=$RUNTIME_RESULT"
           echo "strict=$STRICT_RESULT"
+          echo "worker-kdf=$WORKER_KDF_RESULT"
 
           if [ "$EVENT_NAME" = "pull_request" ]; then
             [ "$SCOPE_RESULT" = "success" ] || exit 1
@@ -340,10 +356,12 @@ jobs:
               ;;
             runtime)
               [ "$RUNTIME_RESULT" = "success" ] || exit 1
+              [ "$WORKER_KDF_RESULT" = "success" ] || exit 1
               ;;
             strict)
               [ "$RUNTIME_RESULT" = "success" ] || exit 1
               [ "$STRICT_RESULT" = "success" ] || exit 1
+              [ "$WORKER_KDF_RESULT" = "success" ] || exit 1
               ;;
             *)
               echo "Unknown profile: $PROFILE"
@@ -410,6 +428,7 @@ jobs:
             echo "| Design validation | `$DESIGN_RESULT` |"
             echo "| Runtime validation | `$RUNTIME_RESULT` |"
             echo "| Strict validation | `$STRICT_RESULT` |"
+            echo "| Worker KDF policy | `$WORKER_KDF_RESULT` |"
             echo "| CI Gate current status | `$CI_GATE_STATUS` |"
             echo "| Workflow run | [Open run]($run_url) |"
             echo "| Generated at (UTC) | `$generated_at` |"
