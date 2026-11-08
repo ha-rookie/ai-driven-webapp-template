@@ -96,3 +96,7 @@ Concurrency / stale mutationを扱った場合は、観測時state、競合操�
 - Development Convergence
 - Human Review対象head SHA
 - Known Issue / Troubleshootingへ昇格すべき知見（該当時）
+
+## Historical defect reuse / enforcement
+
+同じProviderの障害を見つけたら、既存Known Issueと関連Repoを確認し、手順書だけでなく自動テスト/CIの失敗条件へ昇格させる。Cloudflare Worker認証では `scripts/check-cloudflare-kdf.py` の静的ガードと、workerdでの正常ログイン→セッション→保護APIの実行証跡を要求する。導入済みCIがないRepoには未採用と記載し、単にIssue作成済みを「再発防止完了」としない。
