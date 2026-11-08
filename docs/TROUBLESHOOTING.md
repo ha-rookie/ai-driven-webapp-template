@@ -113,3 +113,11 @@ GitHubのプラン、repositoryのvisibility、所有者が個人かorganization
 ## 知識の昇格
 
 Known Issue → 手順 → テンプレート → CIの順に、同じ失敗を考えなくても済む仕組みへ変える。
+
+## Known Issue: Cloudflare Workers PBKDF2 runtime incompatibility (2026-10〜11)
+
+- WORKHUB (2026-10-08): PBKDF2 600,000 roundsがWorkersのランタイム制約に抵触し、scrypt方式へ移行したとの過去の障害報告。一次の実行ログは本テンプレートには未収録。
+- [life-log Issue #69](https://github.com/ha-rookie/life-log/issues/69) (2026-11-08): 210,000 roundsを用いるPBKDF2とPOST /api/auth/loginのHTTP 503を観測。原因の確定にはWorker実行ログ/再現実験が必要で、静的コードから503原因を断定しない。
+- 参考: [cloudflare/workerd#1346](https://github.com/cloudflare/workerd/issues/1346)。Providerの仕様は変化するため適用時に確認する。
+- 再発防止: [scripts/check-cloudflare-kdf.py](../scripts/check-cloudflare-kdf.py) により210k/600kと環境変数等の動的反復数をCIで拒否。許容方式の静的PASSはランタイムPASSを意味しない。workerd実認証正常系を必須にする。
+- 採用状況: 共通TemplateはPRのCI証拠を要確認。life-log、WORKHUB、その他Worker利用repoは**未適用/未確認**。各repoにCI組込みと実行結果がない限り「ガード済み」としない。

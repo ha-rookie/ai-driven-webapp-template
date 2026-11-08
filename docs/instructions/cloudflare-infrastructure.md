@@ -59,3 +59,11 @@
 - Production Verification結果
 - rollback先 / recovery方法
 - 外部Quota・権限制約による未検証項目
+
+## Worker WebCrypto / KDF guardrail (Issue #125)
+
+- Cloudflare WorkersのPBKDF2実行制約はNode.jsの挙動と一致するとは限らない。既知障害: [workerd#1346](https://github.com/cloudflare/workerd/issues/1346)、[life-log#69](https://github.com/ha-rookie/life-log/issues/69)。
+- WorkerのPBKDF2使用コードでは `python3 scripts/check-cloudflare-kdf.py .` をPR CIへ必ず組み込む。10万回超の反復、反復回数が動的で静的に証明できない実装はfail-closedにする。**静的検査だけでCloudflare互換性を保証しない**。
+- 認証変更はCloudflare workerdで実際に本人ログイン成功→Cookie/session→認証済みAPIの正常系を試し、失敗系も確認する。Node単体テストと匿名smokeだけでは不足。
+- KDF回数を下げて既存hashを無効化する対症療法は禁止。既存verifier互換、移行、rate-limit、Secrets、credential失効を別途設計・検証する。
+- Templateのガード実装と各リポジトリの採用を分離し、CI未接続のリポジトリをガード済みと表示しない。

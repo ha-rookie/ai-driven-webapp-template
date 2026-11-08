@@ -77,3 +77,7 @@ Concurrency / stale mutationを扱う場合は、必要に応じて次も残す�
 - expected conflict / reject結果
 - failure後のresource / aggregate最終状態
 - conflict後のUI / Application recovery結果
+
+## Worker authentication positive-path regression (Issue #125)
+
+Cloudflare Workerで認証処理を変更した場合、必須の合成E2Eは (1) 有効な資格情報でログイン成功、(2) 発行セッションで保護API 200、(3) 無効資格情報/未認証403または401、(4) セッション失効・再利用拒否、(5) 認証の既存移行と初期化拒否。Cloudflare実行ランタイム上で確認する。静的PBKDF2 guardの成功、build成功、ログインページGET成功だけでは完了不可。
